@@ -1,0 +1,541 @@
+Put your HTML text here<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f6f6f4">
+<title>Salut!</title>
+
+<!-- Preconnect to external origins to speed up DNS/TLS handshakes -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://icons.duckduckgo.com">
+<link rel="preconnect" href="https://api.open-meteo.com">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23fba31b' stroke='%23e37812' stroke-width='2'/%3E%3Cellipse cx='20' cy='18' rx='8' ry='4' fill='%23fff' opacity='0.5' transform='rotate(-30 20 18)'/%3E%3Cg fill='%23db2416'%3E%3Cpolygon points='32,15 34,21 40,21 35,25 37,31 32,27 27,31 29,25 24,21 30,21'/%3E%3Cpolygon points='20,30 22,36 28,36 23,40 25,46 20,42 15,46 17,40 12,36 18,36'/%3E%3Cpolygon points='44,30 46,36 52,36 47,40 49,46 44,42 39,46 41,40 36,36 42,36'/%3E%3Cpolygon points='32,44 34,50 40,50 35,54 37,60 32,56 27,60 29,54 24,50 30,50'/%3E%3C/g%3E%3C/svg%3E">
+
+<!-- Optimized Font Loading -->
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,700;1,400&family=Barlow+Condensed:wght@300;700&family=Plus+Jakarta+Sans:wght@800&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #f6f6f4;
+  --yellow: #d4a017;
+  --text: #1a1a1a;
+  --muted: #999;
+  --card: #ffffff;
+  --border: #e0e0e0;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-body: 'Barlow', sans-serif;
+  --font-search: 'Plus Jakarta Sans', sans-serif;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes digitOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-14px); } }
+@keyframes digitIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+.digit-changing { animation: digitOut 0.15s ease forwards; }
+.digit-incoming { animation: digitIn  0.15s ease forwards; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px 20px; 
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  transform: translateZ(0);
+}
+
+header { width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 10px; }
+
+#clock {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(64px, 12vw, 96px); 
+  letter-spacing: -3px;
+  line-height: 0.85; 
+  display: flex;
+  align-items: flex-end;
+  will-change: transform;
+}
+
+.digit-wrap { display: inline-block; overflow: hidden; }
+.colon { margin: 0 1px 0.04em; color: var(--yellow); opacity: 0.5; vertical-align: 0.15em; }
+#ampm { font-size: 0.25em; font-weight: 700; letter-spacing: 2px; color: var(--yellow); margin-left: 10px; opacity: 0.6; }
+
+.sub-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 4px;
+  animation: fadeUp 0.3s 0.1s ease both;
+}
+
+#date { font-weight: 700; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; }
+#date .day-name { opacity: 0.5; margin-right: 6px; }
+
+#lebanon { font-size: 10px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--yellow); margin-top: 4px; }
+#lebanon span { color: var(--text); font-weight: 300; font-size: 16px; letter-spacing: 0; }
+
+.divider {
+  width: 100%;
+  max-width: 1152px;
+  height: 2px;
+  background: linear-gradient(to right, var(--yellow) 0%, var(--yellow) 20%, var(--border) 60%, transparent 100%);
+  margin: 12px 0;
+  opacity: 0.6;
+}
+
+.main-layout {
+  display: flex;
+  gap: 32px;
+  width: 100%;
+  max-width: 1152px;
+  margin: 0 auto;
+}
+
+.container { flex: 0 0 560px; display: flex; flex-direction: column; gap: 8px; }
+
+.omnibar-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px; 
+  width: 100%;
+}
+
+#omnibar {
+  width: 100%;
+  padding: 20px 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-search);
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow);
+}
+
+#omnibar:focus {
+  border-color: var(--yellow);
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08);
+}
+
+#shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  animation: fadeUp 0.4s 0.1s ease both;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow);
+}
+
+.shortcut-item:hover {
+  border-color: var(--yellow);
+  color: var(--text);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.08);
+}
+
+.shortcut-item img { width: 16px; height: 16px; opacity: 0.8; }
+.shortcut-item:hover img { opacity: 1; }
+
+.side-panel { display: flex; flex-direction: column; gap: 16px; flex: 1; }
+
+.widget-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.4s 0.2s ease both;
+  overflow: hidden;
+}
+
+/* Weather */
+#weather-widget { height: 180px; padding: 16px 20px; display: flex; flex-direction: column; }
+.weather-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.weather-city { font-family: var(--font-display); font-weight: 700; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+.weather-main { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+.weather-icon-large { font-size: 42px; line-height: 1; }
+.weather-temp { font-size: 32px; font-weight: 700; line-height: 1; }
+.weather-desc { font-size: 13px; color: var(--muted); text-transform: capitalize; margin-top: 2px; }
+.forecast-strip { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px; }
+.forecast-item { display: flex; flex-direction: column; align-items: center; flex: 1; }
+.f-time { font-size: 9px; font-weight: 700; color: var(--muted); }
+.f-icon { font-size: 16px; margin: 2px 0; }
+.f-temp { font-size: 12px; font-weight: 700; }
+
+/* TradingView */
+.voo-widget { height: 310px; contain: layout size; }
+
+/* Scratchpad */
+.scratchpad-container {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.4s 0.3s ease both;
+  display: flex;
+  flex-direction: column;
+  height: 230px; 
+}
+
+.scratchpad-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.save-indicator { font-size: 9px; opacity: 0; transition: opacity 0.3s; }
+.save-indicator.visible { opacity: 0.7; }
+
+#scratchpad-input {
+  flex: 1;
+  border: none;
+  resize: none;
+  padding: 16px;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  outline: none;
+}
+
+#scratchpad-input::-webkit-scrollbar { width: 4px; }
+#scratchpad-input::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ── QUOTE SECTION ── */
+.quote-container {
+  width: 100%;
+  max-width: 1152px;
+  margin-top: 12px;
+  text-align: center;
+  animation: fadeUp 0.6s 0.4s ease both;
+}
+
+#quote-text {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+#quote-author {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--yellow);
+  margin-top: 6px;
+  display: block;
+}
+
+@media (max-width: 1100px) {
+  .main-layout { flex-direction: column; align-items: center; }
+  .container, .side-panel, .divider { max-width: 560px; width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div id="clock">
+    <span class="digit-wrap"><span id="h">00</span></span><span class="colon">:</span><span class="digit-wrap"><span id="m">00</span></span><span id="ampm"> AM</span>
+  </div>
+  <div class="sub-header">
+    <div id="date"></div>
+    <div id="lebanon"></div>
+  </div>
+</header>
+
+<div class="divider"></div>
+
+<div class="main-layout">
+  <div class="container">
+    <div class="omnibar-wrapper">
+      <input type="text" id="omnibar" aria-label="Search" autofocus autocomplete="off" spellcheck="false">
+      <div id="shortcuts-grid"></div>
+    </div>
+    
+    <div class="divider" style="margin: 4px 0 10px 0;"></div>
+    
+    <div class="scratchpad-container">
+      <div class="scratchpad-header">
+        <span>Scratchpad</span>
+        <span class="save-indicator" id="save-indicator">Saved</span>
+      </div>
+      <textarea id="scratchpad-input" placeholder="Jot down a thought..."></textarea>
+    </div>
+  </div>
+
+  <div class="side-panel">
+    <div class="widget-card" id="weather-widget">
+      <div class="weather-header">
+        <span class="weather-city">Burbank, CA</span>
+        <span id="weather-last-update" style="font-size: 8px; color: var(--muted);">Live</span>
+      </div>
+      <div class="weather-main">
+        <div class="weather-icon-large" id="curr-icon">☀️</div>
+        <div class="weather-info-block">
+          <div class="weather-temp" id="curr-temp">--°</div>
+          <div class="weather-desc" id="curr-desc">Loading...</div>
+        </div>
+      </div>
+      <div class="forecast-strip" id="forecast-container"></div>
+    </div>
+
+    <div class="divider" style="margin: 0;"></div>
+
+    <div class="widget-card voo-widget" id="tv-widget-container"></div>
+  </div>
+</div>
+
+<!-- Bottom framing line -->
+<div class="divider" style="margin-top: 30px; margin-bottom: 12px; opacity: 0.4;"></div>
+
+<!-- Philosophical Quote Section -->
+<div class="quote-container">
+  <p id="quote-text">"Loading wisdom..."</p>
+  <span id="quote-author"></span>
+</div>
+
+<script>
+const storage = {
+  get: k => localStorage.getItem(k),
+  set: (k, v) => localStorage.setItem(k, v)
+};
+
+(async function startBackgroundTasks() {
+  const CACHE_KEY = 'weatherData', TIME_KEY = 'weatherTime';
+  const last = storage.get(TIME_KEY);
+  if (last && Date.now() - parseInt(last) < 900000) {
+    document.addEventListener('DOMContentLoaded', () => renderWeather(JSON.parse(storage.get(CACHE_KEY))));
+  } else {
+    try {
+      const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=34.1808&longitude=-118.3090&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&temperature_unit=fahrenheit&timezone=America/Los_Angeles&forecast_days=1`);
+      const d = await r.json();
+      storage.set(CACHE_KEY, JSON.stringify(d));
+      storage.set(TIME_KEY, Date.now());
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => renderWeather(d));
+      } else {
+        renderWeather(d);
+      }
+    } catch(e) {}
+  }
+})();
+
+/* ── DATA ── */
+const FAVICON_BASE = "https://icons.duckduckgo.com/ip3/";
+const sites = [
+  { k:"y", n:"YouTube",   s:"https://www.youtube.com/results?search_query=", d:"youtube.com" },
+  { k:"a", n:"Amazon",    s:"https://www.amazon.com/s?k=", d:"amazon.com" },
+  { k:"i", n:"Google AI", s:"https://www.google.com/search?udm=50&q=", d:"google.com" },
+  { k:"c", n:"ChatGPT",   s:"https://chatgpt.com/?q=", d:"chatgpt.com" },
+  { k:"u", n:"YT Music",  s:"https://music.youtube.com/search?q=", d:"music.youtube.com" },
+  { k:"r", n:"Rotten T",  s:"https://www.rottentomatoes.com/search?search=", d:"rottentomatoes.com" },
+  { k:"d", n:"IMDb",      s:"https://www.imdb.com/find/?q=", d:"imdb.com" },
+  { k:"f", n:"Facebook",  s:"https://www.facebook.com/search/top?q=", d:"facebook.com" },
+  { k:"e", n:"eBay",      s:"https://www.ebay.com/sch/i.html?_nkw=", d:"ebay.com" },
+  { k:"n", n:"Netflix",   s:"https://www.netflix.com/search?q=", d:"netflix.com" },
+  { k:"m", n:"Max",       s:"https://www.max.com/search?q=", d:"max.com" },
+  { k:"h", n:"Hulu",      s:"https://www.hulu.com/search?q=", d:"hulu.com" },
+  { k:"p", n:"Disney+",   s:"https://www.disneyplus.com/search?q=", d:"disneyplus.com" },
+  { k:"x", n:"Reddit",    s:"https://www.reddit.com/search/?q=", d:"reddit.com" }
+];
+
+const quotes = [
+  /* Stoic & Classic */
+  { t: "The happiness of your life depends upon the quality of your thoughts.", a: "Marcus Aurelius" },
+  { t: "We suffer more often in imagination than in reality.", a: "Seneca" },
+  { t: "He who has a why to live can bear almost any how.", a: "Friedrich Nietzsche" },
+  { t: "The only constant in life is change.", a: "Heraclitus" },
+  { t: "Nature does not hurry, yet everything is accomplished.", a: "Lao Tzu" },
+  { t: "It is not that we have a short time to live, but that we waste a lot of it.", a: "Seneca" },
+  { t: "Very little is needed to make a happy life; it is all within yourself.", a: "Marcus Aurelius" },
+  /* French Wisdom */
+  { t: "Je pense, donc je suis.", a: "René Descartes" },
+  { t: "Au milieu de l'hiver, j'ai découvert en moi un invincible été.", a: "Albert Camus" },
+  { t: "Le cœur a ses raisons que la raison ne connaît point.", a: "Blaise Pascal" },
+  { t: "On ne voit bien qu'avec le cœur. L'essentiel est invisible pour les yeux.", a: "Antoine de Saint-Exupéry" },
+  { t: "J'ai décidé d'être heureux parce que c'est bon pour la santé.", a: "Voltaire" },
+  { t: "La vie est une fleur dont l'amour est le miel.", a: "Victor Hugo" },
+  { t: "Le secret du bonheur est la liberté, et le secret de la liberté est le courage.", a: "Thucydide / Pericles" }
+];
+
+/* ── CLOCK ── */
+function updateClock() {
+  const hEl = document.getElementById('h'), mEl = document.getElementById('m'), ampmEl = document.getElementById('ampm');
+  const now = new Date(), rawH = now.getHours(), h12 = rawH % 12 || 12;
+  const hStr = h12.toString().padStart(2, '0'), mStr = now.getMinutes().toString().padStart(2, '0');
+  
+  if(hEl && hEl.textContent !== hStr) {
+    hEl.classList.add('digit-changing');
+    setTimeout(() => { hEl.textContent = hStr; hEl.classList.replace('digit-changing', 'digit-incoming'); }, 150);
+  }
+  if(mEl && mEl.textContent !== mStr) {
+    mEl.classList.add('digit-changing');
+    setTimeout(() => { mEl.textContent = mStr; mEl.classList.replace('digit-changing', 'digit-incoming'); }, 150);
+  }
+  if(ampmEl) ampmEl.textContent = rawH >= 12 ? ' PM' : ' AM';
+  
+  const day = now.getDate(), suffix = ["th","st","nd","rd"][(day % 10 > 3 || Math.floor(day % 100 / 10) === 1) ? 0 : day % 10];
+  const dateEl = document.getElementById('date');
+  if(dateEl) dateEl.innerHTML = `<span class="day-name">${now.toLocaleDateString('en-US', { weekday: 'long' })}</span> ${day}${suffix} of ${now.toLocaleDateString('en-US', { month: 'long' })}`;
+  
+  const lbTime = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Beirut", hour: "numeric", minute: "2-digit" }).format(now);
+  const lebEl = document.getElementById('lebanon');
+  if(lebEl) lebEl.innerHTML = `LEB &nbsp;·&nbsp; <span>${lbTime}</span>`;
+  
+  setTimeout(() => requestAnimationFrame(updateClock), 1000);
+}
+updateClock();
+
+/* ── SEARCH & SHORTCUTS ── */
+const omnibar = document.getElementById('omnibar');
+const grid = document.getElementById('shortcuts-grid');
+
+sites.forEach(site => {
+  const a = document.createElement('a');
+  a.className = 'shortcut-item';
+  a.href = site.d.split('.').length > 2 ? `https://${site.d}` : `https://www.${site.d}`;
+  a.target = "_blank";
+  a.rel = "noopener";
+  a.onclick = e => {
+    const val = omnibar.value.trim();
+    if(val) {
+      e.preventDefault();
+      window.open(site.s + encodeURIComponent(val), "_blank", "noopener");
+      omnibar.value = "";
+    }
+  };
+  a.innerHTML = `<img src="${FAVICON_BASE}${site.d}.ico" loading="lazy" width="16" height="16" onerror="this.style.display='none'"><span>${site.n}</span>`;
+  grid.appendChild(a);
+});
+
+omnibar.onkeydown = e => {
+  if(e.key === "Enter") {
+    const val = omnibar.value.trim();
+    if(val) {
+      window.open("https://www.google.com/search?q=" + encodeURIComponent(val), "_blank", "noopener");
+      omnibar.value = "";
+    }
+  } else if(e.key === "Escape") {
+    omnibar.value = "";
+    omnibar.blur();
+  }
+};
+
+document.onkeydown = e => {
+  const isInput = document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA";
+  if(!isInput && !e.metaKey && !e.ctrlKey && !e.altKey && e.key.length === 1) omnibar.focus();
+};
+
+/* ── WEATHER RENDERER ── */
+function renderWeather(data) {
+  const map = code => ({
+    0: ["Clear", "☀️"], 1: ["Clear", "🌤️"], 2: ["Partly Cloudy", "⛅"], 3: ["Cloudy", "☁️"],
+    45: ["Fog", "🌫️"], 61: ["Rain", "🌧️"], 95: ["Storm", "⛈️"]
+  }[code] || ["Cloudy", "☁️"]);
+  
+  const [currDesc, currIcon] = map(data.current.weather_code);
+  document.getElementById('curr-temp').textContent = Math.round(data.current.temperature_2m) + "°";
+  document.getElementById('curr-desc').textContent = currDesc;
+  document.getElementById('curr-icon').textContent = currIcon;
+  
+  const container = document.getElementById('forecast-container'), h = new Date().getHours();
+  if(!container) return;
+  container.innerHTML = '';
+  for(let i=1; i<=6; i++) {
+    const idx = (h + i) % 24;
+    const [d, ic] = map(data.hourly.weather_code[idx]);
+    const t = new Date(); t.setHours(idx);
+    const item = document.createElement('div');
+    item.className = 'forecast-item';
+    item.innerHTML = `<span class="f-time">${t.getHours()%12||12}${t.getHours()>=12?'p':'a'}</span><span class="f-icon">${ic}</span><span class="f-temp">${Math.round(data.hourly.temperature_2m[idx])}°</span>`;
+    container.appendChild(item);
+  }
+}
+
+/* ── TRADINGVIEW ── */
+function initTV() {
+  const container = document.getElementById('tv-widget-container');
+  if(!container) return;
+  container.innerHTML = '<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';
+  const s = document.createElement('script');
+  s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
+  s.async = true;
+  s.innerHTML = JSON.stringify({
+    "symbols": [["", "AMEX:VOO|1D"]],
+    "chartOnly": false, "width": "100%", "height": "100%", "colorTheme": "light", "backgroundColor": "#ffffff", "fontFamily": "Barlow, sans-serif", "fontSize": "11", "lineWidth": 2, "lineColor": "#d4a017", "topColor": "rgba(212,160,23,0.05)", "bottomColor": "rgba(255,255,255,0)", "hideDateRanges": false, "dateRanges": ["1d|1","5d|5","1m|30","6m|180"]
+  });
+  container.querySelector('.tradingview-widget-container').appendChild(s);
+}
+
+if(window.requestIdleCallback) {
+  requestIdleCallback(initTV);
+} else {
+  window.addEventListener('load', initTV);
+}
+
+/* ── SCRATCHPAD ── */
+const pad = document.getElementById('scratchpad-input'), ind = document.getElementById('save-indicator');
+if(pad) {
+  pad.value = storage.get('salut_pad') || "";
+  pad.oninput = () => {
+    storage.set('salut_pad', pad.value);
+    if(ind) {
+      ind.classList.add('visible');
+      clearTimeout(window.padT);
+      window.padT = setTimeout(() => ind.classList.remove('visible'), 800);
+    }
+  };
+}
+
+/* ── QUOTE LOGIC ── */
+function setRandomQuote() {
+  const quote = quotes[Math.floor(Math.random() * quotes.length)];
+  document.getElementById('quote-text').textContent = `"${quote.t}"`;
+  document.getElementById('quote-author').textContent = quote.a;
+}
+setRandomQuote();
+</script>
+</body>
+</html>
