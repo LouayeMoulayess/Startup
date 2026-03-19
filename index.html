@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#f6f6f4">
+<meta name="description" content="A fast, beautifully designed personal dashboard and start page.">
 <title>Salut!</title>
 
 <!-- Preconnect to external origins for performance -->
@@ -43,15 +44,25 @@
   }
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+}
 
 /* ── ANIMATIONS ── */
 @keyframes fadeUp { 
   from { opacity: 0; transform: translateY(12px); } 
   to { opacity: 1; transform: translateY(0); } 
 }
-@keyframes digitOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-14px); } }
-@keyframes digitIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes digitOut { 
+  from { opacity: 1; transform: translateY(0); } 
+  to { opacity: 0; transform: translateY(-14px); } 
+}
+@keyframes digitIn { 
+  from { opacity: 0; transform: translateY(14px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
 
 .digit-changing { animation: digitOut 0.15s ease forwards; }
 .digit-incoming { animation: digitIn  0.15s ease forwards; }
@@ -69,7 +80,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-header { width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 10px; }
+header { 
+  width: 100%; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  padding-top: 10px; 
+}
 
 #clock {
   font-family: var(--font-main);
@@ -116,11 +133,27 @@ header { width: 100%; display: flex; flex-direction: column; align-items: center
   align-items: stretch; 
 }
 
+/* 3-Column Grid setup */
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 0 0 280px;
+}
+
 .container { 
-  flex: 0 0 560px; 
+  flex: 1; 
   display: flex; 
   flex-direction: column; 
   gap: 24px; 
+  min-width: 0; 
+}
+
+.side-panel { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 24px; 
+  flex: 0 0 280px; 
 }
 
 .omnibar-wrapper {
@@ -208,14 +241,15 @@ form#search-form { width: 100%; }
   background: var(--bg);
 }
 
-.shortcut-item img { width: 16px; height: 16px; opacity: 0.8; transition: opacity 0.2s; }
-.shortcut-item:hover img { opacity: 1; }
+.shortcut-item img { 
+  width: 16px; 
+  height: 16px; 
+  opacity: 0.8; 
+  transition: opacity 0.2s; 
+}
 
-.side-panel { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 24px; 
-  flex: 1; 
+.shortcut-item:hover img { 
+  opacity: 1; 
 }
 
 .widget-card {
@@ -227,14 +261,47 @@ form#search-form { width: 100%; }
   overflow: hidden;
 }
 
-/* Weather */
-#weather-widget { 
-  height: 180px; 
-  padding: 7px 24px 33px 24px; 
-  display: flex; 
-  flex-direction: column; 
+/* Weather Flip Widget Setup */
+.weather-flip-container {
+  perspective: 1000px;
+  height: 180px;
   flex-shrink: 0;
+  animation: fadeUp 0.4s 0.2s ease both;
 }
+
+.weather-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.weather-flip-container.flipped .weather-inner {
+  transform: rotateY(180deg);
+}
+
+.weather-front, .weather-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  background: var(--card);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.weather-front { padding: 7px 24px 33px 24px; }
+.weather-back {
+  transform: rotateY(180deg);
+  padding: 12px 24px 16px 24px;
+}
+
 .weather-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .weather-city { font-family: var(--font-main); font-weight: 800; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
 #weather-last-update { font-size: 8px; color: var(--muted); }
@@ -248,6 +315,42 @@ form#search-form { width: 100%; }
 .f-icon { font-size: 16px; margin: 4px 0; }
 .f-temp { font-size: 12px; font-weight: 700; }
 
+.daily-forecast-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  margin-top: 8px;
+}
+
+.daily-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.d-day { width: 40px; color: var(--muted); }
+.d-icon { font-size: 14px; text-align: center; flex: 1; }
+.d-temp { width: 60px; text-align: right; color: var(--muted); font-size: 11px; }
+.d-temp-max { color: var(--text); font-size: 12px; margin-left: 4px; }
+
+.flip-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  outline: none;
+}
+.flip-btn:hover { color: var(--text); }
+.flip-btn svg { width: 14px; height: 14px; }
+
 /* TradingView */
 .voo-widget { 
   flex: 1; 
@@ -256,6 +359,83 @@ form#search-form { width: 100%; }
   flex-direction: column;
 }
 .tradingview-widget-container { flex: 1; width: 100%; }
+
+/* Calculator */
+.calculator-widget {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 0 0 66.66%; 
+}
+
+.calc-display {
+  font-family: var(--font-main);
+  font-weight: 800;
+  font-size: 36px;
+  text-align: right;
+  color: var(--text);
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: var(--radius-sm);
+  border: 1px inset var(--border);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+@media (prefers-color-scheme: dark) {
+  .calc-display { background: rgba(0, 0, 0, 0.2); border-color: transparent; }
+}
+
+.calc-display::-webkit-scrollbar { display: none; }
+.calc-grid {
+  display: grid;
+  grid-template-columns: 1.3fr repeat(4, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 8px;
+  flex: 1; 
+}
+
+.calc-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-main);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.05s;
+}
+
+.calc-btn:hover { background: var(--border); border-color: var(--yellow); }
+.calc-btn:active { transform: scale(0.96); }
+.calc-btn.span-2 { grid-column: span 2; }
+.calc-btn.btn-op { color: var(--yellow); font-size: 18px; }
+.calc-btn.btn-eq { background: var(--yellow); color: #fff; border-color: var(--yellow); }
+.calc-btn.btn-eq:hover { opacity: 0.9; }
+.calc-btn.btn-clear { color: #db2416; }
+
+.calc-btn.btn-custom {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  background: rgba(0,0,0,0.02);
+  border-color: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  .calc-btn.btn-custom { background: rgba(255,255,255,0.03); }
+}
+
+.calc-btn.btn-custom:hover {
+  background: var(--bg);
+  border-color: var(--border);
+  color: var(--text);
+}
 
 /* Scratchpad */
 .scratchpad-container {
@@ -272,22 +452,42 @@ form#search-form { width: 100%; }
 
 .scratchpad-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end; /* Aligns actions to the right natively */
   align-items: center;
   padding: 16px 20px;
   border-bottom: 1px solid var(--border);
-  font-family: var(--font-main);
-  font-weight: 800;
-  font-size: 12px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
-.scratchpad-actions { display: flex; align-items: center; gap: 12px; }
-.save-indicator { font-size: 10px; font-weight: 700; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.scratchpad-actions { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+}
+
+.save-indicator { 
+  font-size: 10px; 
+  font-family: var(--font-main);
+  font-weight: 700; 
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  opacity: 0; 
+  transition: opacity 0.3s; 
+  pointer-events: none; 
+}
 .save-indicator.visible { opacity: 0.7; }
-.action-btn { cursor: pointer; opacity: 0.7; transition: opacity 0.2s; display: flex; align-items: center; } 
+
+.action-btn { 
+  cursor: pointer; 
+  opacity: 0.7; 
+  transition: opacity 0.2s; 
+  display: flex; 
+  align-items: center; 
+  background: none; 
+  border: none; 
+  padding: 0; 
+  color: var(--muted); 
+} 
 .action-btn:hover { opacity: 1; color: var(--text); }
 .action-btn svg { width: 15px; height: 15px; }
 
@@ -348,9 +548,9 @@ form#search-form { width: 100%; }
   opacity: 0.4; 
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1150px) {
   .main-layout { flex-direction: column; align-items: center; }
-  .container, .side-panel, .divider { max-width: 560px; width: 100%; }
+  .left-panel, .container, .side-panel, .divider { max-width: 560px; width: 100%; flex: none; }
   .scratchpad-container, .voo-widget { height: 320px; flex: none; }
 }
 </style>
@@ -370,6 +570,53 @@ form#search-form { width: 100%; }
 <div class="divider"></div>
 
 <div class="main-layout">
+  
+  <!-- LEFT PANEL (Weather & VOO) -->
+  <div class="left-panel">
+    <div class="weather-flip-container" id="weather-widget">
+      <div class="weather-inner">
+        
+        <!-- Weather Front (Current + Hourly) -->
+        <div class="weather-front">
+          <div class="weather-header">
+            <span class="weather-city">Location...</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span id="weather-last-update">Live</span>
+              <button type="button" class="flip-btn" aria-label="Flip to 6-Day Forecast" onclick="document.getElementById('weather-widget').classList.add('flipped')" title="Flip to 6-Day Forecast">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.13 15.57a9 9 0 1 0 3.84-10.36L2 9"></path></svg>
+              </button>
+            </div>
+          </div>
+          <div class="weather-main">
+            <div class="weather-icon-large" id="curr-icon">☀️</div>
+            <div class="weather-info-block">
+              <div class="weather-temp" id="curr-temp">--°</div>
+              <div class="weather-desc" id="curr-desc">Loading...</div>
+            </div>
+          </div>
+          <div class="forecast-strip" id="forecast-container"></div>
+        </div>
+        
+        <!-- Weather Back (6-Day Forecast) -->
+        <div class="weather-back">
+          <div class="weather-header">
+            <span class="weather-city">6-Day Forecast</span>
+            <button type="button" class="flip-btn" aria-label="Back to Current Weather" onclick="document.getElementById('weather-widget').classList.remove('flipped')" title="Back to Current Weather">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+          </div>
+          <div class="daily-forecast-container" id="daily-forecast-container">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="widget-card voo-widget" id="tv-widget-container"></div>
+  </div>
+
+  <!-- CENTER PANEL (Search & Scratchpad) -->
   <div class="container">
     <div class="omnibar-wrapper">
       <form id="search-form" onsubmit="handleSearch(event)">
@@ -380,41 +627,64 @@ form#search-form { width: 100%; }
     
     <div class="scratchpad-container">
       <div class="scratchpad-header">
-        <span>Scratchpad</span>
         <div class="scratchpad-actions">
           <span class="save-indicator" id="save-indicator">Saved</span>
-          <span class="action-btn" id="clear-btn" title="Clear scratchpad">
+          <button type="button" class="action-btn" id="clear-btn" aria-label="Clear scratchpad" title="Clear scratchpad">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-          </span>
-          <span class="action-btn" id="copy-btn" title="Copy to clipboard">
+          </button>
+          <button type="button" class="action-btn" id="copy-btn" aria-label="Copy to clipboard" title="Copy to clipboard">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-          </span>
-          <span class="action-btn" id="paste-btn" title="Paste from clipboard">
+          </button>
+          <button type="button" class="action-btn" id="paste-btn" aria-label="Paste from clipboard" title="Paste from clipboard">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-          </span>
+          </button>
         </div>
       </div>
-      <textarea id="scratchpad-input" placeholder="Jot down a thought..."></textarea>
+      <textarea id="scratchpad-input" aria-label="Scratchpad text area" placeholder="Jot down a thought..."></textarea>
     </div>
   </div>
 
+  <!-- RIGHT PANEL (Calculator) -->
   <div class="side-panel">
-    <div class="widget-card" id="weather-widget">
-      <div class="weather-header">
-        <span class="weather-city">Location...</span>
-        <span id="weather-last-update">Live</span>
+    <div class="widget-card calculator-widget" id="calc-widget">
+      <div class="calc-display" aria-label="Calculator display" id="calc-display">0</div>
+      
+      <div class="calc-grid">
+        <!-- Row 1 -->
+        <button type="button" class="calc-btn btn-custom" aria-label="Calculate 5 percent" onclick="calcCustom(0.05)">5%</button>
+        <button type="button" class="calc-btn btn-clear" aria-label="Clear calculator" onclick="calcClear()">C</button>
+        <button type="button" class="calc-btn" aria-label="Toggle sign" onclick="calcToggleSign()">+/-</button>
+        <button type="button" class="calc-btn" aria-label="Percent" onclick="calcPercent()">%</button>
+        <button type="button" class="calc-btn btn-op" aria-label="Divide" onclick="calcOp('/')">÷</button>
+        
+        <!-- Row 2 -->
+        <button type="button" class="calc-btn btn-custom" aria-label="Calculate 6 percent" onclick="calcCustom(0.06)">6%</button>
+        <button type="button" class="calc-btn" onclick="calcNum('7')">7</button>
+        <button type="button" class="calc-btn" onclick="calcNum('8')">8</button>
+        <button type="button" class="calc-btn" onclick="calcNum('9')">9</button>
+        <button type="button" class="calc-btn btn-op" aria-label="Multiply" onclick="calcOp('*')">×</button>
+        
+        <!-- Row 3 -->
+        <button type="button" class="calc-btn btn-custom" aria-label="Divide by 2" onclick="calcCustom(0.5)">÷ 2</button>
+        <button type="button" class="calc-btn" onclick="calcNum('4')">4</button>
+        <button type="button" class="calc-btn" onclick="calcNum('5')">5</button>
+        <button type="button" class="calc-btn" onclick="calcNum('6')">6</button>
+        <button type="button" class="calc-btn btn-op" aria-label="Subtract" onclick="calcOp('-')">-</button>
+        
+        <!-- Row 4 -->
+        <button type="button" class="calc-btn btn-custom" aria-label="Half minus 5 percent" onclick="calcCustom(0.45)">½-5%</button>
+        <button type="button" class="calc-btn" onclick="calcNum('1')">1</button>
+        <button type="button" class="calc-btn" onclick="calcNum('2')">2</button>
+        <button type="button" class="calc-btn" onclick="calcNum('3')">3</button>
+        <button type="button" class="calc-btn btn-op" aria-label="Add" onclick="calcOp('+')">+</button>
+        
+        <!-- Row 5 -->
+        <button type="button" class="calc-btn btn-custom" aria-label="Half minus 6 percent" onclick="calcCustom(0.44)">½-6%</button>
+        <button type="button" class="calc-btn span-2" onclick="calcNum('0')">0</button>
+        <button type="button" class="calc-btn" aria-label="Decimal point" onclick="calcNum('.')">.</button>
+        <button type="button" class="calc-btn btn-eq" aria-label="Calculate equals" onclick="calcEq()">=</button>
       </div>
-      <div class="weather-main">
-        <div class="weather-icon-large" id="curr-icon">☀️</div>
-        <div class="weather-info-block">
-          <div class="weather-temp" id="curr-temp">--°</div>
-          <div class="weather-desc" id="curr-desc">Loading...</div>
-        </div>
-      </div>
-      <div class="forecast-strip" id="forecast-container"></div>
     </div>
-
-    <div class="widget-card voo-widget" id="tv-widget-container"></div>
   </div>
 </div>
 
@@ -426,6 +696,7 @@ form#search-form { width: 100%; }
 </div>
 
 <script>
+/* ── LOCAL STORAGE UTILS ── */
 const storage = {
   get: k => localStorage.getItem(k),
   set: (k, v) => localStorage.setItem(k, v)
@@ -435,46 +706,157 @@ const storage = {
 function handleSearch(e) {
   e.preventDefault();
   const val = document.getElementById('omnibar').value.trim();
-  if(val) window.open("https://www.google.com/search?q=" + encodeURIComponent(val), "_blank", "noopener noreferrer");
+  if (val) {
+    window.open("https://www.google.com/search?q=" + encodeURIComponent(val), "_blank", "noopener noreferrer");
+  }
 }
 
-/* ── WEATHER GEOLOCATION ── */
+/* ── WEATHER & GEOLOCATION ── */
 async function fetchWeather(lat, lon, cityName = "Local") {
-  const CACHE_KEY = 'weatherData', TIME_KEY = 'weatherTime';
+  const CACHE_KEY = 'weatherData';
+  const TIME_KEY = 'weatherTime';
+  
   try {
-    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&temperature_unit=fahrenheit&timezone=auto&forecast_days=1`);
-    const d = await r.json();
-    d.cityName = cityName; 
-    storage.set(CACHE_KEY, JSON.stringify(d));
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=auto&forecast_days=7`;
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    data.cityName = cityName; 
+    storage.set(CACHE_KEY, JSON.stringify(data));
     storage.set(TIME_KEY, Date.now());
-    renderWeather(d);
+    
+    renderWeather(data);
   } catch(e) {
     console.error("Weather fetch failed:", e);
   }
 }
 
-(function init() {
-  const last = storage.get('weatherTime');
-  const initWeather = () => {
-    if (last && Date.now() - parseInt(last) < 900000) {
-      renderWeather(JSON.parse(storage.get('weatherData')));
-    } else {
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          pos => fetchWeather(pos.coords.latitude, pos.coords.longitude, "Local"),
-          err => fetchWeather(34.1808, -118.3090, "Burbank, CA"),
-          { timeout: 2000, maximumAge: 900000 }
-        );
-      } else {
-        fetchWeather(34.1808, -118.3090, "Burbank, CA");
-      }
+function renderWeather(data) {
+  const map = code => ({
+    0: ["Clear", "☀️"], 1: ["Clear", "🌤️"], 2: ["Partly Cloudy", "⛅"], 3: ["Cloudy", "☁️"],
+    45: ["Fog", "🌫️"], 61: ["Rain", "🌧️"], 95: ["Storm", "⛈️"]
+  }[code] || ["Cloudy", "☁️"]);
+  
+  if(!data || !data.current) return;
+  
+  const [currDesc, currIcon] = map(data.current.weather_code);
+  document.querySelectorAll('.weather-city').forEach(el => el.textContent = data.cityName || "Burbank, CA");
+  document.getElementById('curr-temp').textContent = Math.round(data.current.temperature_2m) + "°";
+  document.getElementById('curr-desc').textContent = currDesc;
+  document.getElementById('curr-icon').textContent = currIcon;
+  
+  // Render Hourly (Front)
+  const container = document.getElementById('forecast-container'), h = new Date().getHours();
+  if(container && data.hourly) {
+    let hourlyHTML = '';
+    for(let i=1; i<=6; i++) {
+      const idx = (h + i) % 24;
+      const [d, ic] = map(data.hourly.weather_code[idx]);
+      const t = new Date(); t.setHours(idx);
+      hourlyHTML += `<div class="forecast-item"><span class="f-time">${t.getHours()%12||12}${t.getHours()>=12?'p':'a'}</span><span class="f-icon">${ic}</span><span class="f-temp">${Math.round(data.hourly.temperature_2m[idx])}°</span></div>`;
     }
-  };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initWeather);
-  else initWeather();
-})();
+    container.innerHTML = hourlyHTML;
+  }
 
-/* ── DATA ── */
+  // Render Daily (Back)
+  const dailyContainer = document.getElementById('daily-forecast-container');
+  if(dailyContainer && data.daily) {
+    let dailyHTML = '';
+    for(let i=1; i<=6; i++) {
+      const dateObj = new Date(data.daily.time[i] + "T00:00:00");
+      const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+      const [desc, icon] = map(data.daily.weather_code[i]);
+      const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
+      const minTemp = Math.round(data.daily.temperature_2m_min[i]);
+      
+      dailyHTML += `<div class="daily-item"><span class="d-day">${dayName}</span><span class="d-icon" title="${desc}">${icon}</span><span class="d-temp">${minTemp}° <span class="d-temp-max">${maxTemp}°</span></span></div>`;
+    }
+    dailyContainer.innerHTML = dailyHTML;
+  }
+}
+
+function initWeather() {
+  const lastFetch = storage.get('weatherTime');
+  const cacheAge = lastFetch ? (Date.now() - parseInt(lastFetch)) : Infinity;
+  
+  if (cacheAge < 900000) {
+    try {
+      renderWeather(JSON.parse(storage.get('weatherData')));
+    } catch (e) {
+      fetchWeather(34.1808, -118.3090, "Burbank, CA");
+    }
+  } else {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        pos => fetchWeather(pos.coords.latitude, pos.coords.longitude, "Local"),
+        err => fetchWeather(34.1808, -118.3090, "Burbank, CA"),
+        { timeout: 2000, maximumAge: 900000 }
+      );
+    } else {
+      fetchWeather(34.1808, -118.3090, "Burbank, CA");
+    }
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initWeather);
+} else {
+  initWeather();
+}
+
+/* ── CLOCK ── */
+function updateClock() {
+  const hEl = document.getElementById('h'), mEl = document.getElementById('m'), ampmEl = document.getElementById('ampm');
+  const now = new Date(), rawH = now.getHours(), h12 = rawH % 12 || 12;
+  const hStr = h12.toString(), mStr = now.getMinutes().toString().padStart(2, '0');
+  
+  if(hEl && hEl.textContent !== hStr) {
+    hEl.classList.add('digit-changing');
+    setTimeout(() => { hEl.textContent = hStr; hEl.classList.replace('digit-changing', 'digit-incoming'); }, 150);
+  }
+  if(mEl && mEl.textContent !== mStr) {
+    mEl.classList.add('digit-changing');
+    setTimeout(() => { mEl.textContent = mStr; mEl.classList.replace('digit-changing', 'digit-incoming'); }, 150);
+  }
+  if(ampmEl) ampmEl.textContent = rawH >= 12 ? ' PM' : ' AM';
+  
+  const day = now.getDate(), suffix = ["th","st","nd","rd"][(day % 10 > 3 || Math.floor(day % 100 / 10) === 1) ? 0 : day % 10];
+  const dateEl = document.getElementById('date');
+  if(dateEl) dateEl.innerHTML = `<span class="day-name">${now.toLocaleDateString('en-US', { weekday: 'long' })}</span> ${day}${suffix} of ${now.toLocaleDateString('en-US', { month: 'long' })}`;
+  
+  const lbTime = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Beirut", hour: "numeric", minute: "2-digit" }).format(now);
+  const lebEl = document.getElementById('lebanon');
+  if(lebEl) lebEl.innerHTML = `LEB &nbsp;·&nbsp; <span>${lbTime}</span>`;
+  
+  const delay = 1000 - now.getMilliseconds();
+  setTimeout(() => requestAnimationFrame(updateClock), delay);
+}
+updateClock();
+
+/* ── TRADINGVIEW ── */
+function initTV() {
+  const container = document.getElementById('tv-widget-container');
+  if(!container) return;
+  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  container.innerHTML = '<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';
+  const s = document.createElement('script');
+  s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
+  s.async = true;
+  s.innerHTML = JSON.stringify({
+    "symbols": [["", "AMEX:VOO|1D"]],
+    "chartOnly": false, "width": "100%", "height": "100%", 
+    "colorTheme": isDark ? "dark" : "light", 
+    "backgroundColor": isDark ? "#1c1c1c" : "#ffffff", 
+    "fontFamily": "Plus Jakarta Sans, sans-serif", "fontSize": "11", "lineWidth": 2, "lineColor": "#d4a017", 
+    "topColor": "rgba(212,160,23,0.05)", "bottomColor": "rgba(255,255,255,0)", 
+    "hideDateRanges": false, "dateRanges": ["1d|1","5d|5","1m|30","6m|180"]
+  });
+  container.querySelector('.tradingview-widget-container').appendChild(s);
+}
+if(window.requestIdleCallback) requestIdleCallback(initTV);
+else window.addEventListener('load', initTV);
+
+/* ── DATA: SHORTCUTS & QUOTES ── */
 const FAVICON_BASE = "https://icons.duckduckgo.com/ip3/";
 const sites = [
   { k:"y", n:"YouTube",   s:"https://www.youtube.com/results?search_query=", d:"youtube.com" },
@@ -986,35 +1368,6 @@ const quotes = [
   { t: "I have in me all the dreams of the world.", a: "Fernando Pessoa" }
 ];
 
-/* ── CLOCK ── */
-function updateClock() {
-  const hEl = document.getElementById('h'), mEl = document.getElementById('m'), ampmEl = document.getElementById('ampm');
-  const now = new Date(), rawH = now.getHours(), h12 = rawH % 12 || 12;
-  const hStr = h12.toString(), mStr = now.getMinutes().toString().padStart(2, '0');
-  
-  if(hEl && hEl.textContent !== hStr) {
-    hEl.classList.add('digit-changing');
-    setTimeout(() => { hEl.textContent = hStr; hEl.classList.replace('digit-changing', 'digit-incoming'); }, 150);
-  }
-  if(mEl && mEl.textContent !== mStr) {
-    mEl.classList.add('digit-changing');
-    setTimeout(() => { mEl.textContent = mStr; mEl.classList.replace('digit-changing', 'digit-incoming'); }, 150);
-  }
-  if(ampmEl) ampmEl.textContent = rawH >= 12 ? ' PM' : ' AM';
-  
-  const day = now.getDate(), suffix = ["th","st","nd","rd"][(day % 10 > 3 || Math.floor(day % 100 / 10) === 1) ? 0 : day % 10];
-  const dateEl = document.getElementById('date');
-  if(dateEl) dateEl.innerHTML = `<span class="day-name">${now.toLocaleDateString('en-US', { weekday: 'long' })}</span> ${day}${suffix} of ${now.toLocaleDateString('en-US', { month: 'long' })}`;
-  
-  const lbTime = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Beirut", hour: "numeric", minute: "2-digit" }).format(now);
-  const lebEl = document.getElementById('lebanon');
-  if(lebEl) lebEl.innerHTML = `LEB &nbsp;·&nbsp; <span>${lbTime}</span>`;
-  
-  const delay = 1000 - now.getMilliseconds();
-  setTimeout(() => requestAnimationFrame(updateClock), delay);
-}
-updateClock();
-
 /* ── SHORTCUTS GENERATION ── */
 const omnibar = document.getElementById('omnibar');
 const grid = document.getElementById('shortcuts-grid');
@@ -1029,6 +1382,8 @@ if (savedOrder) {
     });
   } catch(e) {}
 }
+
+const shortcutFragment = document.createDocumentFragment();
 
 sites.forEach((site, index) => {
   const a = document.createElement('a');
@@ -1051,7 +1406,7 @@ sites.forEach((site, index) => {
   a.addEventListener('dragstart', () => a.classList.add('dragging'));
   a.addEventListener('dragend', () => a.classList.remove('dragging'));
   a.innerHTML = `<img src="${FAVICON_BASE}${site.d}.ico" loading="lazy" width="16" height="16" onerror="this.style.display='none'"><span>${site.n}</span>`;
-  grid.appendChild(a);
+  shortcutFragment.appendChild(a);
 });
 
 const clearBtn = document.createElement('a');
@@ -1061,142 +1416,39 @@ clearBtn.style.animationDelay = `${0.2 + (sites.length * 0.04)}s`;
 clearBtn.href = "#";
 clearBtn.onclick = e => { e.preventDefault(); omnibar.value = ""; omnibar.focus(); };
 clearBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>`;
-grid.appendChild(clearBtn);
+shortcutFragment.appendChild(clearBtn);
+
+if (grid) grid.appendChild(shortcutFragment);
 
 /* ── DRAG & DROP ── */
-grid.addEventListener('dragover', e => {
-  e.preventDefault();
-  const dragging = document.querySelector('.dragging');
-  if(!dragging) return;
-  const elements = [...grid.querySelectorAll('.shortcut-item:not(.dragging)')];
-  const closest = elements.find(child => {
-     const box = child.getBoundingClientRect();
-     return e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom;
-  });
-  if(closest && closest.draggable) { 
-     const box = closest.getBoundingClientRect();
-     if(e.clientX < box.left + box.width / 2) grid.insertBefore(dragging, closest);
-     else grid.insertBefore(dragging, closest.nextSibling);
-  }
-});
-grid.addEventListener('drop', () => {
-  grid.appendChild(clearBtn);
-  const currentItems = [...grid.querySelectorAll('.shortcut-item[draggable="true"]')];
-  storage.set('salut_shortcuts_order', JSON.stringify(currentItems.map(el => el.dataset.key)));
-});
-
-omnibar.onkeydown = e => { if(e.key === "Escape") { omnibar.value = ""; omnibar.blur(); } };
-document.onkeydown = e => {
-  const isInput = document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA";
-  if(!isInput && !e.metaKey && !e.ctrlKey && !e.altKey && e.key.length === 1) omnibar.focus();
-};
-
-/* ── WEATHER RENDERER ── */
-function renderWeather(data) {
-  const map = code => ({
-    0: ["Clear", "☀️"], 1: ["Clear", "🌤️"], 2: ["Partly Cloudy", "⛅"], 3: ["Cloudy", "☁️"],
-    45: ["Fog", "🌫️"], 61: ["Rain", "🌧️"], 95: ["Storm", "⛈️"]
-  }[code] || ["Cloudy", "☁️"]);
-  const [currDesc, currIcon] = map(data.current.weather_code);
-  document.querySelector('.weather-city').textContent = data.cityName || "Burbank, CA";
-  document.getElementById('curr-temp').textContent = Math.round(data.current.temperature_2m) + "°";
-  document.getElementById('curr-desc').textContent = currDesc;
-  document.getElementById('curr-icon').textContent = currIcon;
-  const container = document.getElementById('forecast-container'), h = new Date().getHours();
-  if(!container) return;
-  container.innerHTML = '';
-  for(let i=1; i<=6; i++) {
-    const idx = (h + i) % 24;
-    const [d, ic] = map(data.hourly.weather_code[idx]);
-    const t = new Date(); t.setHours(idx);
-    const item = document.createElement('div');
-    item.className = 'forecast-item';
-    item.innerHTML = `<span class="f-time">${t.getHours()%12||12}${t.getHours()>=12?'p':'a'}</span><span class="f-icon">${ic}</span><span class="f-temp">${Math.round(data.hourly.temperature_2m[idx])}°</span>`;
-    container.appendChild(item);
-  }
-}
-
-/* ── TRADINGVIEW ── */
-function initTV() {
-  const container = document.getElementById('tv-widget-container');
-  if(!container) return;
-  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  container.innerHTML = '<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';
-  const s = document.createElement('script');
-  s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
-  s.async = true;
-  s.innerHTML = JSON.stringify({
-    "symbols": [["", "AMEX:VOO|1D"]],
-    "chartOnly": false, "width": "100%", "height": "100%", 
-    "colorTheme": isDark ? "dark" : "light", 
-    "backgroundColor": isDark ? "#1c1c1c" : "#ffffff", 
-    "fontFamily": "Plus Jakarta Sans, sans-serif", "fontSize": "11", "lineWidth": 2, "lineColor": "#d4a017", 
-    "topColor": "rgba(212,160,23,0.05)", "bottomColor": "rgba(255,255,255,0)", 
-    "hideDateRanges": false, "dateRanges": ["1d|1","5d|5","1m|30","6m|180"]
-  });
-  container.querySelector('.tradingview-widget-container').appendChild(s);
-}
-if(window.requestIdleCallback) requestIdleCallback(initTV);
-else window.addEventListener('load', initTV);
-
-/* ── SCRATCHPAD ── */
-const pad = document.getElementById('scratchpad-input'), ind = document.getElementById('save-indicator');
-const copyBtn = document.getElementById('copy-btn'), pasteBtn = document.getElementById('paste-btn'), clearPadBtn = document.getElementById('clear-btn');
-let saveTimeout;
-
-const showActionFeedback = (btn) => {
-  const origIcon = btn.innerHTML;
-  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#d4a017" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-  setTimeout(() => btn.innerHTML = origIcon, 1500);
-};
-
-if(pad) {
-  pad.value = storage.get('salut_pad') || "";
-  pad.oninput = () => {
-    if(ind) {
-      ind.classList.add('visible');
-      clearTimeout(window.padT);
-      window.padT = setTimeout(() => ind.classList.remove('visible'), 800);
+if (grid) {
+  grid.addEventListener('dragover', e => {
+    e.preventDefault();
+    const dragging = document.querySelector('.dragging');
+    if(!dragging) return;
+    const elements = [...grid.querySelectorAll('.shortcut-item:not(.dragging)')];
+    const closest = elements.find(child => {
+       const box = child.getBoundingClientRect();
+       return e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom;
+    });
+    if(closest && closest.draggable) { 
+       const box = closest.getBoundingClientRect();
+       if(e.clientX < box.left + box.width / 2) grid.insertBefore(dragging, closest);
+       else grid.insertBefore(dragging, closest.nextSibling);
     }
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => storage.set('salut_pad', pad.value), 500);
-  };
+  });
+  grid.addEventListener('drop', () => {
+    grid.appendChild(clearBtn);
+    const currentItems = [...grid.querySelectorAll('.shortcut-item[draggable="true"]')];
+    storage.set('salut_shortcuts_order', JSON.stringify(currentItems.map(el => el.dataset.key)));
+  });
 }
-if(copyBtn && pad) {
-  copyBtn.onclick = () => {
-    pad.select();
-    document.execCommand('copy');
-    window.getSelection().removeAllRanges();
-    showActionFeedback(copyBtn);
-  };
-}
-if(clearPadBtn && pad) {
-  clearPadBtn.onclick = () => {
-    pad.value = '';
-    pad.focus();
-    pad.dispatchEvent(new Event('input')); 
-    showActionFeedback(clearPadBtn);
-  };
-}
-if(pasteBtn && pad) {
-  pasteBtn.onclick = async () => {
-    try {
-      const text = await navigator.clipboard.readText();
-      const start = pad.selectionStart, end = pad.selectionEnd;
-      pad.value = pad.value.substring(0, start) + text + pad.value.substring(end);
-      pad.selectionStart = pad.selectionEnd = start + text.length;
-      pad.focus();
-      pad.dispatchEvent(new Event('input')); 
-      showActionFeedback(pasteBtn);
-    } catch (err) {}
-  };
-}
-function setRandomQuote() {
-  const quote = quotes[Math.floor(Math.random() * quotes.length)];
-  document.getElementById('quote-text').textContent = `"${quote.t}"`;
-  document.getElementById('quote-author').textContent = quote.a;
-}
-setRandomQuote();
+
+if(omnibar) omnibar.addEventListener('keydown', e => { if(e.key === "Escape") { omnibar.value = ""; omnibar.blur(); } });
+document.addEventListener('keydown', e => {
+  const isInput = document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
+  if(!isInput && !e.metaKey && !e.ctrlKey && !e.altKey && e.key.length === 1 && omnibar) omnibar.focus();
+});
 </script>
 </body>
 </html>
