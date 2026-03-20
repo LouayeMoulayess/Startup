@@ -907,7 +907,50 @@ function handleSearch(e) {
   }
 }
 
-/* ── WEATHER & GEOLOCATION ── */
+/* ── CLOCK LOGIC (OPTIMIZED) ── */
+const clockDOM = {
+  h: document.getElementById('h'),
+  m: document.getElementById('m'),
+  ampm: document.getElementById('ampm'),
+  date: document.getElementById('date'),
+  leb: document.getElementById('lebanon')
+};
+
+function updateClock() {
+  const now = new Date(), rawH = now.getHours(), h12 = rawH % 12 || 12;
+  const hStr = h12.toString(), mStr = now.getMinutes().toString().padStart(2, '0');
+  
+  if(clockDOM.h && clockDOM.h.textContent !== hStr) {
+    clockDOM.h.classList.add('digit-changing');
+    setTimeout(() => { clockDOM.h.textContent = hStr; clockDOM.h.classList.replace('digit-changing', 'digit-incoming'); }, 150);
+  }
+  if(clockDOM.m && clockDOM.m.textContent !== mStr) {
+    clockDOM.m.classList.add('digit-changing');
+    setTimeout(() => { clockDOM.m.textContent = mStr; clockDOM.m.classList.replace('digit-changing', 'digit-incoming'); }, 150);
+  }
+  if(clockDOM.ampm) clockDOM.ampm.textContent = rawH >= 12 ? ' PM' : ' AM';
+  
+  const day = now.getDate(), suffix = ["th","st","nd","rd"][(day % 10 > 3 || Math.floor(day % 100 / 10) === 1) ? 0 : day % 10];
+  if(clockDOM.date) clockDOM.date.innerHTML = `<span class="day-name">${now.toLocaleDateString('en-US', { weekday: 'long' })}</span> ${day}${suffix} of ${now.toLocaleDateString('en-US', { month: 'long' })}`;
+  
+  const lbTime = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Beirut", hour: "numeric", minute: "2-digit" }).format(now);
+  if(clockDOM.leb) clockDOM.leb.innerHTML = `LEB &nbsp;·&nbsp; <span>${lbTime}</span>`;
+  
+  const delay = 1000 - now.getMilliseconds();
+  setTimeout(() => requestAnimationFrame(updateClock), delay);
+}
+updateClock();
+
+/* ── WEATHER & GEOLOCATION (OPTIMIZED) ── */
+const WEATHER_MAP = {
+  0: ["Clear", "☀️"], 1: ["Clear", "🌤️"], 2: ["Partly Cloudy", "⛅"], 3: ["Cloudy", "☁️"],
+  45: ["Fog", "🌫️"], 61: ["Rain", "🌧️"], 95: ["Storm", "⛈️"]
+};
+
+function getWeatherDetails(code) {
+  return WEATHER_MAP[code] || ["Cloudy", "☁️"];
+}
+
 async function fetchWeather(lat, lon, cityName = "Local") {
   const CACHE_KEY = 'weatherData';
   const TIME_KEY = 'weatherTime';
@@ -928,14 +971,9 @@ async function fetchWeather(lat, lon, cityName = "Local") {
 }
 
 function renderWeather(data) {
-  const map = code => ({
-    0: ["Clear", "☀️"], 1: ["Clear", "🌤️"], 2: ["Partly Cloudy", "⛅"], 3: ["Cloudy", "☁️"],
-    45: ["Fog", "🌫️"], 61: ["Rain", "🌧️"], 95: ["Storm", "⛈️"]
-  }[code] || ["Cloudy", "☁️"]);
-  
   if(!data || !data.current) return;
   
-  const [currDesc, currIcon] = map(data.current.weather_code);
+  const [currDesc, currIcon] = getWeatherDetails(data.current.weather_code);
   document.querySelectorAll('.weather-city').forEach(el => el.textContent = data.cityName || "Burbank, CA");
   document.getElementById('curr-temp').textContent = Math.round(data.current.temperature_2m) + "°";
   document.getElementById('curr-desc').textContent = currDesc;
@@ -947,7 +985,7 @@ function renderWeather(data) {
     let hourlyHTML = '';
     for(let i=1; i<=6; i++) {
       const idx = (h + i) % 24;
-      const [d, ic] = map(data.hourly.weather_code[idx]);
+      const [d, ic] = getWeatherDetails(data.hourly.weather_code[idx]);
       const t = new Date(); t.setHours(idx);
       hourlyHTML += `<div class="forecast-item"><span class="f-time">${t.getHours()%12||12}${t.getHours()>=12?'p':'a'}</span><span class="f-icon">${ic}</span><span class="f-temp">${Math.round(data.hourly.temperature_2m[idx])}°</span></div>`;
     }
@@ -961,7 +999,7 @@ function renderWeather(data) {
     for(let i=1; i<=6; i++) {
       const dateObj = new Date(data.daily.time[i] + "T00:00:00");
       const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-      const [desc, icon] = map(data.daily.weather_code[i]);
+      const [desc, icon] = getWeatherDetails(data.daily.weather_code[i]);
       const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
       const minTemp = Math.round(data.daily.temperature_2m_min[i]);
       
@@ -999,35 +1037,6 @@ if (document.readyState === 'loading') {
 } else {
   initWeather();
 }
-
-/* ── CLOCK ── */
-function updateClock() {
-  const hEl = document.getElementById('h'), mEl = document.getElementById('m'), ampmEl = document.getElementById('ampm');
-  const now = new Date(), rawH = now.getHours(), h12 = rawH % 12 || 12;
-  const hStr = h12.toString(), mStr = now.getMinutes().toString().padStart(2, '0');
-  
-  if(hEl && hEl.textContent !== hStr) {
-    hEl.classList.add('digit-changing');
-    setTimeout(() => { hEl.textContent = hStr; hEl.classList.replace('digit-changing', 'digit-incoming'); }, 150);
-  }
-  if(mEl && mEl.textContent !== mStr) {
-    mEl.classList.add('digit-changing');
-    setTimeout(() => { mEl.textContent = mStr; mEl.classList.replace('digit-changing', 'digit-incoming'); }, 150);
-  }
-  if(ampmEl) ampmEl.textContent = rawH >= 12 ? ' PM' : ' AM';
-  
-  const day = now.getDate(), suffix = ["th","st","nd","rd"][(day % 10 > 3 || Math.floor(day % 100 / 10) === 1) ? 0 : day % 10];
-  const dateEl = document.getElementById('date');
-  if(dateEl) dateEl.innerHTML = `<span class="day-name">${now.toLocaleDateString('en-US', { weekday: 'long' })}</span> ${day}${suffix} of ${now.toLocaleDateString('en-US', { month: 'long' })}`;
-  
-  const lbTime = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Beirut", hour: "numeric", minute: "2-digit" }).format(now);
-  const lebEl = document.getElementById('lebanon');
-  if(lebEl) lebEl.innerHTML = `LEB &nbsp;·&nbsp; <span>${lbTime}</span>`;
-  
-  const delay = 1000 - now.getMilliseconds();
-  setTimeout(() => requestAnimationFrame(updateClock), delay);
-}
-updateClock();
 
 /* ── TRADINGVIEW ── */
 function initTV() {
@@ -1172,143 +1181,156 @@ document.addEventListener('keydown', e => {
   if(!isInput && !e.metaKey && !e.ctrlKey && !e.altKey && e.key.length === 1 && omnibar) omnibar.focus();
 });
 
-/* ── CALCULATOR LOGIC ── */
-const calcDisplay = document.getElementById('calc-display');
-let currentVal = '0';
-let previousVal = '';
-let operation = null;
-let shouldResetScreen = false;
+/* ── CALCULATOR LOGIC (OPTIMIZED) ── */
+const CalcState = {
+  displayEl: document.getElementById('calc-display'),
+  currentVal: '0',
+  previousVal: '',
+  operation: null,
+  shouldResetScreen: false
+};
 
-function updateDisplay() {
-  calcDisplay.textContent = currentVal;
-  calcDisplay.scrollLeft = calcDisplay.scrollWidth; // Keep latest numbers in view
+function updateCalcDisplay() {
+  CalcState.displayEl.textContent = CalcState.currentVal;
+  CalcState.displayEl.scrollLeft = CalcState.displayEl.scrollWidth; 
+}
+
+function stripFloatError(num) {
+  // Trims long trailing floating-point errors (e.g. 0.300000000004 -> 0.3)
+  return parseFloat(num.toPrecision(12));
 }
 
 function calcNum(num) {
-  if (currentVal === '0' || shouldResetScreen) {
-    currentVal = num;
-    shouldResetScreen = false;
+  if (CalcState.currentVal === '0' || CalcState.shouldResetScreen) {
+    CalcState.currentVal = num;
+    CalcState.shouldResetScreen = false;
   } else {
-    currentVal += num;
+    CalcState.currentVal += num;
   }
-  updateDisplay();
+  updateCalcDisplay();
 }
 
 function calcOp(op) {
-  if (operation !== null) calcEq();
-  previousVal = currentVal;
-  operation = op;
-  shouldResetScreen = true;
+  if (CalcState.operation !== null) calcEq();
+  CalcState.previousVal = CalcState.currentVal;
+  CalcState.operation = op;
+  CalcState.shouldResetScreen = true;
 }
 
 function calcEq() {
-  if (operation === null || shouldResetScreen) return;
+  if (CalcState.operation === null || CalcState.shouldResetScreen) return;
   let result;
-  const prev = parseFloat(previousVal);
-  const current = parseFloat(currentVal);
-  switch (operation) {
+  const prev = parseFloat(CalcState.previousVal);
+  const current = parseFloat(CalcState.currentVal);
+  switch (CalcState.operation) {
     case '+': result = prev + current; break;
     case '-': result = prev - current; break;
     case '*': result = prev * current; break;
     case '/': result = current === 0 ? 'Error' : prev / current; break;
   }
-  currentVal = result.toString();
-  operation = null;
-  shouldResetScreen = true;
-  updateDisplay();
+  
+  if (result !== 'Error') {
+    result = stripFloatError(result);
+  }
+  
+  CalcState.currentVal = result.toString();
+  CalcState.operation = null;
+  CalcState.shouldResetScreen = true;
+  updateCalcDisplay();
 }
 
 function calcClear() {
-  currentVal = '0';
-  previousVal = '';
-  operation = null;
-  updateDisplay();
+  CalcState.currentVal = '0';
+  CalcState.previousVal = '';
+  CalcState.operation = null;
+  updateCalcDisplay();
 }
 
 function calcToggleSign() {
-  if (currentVal === 'Error') return;
-  currentVal = (parseFloat(currentVal) * -1).toString();
-  updateDisplay();
+  if (CalcState.currentVal === 'Error') return;
+  CalcState.currentVal = stripFloatError(parseFloat(CalcState.currentVal) * -1).toString();
+  updateCalcDisplay();
 }
 
 function calcPercent() {
-  if (currentVal === 'Error') return;
-  currentVal = (parseFloat(currentVal) / 100).toString();
-  updateDisplay();
+  if (CalcState.currentVal === 'Error') return;
+  CalcState.currentVal = stripFloatError(parseFloat(CalcState.currentVal) / 100).toString();
+  updateCalcDisplay();
 }
 
 function calcCustom(factor) {
-  if (currentVal === 'Error') return;
-  currentVal = (parseFloat(currentVal) * factor).toString();
-  updateDisplay();
+  if (CalcState.currentVal === 'Error') return;
+  CalcState.currentVal = stripFloatError(parseFloat(CalcState.currentVal) * factor).toString();
+  updateCalcDisplay();
 }
 
-/* ── SCRATCHPAD LOGIC ── */
-const scratchpadInput = document.getElementById('scratchpad-input');
-const saveIndicator = document.getElementById('save-indicator');
-let saveTimeout;
-
-// Load saved text
-scratchpadInput.value = storage.get('salut_scratchpad') || '';
-
-// Auto-save on type
-scratchpadInput.addEventListener('input', () => {
-  clearTimeout(saveTimeout);
-  saveIndicator.classList.remove('visible');
-  saveTimeout = setTimeout(() => {
-    storage.set('salut_scratchpad', scratchpadInput.value);
-    saveIndicator.classList.add('visible');
-    setTimeout(() => saveIndicator.classList.remove('visible'), 2000);
-  }, 500);
-});
-
-// Clear Button
-document.getElementById('clear-btn').addEventListener('click', () => {
-  scratchpadInput.value = '';
-  storage.set('salut_scratchpad', '');
-  scratchpadInput.focus();
-});
-
-// Copy Button
-document.getElementById('copy-btn').addEventListener('click', () => {
-  scratchpadInput.select();
-  document.execCommand('copy');
+/* ── SCRATCHPAD LOGIC (OPTIMIZED) ── */
+const Scratchpad = {
+  input: document.getElementById('scratchpad-input'),
+  indicator: document.getElementById('save-indicator'),
+  timeout: null,
   
-  // Show tick icon temporarily
-  const btn = document.getElementById('copy-btn');
-  const originalHTML = btn.innerHTML;
-  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-  setTimeout(() => btn.innerHTML = originalHTML, 1500);
-});
+  init() {
+    this.input.value = storage.get('salut_scratchpad') || '';
+    
+    // Auto-save on type
+    this.input.addEventListener('input', () => {
+      clearTimeout(this.timeout);
+      this.indicator.classList.remove('visible');
+      this.timeout = setTimeout(() => {
+        storage.set('salut_scratchpad', this.input.value);
+        this.indicator.classList.add('visible');
+        setTimeout(() => this.indicator.classList.remove('visible'), 2000);
+      }, 500);
+    });
 
-// Paste Button
-document.getElementById('paste-btn').addEventListener('click', async () => {
-  try {
-    const text = await navigator.clipboard.readText();
-    scratchpadInput.value += (scratchpadInput.value ? '\n' : '') + text;
-    scratchpadInput.dispatchEvent(new Event('input')); // Trigger save
-  } catch (err) {
-    console.error('Failed to read clipboard text: ', err);
+    // Actions
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      this.input.value = '';
+      storage.set('salut_scratchpad', '');
+      this.input.focus();
+    });
+
+    document.getElementById('copy-btn').addEventListener('click', () => {
+      this.input.select();
+      document.execCommand('copy');
+      const btn = document.getElementById('copy-btn');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+      setTimeout(() => btn.innerHTML = originalHTML, 1500);
+    });
+
+    document.getElementById('paste-btn').addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        this.input.value += (this.input.value ? '\n' : '') + text;
+        this.input.dispatchEvent(new Event('input')); // Trigger save
+      } catch (err) {
+        console.error('Failed to read clipboard text: ', err);
+      }
+    });
   }
-});
+};
+Scratchpad.init();
 
-/* ── TIMER LOGIC ── */
-let timerSeconds = 0;
-let timerInterval = null;
-let isTimerRunning = false;
-const timerDisplay = document.getElementById('timer-display');
-const timerStartBtn = document.getElementById('timer-start-btn');
-const timerSliderHr = document.getElementById('timer-slider-hr');
-const timerSliderMin = document.getElementById('timer-slider-min');
+/* ── TIMER LOGIC (OPTIMIZED) ── */
+const TimerState = {
+  seconds: 0,
+  interval: null,
+  isRunning: false,
+  displayEl: document.getElementById('timer-display'),
+  startBtn: document.getElementById('timer-start-btn'),
+  sliderHr: document.getElementById('timer-slider-hr'),
+  sliderMin: document.getElementById('timer-slider-min')
+};
 
-function formatTime(totalSeconds) {
+function formatTimer(totalSeconds) {
   const h = Math.floor(totalSeconds / 3600);
   const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
   const s = (totalSeconds % 60).toString().padStart(2, '0');
   
   if (h > 0) {
-    // Hide seconds when sliding/setting the timer (unless paused mid-countdown)
-    if (!isTimerRunning && s === '00') {
+    if (!TimerState.isRunning && s === '00') {
       return `${h}:${m}`;
     }
     return `${h}:${m}:${s}`;
@@ -1317,46 +1339,45 @@ function formatTime(totalSeconds) {
 }
 
 function updateTimerDisplay() {
-  timerDisplay.textContent = formatTime(timerSeconds);
+  TimerState.displayEl.textContent = formatTimer(TimerState.seconds);
 }
 
 function updateTimeFromSliders() {
-  if (isTimerRunning) return; // Prevent scrubbing while running
-  const h = parseInt(timerSliderHr.value) || 0;
-  const m = parseInt(timerSliderMin.value) || 0;
-  timerSeconds = (h * 3600) + (m * 60);
+  if (TimerState.isRunning) return; 
+  const h = parseInt(TimerState.sliderHr.value) || 0;
+  const m = parseInt(TimerState.sliderMin.value) || 0;
+  TimerState.seconds = (h * 3600) + (m * 60);
   updateTimerDisplay();
 }
 
-if (timerSliderHr) timerSliderHr.addEventListener('input', updateTimeFromSliders);
-if (timerSliderMin) timerSliderMin.addEventListener('input', updateTimeFromSliders);
+if (TimerState.sliderHr) TimerState.sliderHr.addEventListener('input', updateTimeFromSliders);
+if (TimerState.sliderMin) TimerState.sliderMin.addEventListener('input', updateTimeFromSliders);
 
 function toggleTimer() {
-  if (isTimerRunning) {
-    clearInterval(timerInterval);
-    isTimerRunning = false;
-    timerStartBtn.textContent = 'Start';
-    updateTimerDisplay(); // Re-hide seconds when paused on a flat minute
+  if (TimerState.isRunning) {
+    clearInterval(TimerState.interval);
+    TimerState.isRunning = false;
+    TimerState.startBtn.textContent = 'Start';
+    updateTimerDisplay(); 
   } else {
-    if (timerSeconds <= 0) return;
-    isTimerRunning = true;
-    timerStartBtn.textContent = 'Pause';
-    updateTimerDisplay(); // Immediately show seconds
+    if (TimerState.seconds <= 0) return;
+    TimerState.isRunning = true;
+    TimerState.startBtn.textContent = 'Pause';
+    updateTimerDisplay(); 
     
-    timerInterval = setInterval(() => {
-      timerSeconds--;
+    TimerState.interval = setInterval(() => {
+      TimerState.seconds--;
       updateTimerDisplay();
       
-      // Update visual sliders as time drops
-      if (timerSliderHr) timerSliderHr.value = Math.floor(timerSeconds / 3600);
-      if (timerSliderMin) timerSliderMin.value = Math.floor((timerSeconds % 3600) / 60);
+      if (TimerState.sliderHr) TimerState.sliderHr.value = Math.floor(TimerState.seconds / 3600);
+      if (TimerState.sliderMin) TimerState.sliderMin.value = Math.floor((TimerState.seconds % 3600) / 60);
       
-      if (timerSeconds <= 0) {
-        clearInterval(timerInterval);
-        isTimerRunning = false;
-        timerStartBtn.textContent = 'Start';
-        if (timerSliderHr) timerSliderHr.value = 0;
-        if (timerSliderMin) timerSliderMin.value = 0;
+      if (TimerState.seconds <= 0) {
+        clearInterval(TimerState.interval);
+        TimerState.isRunning = false;
+        TimerState.startBtn.textContent = 'Start';
+        if (TimerState.sliderHr) TimerState.sliderHr.value = 0;
+        if (TimerState.sliderMin) TimerState.sliderMin.value = 0;
         playAlarm();
       }
     }, 1000);
@@ -1364,17 +1385,16 @@ function toggleTimer() {
 }
 
 function resetTimer() {
-  clearInterval(timerInterval);
-  isTimerRunning = false;
-  timerSeconds = 0;
-  timerStartBtn.textContent = 'Start';
-  if (timerSliderHr) timerSliderHr.value = 0;
-  if (timerSliderMin) timerSliderMin.value = 0;
+  clearInterval(TimerState.interval);
+  TimerState.isRunning = false;
+  TimerState.seconds = 0;
+  TimerState.startBtn.textContent = 'Start';
+  if (TimerState.sliderHr) TimerState.sliderHr.value = 0;
+  if (TimerState.sliderMin) TimerState.sliderMin.value = 0;
   updateTimerDisplay();
 }
 
 function playAlarm() {
-  // Use Web Audio API for a self-contained, crisp beep sequence
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   if (!AudioContext) return;
   const ctx = new AudioContext();
@@ -1388,7 +1408,7 @@ function playAlarm() {
     gain.connect(ctx.destination);
     
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
+    osc.frequency.setValueAtTime(880, ctx.currentTime); 
     
     gain.gain.setValueAtTime(0.1, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5);
