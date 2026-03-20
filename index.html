@@ -492,6 +492,103 @@ form#search-form { width: 100%; }
   color: var(--text);
 }
 
+/* Timer Widget */
+.timer-widget {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.timer-display {
+  font-family: var(--font-main);
+  font-weight: 800;
+  font-size: 40px;
+  text-align: center;
+  color: var(--text);
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+  padding: 0;
+  line-height: 1;
+}
+.timer-controls {
+  display: flex;
+  flex-direction: row;
+  padding: 4px 0;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+.slider-group {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.slider-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  width: 22px;
+  text-align: right;
+}
+.timer-actions {
+  display: flex;
+  gap: 8px;
+}
+input[type="range"].timer-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"].timer-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--yellow);
+  cursor: pointer;
+  border: 2px solid var(--card);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
+}
+input[type="range"].timer-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+input[type="range"].timer-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--yellow);
+  cursor: pointer;
+  border: 2px solid var(--card);
+}
+.timer-btn {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-main);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text);
+  padding: 8px 0;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.timer-btn:hover { background: var(--border); border-color: var(--yellow); }
+.timer-btn:active { transform: scale(0.96); }
+.timer-btn.primary { background: var(--yellow); color: #fff; border-color: var(--yellow); }
+.timer-btn.primary:hover { opacity: 0.9; border-color: var(--yellow); }
+
 /* Scratchpad */
 .scratchpad-container {
   background: var(--card);
@@ -626,7 +723,7 @@ form#search-form { width: 100%; }
 
 <div class="main-layout">
   
-  <!-- LEFT PANEL (Weather & VOO) -->
+  <!-- LEFT PANEL (Weather & Timer) -->
   <div class="left-panel">
     <div class="weather-flip-container" id="weather-widget">
       <div class="weather-inner">
@@ -665,6 +762,28 @@ form#search-form { width: 100%; }
           </div>
         </div>
 
+      </div>
+    </div>
+
+    <!-- Timer Widget -->
+    <div class="widget-card timer-widget">
+      <div class="widget-header">
+        <span class="widget-title">Timer</span>
+      </div>
+      <div class="timer-display" id="timer-display">00:00</div>
+      <div class="timer-controls">
+        <div class="slider-group">
+          <span class="slider-label">Hr</span>
+          <input type="range" class="timer-slider" id="timer-slider-hr" min="0" max="24" value="0" step="1" aria-label="Hours">
+        </div>
+        <div class="slider-group">
+          <span class="slider-label">Min</span>
+          <input type="range" class="timer-slider" id="timer-slider-min" min="0" max="59" value="0" step="1" aria-label="Minutes">
+        </div>
+      </div>
+      <div class="timer-actions">
+        <button type="button" class="timer-btn primary" id="timer-start-btn" onclick="toggleTimer()">Start</button>
+        <button type="button" class="timer-btn" onclick="resetTimer()">Reset</button>
       </div>
     </div>
   </div>
@@ -1172,6 +1291,122 @@ document.getElementById('paste-btn').addEventListener('click', async () => {
     console.error('Failed to read clipboard text: ', err);
   }
 });
+
+/* ── TIMER LOGIC ── */
+let timerSeconds = 0;
+let timerInterval = null;
+let isTimerRunning = false;
+const timerDisplay = document.getElementById('timer-display');
+const timerStartBtn = document.getElementById('timer-start-btn');
+const timerSliderHr = document.getElementById('timer-slider-hr');
+const timerSliderMin = document.getElementById('timer-slider-min');
+
+function formatTime(totalSeconds) {
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
+  const s = (totalSeconds % 60).toString().padStart(2, '0');
+  
+  if (h > 0) {
+    // Hide seconds when sliding/setting the timer (unless paused mid-countdown)
+    if (!isTimerRunning && s === '00') {
+      return `${h}:${m}`;
+    }
+    return `${h}:${m}:${s}`;
+  }
+  return `${m}:${s}`;
+}
+
+function updateTimerDisplay() {
+  timerDisplay.textContent = formatTime(timerSeconds);
+}
+
+function updateTimeFromSliders() {
+  if (isTimerRunning) return; // Prevent scrubbing while running
+  const h = parseInt(timerSliderHr.value) || 0;
+  const m = parseInt(timerSliderMin.value) || 0;
+  timerSeconds = (h * 3600) + (m * 60);
+  updateTimerDisplay();
+}
+
+if (timerSliderHr) timerSliderHr.addEventListener('input', updateTimeFromSliders);
+if (timerSliderMin) timerSliderMin.addEventListener('input', updateTimeFromSliders);
+
+function toggleTimer() {
+  if (isTimerRunning) {
+    clearInterval(timerInterval);
+    isTimerRunning = false;
+    timerStartBtn.textContent = 'Start';
+    updateTimerDisplay(); // Re-hide seconds when paused on a flat minute
+  } else {
+    if (timerSeconds <= 0) return;
+    isTimerRunning = true;
+    timerStartBtn.textContent = 'Pause';
+    updateTimerDisplay(); // Immediately show seconds
+    
+    timerInterval = setInterval(() => {
+      timerSeconds--;
+      updateTimerDisplay();
+      
+      // Update visual sliders as time drops
+      if (timerSliderHr) timerSliderHr.value = Math.floor(timerSeconds / 3600);
+      if (timerSliderMin) timerSliderMin.value = Math.floor((timerSeconds % 3600) / 60);
+      
+      if (timerSeconds <= 0) {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        timerStartBtn.textContent = 'Start';
+        if (timerSliderHr) timerSliderHr.value = 0;
+        if (timerSliderMin) timerSliderMin.value = 0;
+        playAlarm();
+      }
+    }, 1000);
+  }
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  isTimerRunning = false;
+  timerSeconds = 0;
+  timerStartBtn.textContent = 'Start';
+  if (timerSliderHr) timerSliderHr.value = 0;
+  if (timerSliderMin) timerSliderMin.value = 0;
+  updateTimerDisplay();
+}
+
+function playAlarm() {
+  // Use Web Audio API for a self-contained, crisp beep sequence
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return;
+  const ctx = new AudioContext();
+  
+  let beeps = 0;
+  const playBeep = () => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
+    
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5);
+    
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  };
+  
+  playBeep();
+  const beepInterval = setInterval(() => {
+    beeps++;
+    if (beeps >= 3) {
+      clearInterval(beepInterval);
+    } else {
+      playBeep();
+    }
+  }, 400);
+}
 
 /* ── RANDOM QUOTE LOGIC ── */
 function initQuote() {
