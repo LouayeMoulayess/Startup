@@ -351,10 +351,66 @@ form#search-form { width: 100%; }
 .flip-btn:hover { color: var(--text); }
 .flip-btn svg { width: 14px; height: 14px; }
 
+/* General Widget Header */
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+.widget-title {
+  font-family: var(--font-main);
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Calculator & VOO Flip Setup */
+.calc-flip-container {
+  perspective: 1000px;
+  height: 390px;
+  flex-shrink: 0;
+  animation: fadeUp 0.4s 0.2s ease both;
+}
+
+.calc-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.calc-flip-container.flipped .calc-inner {
+  transform: rotateY(180deg);
+}
+
+.calc-front, .calc-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  background: var(--card);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.calc-back {
+  transform: rotateY(180deg);
+}
+
 /* TradingView */
 .voo-widget { 
   flex: 1; 
-  min-height: 328px; 
   display: flex;
   flex-direction: column;
 }
@@ -362,11 +418,10 @@ form#search-form { width: 100%; }
 
 /* Calculator */
 .calculator-widget {
-  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  flex: 0 0 66.66%; 
+  flex: 1; 
 }
 
 .calc-display {
@@ -551,7 +606,7 @@ form#search-form { width: 100%; }
 @media (max-width: 1150px) {
   .main-layout { flex-direction: column; align-items: center; }
   .left-panel, .container, .side-panel, .divider { max-width: 560px; width: 100%; flex: none; }
-  .scratchpad-container, .voo-widget { height: 320px; flex: none; }
+  .scratchpad-container { height: 320px; flex: none; }
 }
 </style>
 </head>
@@ -612,8 +667,6 @@ form#search-form { width: 100%; }
 
       </div>
     </div>
-
-    <div class="widget-card voo-widget" id="tv-widget-container"></div>
   </div>
 
   <!-- CENTER PANEL (Search & Scratchpad) -->
@@ -644,45 +697,69 @@ form#search-form { width: 100%; }
     </div>
   </div>
 
-  <!-- RIGHT PANEL (Calculator) -->
+  <!-- RIGHT PANEL (Calculator & VOO) -->
   <div class="side-panel">
-    <div class="widget-card calculator-widget" id="calc-widget">
-      <div class="calc-display" aria-label="Calculator display" id="calc-display">0</div>
-      
-      <div class="calc-grid">
-        <!-- Row 1 -->
-        <button type="button" class="calc-btn btn-custom" aria-label="Calculate 5 percent" onclick="calcCustom(0.05)">5%</button>
-        <button type="button" class="calc-btn btn-clear" aria-label="Clear calculator" onclick="calcClear()">C</button>
-        <button type="button" class="calc-btn" aria-label="Toggle sign" onclick="calcToggleSign()">+/-</button>
-        <button type="button" class="calc-btn" aria-label="Percent" onclick="calcPercent()">%</button>
-        <button type="button" class="calc-btn btn-op" aria-label="Divide" onclick="calcOp('/')">÷</button>
+    <div class="calc-flip-container" id="calc-flip-widget">
+      <div class="calc-inner">
         
-        <!-- Row 2 -->
-        <button type="button" class="calc-btn btn-custom" aria-label="Calculate 6 percent" onclick="calcCustom(0.06)">6%</button>
-        <button type="button" class="calc-btn" onclick="calcNum('7')">7</button>
-        <button type="button" class="calc-btn" onclick="calcNum('8')">8</button>
-        <button type="button" class="calc-btn" onclick="calcNum('9')">9</button>
-        <button type="button" class="calc-btn btn-op" aria-label="Multiply" onclick="calcOp('*')">×</button>
-        
-        <!-- Row 3 -->
-        <button type="button" class="calc-btn btn-custom" aria-label="Divide by 2" onclick="calcCustom(0.5)">÷ 2</button>
-        <button type="button" class="calc-btn" onclick="calcNum('4')">4</button>
-        <button type="button" class="calc-btn" onclick="calcNum('5')">5</button>
-        <button type="button" class="calc-btn" onclick="calcNum('6')">6</button>
-        <button type="button" class="calc-btn btn-op" aria-label="Subtract" onclick="calcOp('-')">-</button>
-        
-        <!-- Row 4 -->
-        <button type="button" class="calc-btn btn-custom" aria-label="Half minus 5 percent" onclick="calcCustom(0.45)">½-5%</button>
-        <button type="button" class="calc-btn" onclick="calcNum('1')">1</button>
-        <button type="button" class="calc-btn" onclick="calcNum('2')">2</button>
-        <button type="button" class="calc-btn" onclick="calcNum('3')">3</button>
-        <button type="button" class="calc-btn btn-op" aria-label="Add" onclick="calcOp('+')">+</button>
-        
-        <!-- Row 5 -->
-        <button type="button" class="calc-btn btn-custom" aria-label="Half minus 6 percent" onclick="calcCustom(0.44)">½-6%</button>
-        <button type="button" class="calc-btn span-2" onclick="calcNum('0')">0</button>
-        <button type="button" class="calc-btn" aria-label="Decimal point" onclick="calcNum('.')">.</button>
-        <button type="button" class="calc-btn btn-eq" aria-label="Calculate equals" onclick="calcEq()">=</button>
+        <!-- Front (Calculator) -->
+        <div class="calc-front calculator-widget" id="calc-widget">
+          <div class="widget-header">
+            <span class="widget-title">Calculator</span>
+            <button type="button" class="flip-btn" aria-label="Flip to Market" onclick="document.getElementById('calc-flip-widget').classList.add('flipped')" title="Flip to Market">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.13 15.57a9 9 0 1 0 3.84-10.36L2 9"></path></svg>
+            </button>
+          </div>
+          <div class="calc-display" aria-label="Calculator display" id="calc-display">0</div>
+          
+          <div class="calc-grid">
+            <!-- Row 1 -->
+            <button type="button" class="calc-btn btn-custom" aria-label="Calculate 5 percent" onclick="calcCustom(0.05)">5%</button>
+            <button type="button" class="calc-btn btn-clear" aria-label="Clear calculator" onclick="calcClear()">C</button>
+            <button type="button" class="calc-btn" aria-label="Toggle sign" onclick="calcToggleSign()">+/-</button>
+            <button type="button" class="calc-btn" aria-label="Percent" onclick="calcPercent()">%</button>
+            <button type="button" class="calc-btn btn-op" aria-label="Divide" onclick="calcOp('/')">÷</button>
+            
+            <!-- Row 2 -->
+            <button type="button" class="calc-btn btn-custom" aria-label="Calculate 6 percent" onclick="calcCustom(0.06)">6%</button>
+            <button type="button" class="calc-btn" onclick="calcNum('7')">7</button>
+            <button type="button" class="calc-btn" onclick="calcNum('8')">8</button>
+            <button type="button" class="calc-btn" onclick="calcNum('9')">9</button>
+            <button type="button" class="calc-btn btn-op" aria-label="Multiply" onclick="calcOp('*')">×</button>
+            
+            <!-- Row 3 -->
+            <button type="button" class="calc-btn btn-custom" aria-label="Divide by 2" onclick="calcCustom(0.5)">÷ 2</button>
+            <button type="button" class="calc-btn" onclick="calcNum('4')">4</button>
+            <button type="button" class="calc-btn" onclick="calcNum('5')">5</button>
+            <button type="button" class="calc-btn" onclick="calcNum('6')">6</button>
+            <button type="button" class="calc-btn btn-op" aria-label="Subtract" onclick="calcOp('-')">-</button>
+            
+            <!-- Row 4 -->
+            <button type="button" class="calc-btn btn-custom" aria-label="Half minus 5 percent" onclick="calcCustom(0.45)">½-5%</button>
+            <button type="button" class="calc-btn" onclick="calcNum('1')">1</button>
+            <button type="button" class="calc-btn" onclick="calcNum('2')">2</button>
+            <button type="button" class="calc-btn" onclick="calcNum('3')">3</button>
+            <button type="button" class="calc-btn btn-op" aria-label="Add" onclick="calcOp('+')">+</button>
+            
+            <!-- Row 5 -->
+            <button type="button" class="calc-btn btn-custom" aria-label="Half minus 6 percent" onclick="calcCustom(0.44)">½-6%</button>
+            <button type="button" class="calc-btn span-2" onclick="calcNum('0')">0</button>
+            <button type="button" class="calc-btn" aria-label="Decimal point" onclick="calcNum('.')">.</button>
+            <button type="button" class="calc-btn btn-eq" aria-label="Calculate equals" onclick="calcEq()">=</button>
+          </div>
+        </div>
+
+        <!-- Back (VOO / TradingView) -->
+        <div class="calc-back voo-widget">
+          <div class="widget-header">
+            <span class="widget-title">Market Overview</span>
+            <button type="button" class="flip-btn" aria-label="Back to Calculator" onclick="document.getElementById('calc-flip-widget').classList.remove('flipped')" title="Back to Calculator">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+          </div>
+          <div id="tv-widget-container" style="flex: 1; width: 100%;"></div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -891,481 +968,7 @@ const quotes = [
   { t: "To live is the rarest thing in the world. Most people exist, that is all.", a: "Oscar Wilde" },
   { t: "Imagination is more important than knowledge.", a: "Albert Einstein" },
   { t: "First say to yourself what you would be; and then do what you have to do.", a: "Epictetus" },
-  { t: "Waste no more time arguing about what a good man should be. Be one.", a: "Marcus Aurelius" },
-  { t: "If it is not right do not do it; if it is not true do not say it.", a: "Marcus Aurelius" },
-  { t: "Difficulties strengthen the mind, as labor does the body.", a: "Seneca" },
-  { t: "I count him braver who overcomes his desires than him who conquers his enemies.", a: "Aristotle" },
-  { t: "No man ever steps in the same river twice, for it's not the same river and he's not the same man.", a: "Heraclitus" },
-  { t: "The unexamined life is not worth living.", a: "Socrates" },
-  { t: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", a: "Aristotle" },
-  { t: "Happiness resides not in possessions, and not in gold, happiness dwells in the soul.", a: "Democritus" },
-  { t: "There is only one way to happiness and that is to cease worrying about things which are beyond the power of our will.", a: "Epictetus" },
-  { t: "Man is condemned to be free; because once thrown into the world, he is responsible for everything he does.", a: "Jean-Paul Sartre" },
-  { t: "He who is cruel to animals becomes hard also in his dealings with men. We can judge the heart of a man by his treatment of animals.", a: "Immanuel Kant" },
-  { t: "To be is to do.", a: "Socrates" },
-  { t: "To do is to be.", a: "Jean-Paul Sartre" },
-  { t: "Do do be do be do.", a: "Frank Sinatra" },
-  { t: "God is dead. God remains dead. And we have killed him.", a: "Friedrich Nietzsche" },
-  { t: "That which does not kill us makes us stronger.", a: "Friedrich Nietzsche" },
-  { t: "Sometimes people don't want to hear the truth because they don't want their illusions destroyed.", a: "Friedrich Nietzsche" },
-  { t: "Without music, life would be a mistake.", a: "Friedrich Nietzsche" },
-  { t: "It is not what happens to you, but how you react to it that matters.", a: "Epictetus" },
-  { t: "Wealth consists not in having great possessions, but in having few wants.", a: "Epictetus" },
-  { t: "You have power over your mind - not outside events. Realize this, and you will find strength.", a: "Marcus Aurelius" },
-  { t: "The soul becomes dyed with the color of its thoughts.", a: "Marcus Aurelius" },
-  { t: "Luck is what happens when preparation meets opportunity.", a: "Seneca" },
-  { t: "As is a tale, so is life: not how long it is, but how good it is, is what matters.", a: "Seneca" },
-  { t: "If a man knows not to which port he sails, no wind is favorable.", a: "Seneca" },
-  { t: "Only the educated are free.", a: "Epictetus" },
-  { t: "There is no genius without some touch of madness.", a: "Aristotle" },
-  { t: "Quality is not an act, it is a habit.", a: "Aristotle" },
-  { t: "The roots of education are bitter, but the fruit is sweet.", a: "Aristotle" },
-  { t: "Hope is a waking dream.", a: "Aristotle" },
-  { t: "Be kind, for everyone you meet is fighting a hard battle.", a: "Plato" },
-  { t: "Wise men speak because they have something to say; Fools because they have to say something.", a: "Plato" },
-  { t: "The greatest wealth is to live content with little.", a: "Plato" },
-  { t: "Courage is knowing what not to fear.", a: "Plato" },
-  { t: "Strong minds discuss ideas, average minds discuss events, weak minds discuss people.", a: "Socrates" },
-  { t: "Education is the kindling of a flame, not the filling of a vessel.", a: "Socrates" },
-  { t: "He who is not a good servant will not be a good master.", a: "Plato" },
-  { t: "Beware the barrenness of a busy life.", a: "Socrates" },
-  { t: "To find yourself, think for yourself.", a: "Socrates" },
-  { t: "By all means marry: if you get a good wife, you'll become happy; if you get a bad one, you'll become a philosopher.", a: "Socrates" },
-  { t: "He who has overcome his fears will truly be free.", a: "Aristotle" },
-  { t: "You will never do anything in this world without courage.", a: "Aristotle" },
-  { t: "It is the mark of an educated mind to be able to entertain a thought without accepting it.", a: "Aristotle" },
-  { t: "I cannot teach anybody anything. I can only make them think.", a: "Socrates" },
-  { t: "Wonder is the beginning of wisdom.", a: "Socrates" },
-  { t: "Death may be the greatest of all human blessings.", a: "Socrates" },
-  { t: "Do not do to others what angers you if done to you by others.", a: "Socrates" },
-  { t: "Every action has its pleasures and its price.", a: "Socrates" },
-  { t: "Those who are hardest to love need it the most.", a: "Socrates" },
-  { t: "Understanding a question is half an answer.", a: "Socrates" },
-  { t: "A system of morality which is based on relative emotional values is a mere illusion.", a: "Socrates" },
-  { t: "The secret of change is to focus all of your energy, not on fighting the old, but on building the new.", a: "Socrates" },
-  { t: "Silence is a profound melody, for those who can hear it.", a: "Socrates" },
-  { t: "A friend to all is a friend to none.", a: "Aristotle" },
-  { t: "Patience is bitter, but its fruit is sweet.", a: "Jean-Jacques Rousseau" },
-  { t: "Man is born free, and everywhere he is in chains.", a: "Jean-Jacques Rousseau" },
-  { t: "Those that are most slow in making a promise are the most faithful in the performance of it.", a: "Jean-Jacques Rousseau" },
-  { t: "What wisdom can you find that is greater than kindness?", a: "Jean-Jacques Rousseau" },
-  { t: "Force does not constitute right... obedience is due only to legitimate powers.", a: "Jean-Jacques Rousseau" },
-  { t: "The mind is furnished with ideas by experience alone.", a: "John Locke" },
-  { t: "Reading furnishes the mind only with materials of knowledge; it is thinking that makes what we read ours.", a: "John Locke" },
-  { t: "New opinions are always suspected, and usually opposed.", a: "John Locke" },
-  { t: "To love truth for truth's sake is the principal part of human perfection in this world.", a: "John Locke" },
-  { t: "Where there is no property there is no injustice.", a: "John Locke" },
-  { t: "Knowledge is power.", a: "Francis Bacon" },
-  { t: "In order for the light to shine so brightly, the darkness must be present.", a: "Francis Bacon" },
-  { t: "Truth emerges more readily from error than from confusion.", a: "Francis Bacon" },
-  { t: "Science is but an image of the truth.", a: "Francis Bacon" },
-  { t: "A prudent question is one-half of wisdom.", a: "Francis Bacon" },
-  { t: "I disapprove of what you say, but I will defend to the death your right to say it.", a: "Evelyn Beatrice Hall (often attributed to Voltaire)" },
-  { t: "Judge a man by his questions rather than his answers.", a: "Voltaire" },
-  { t: "Common sense is not so common.", a: "Voltaire" },
-  { t: "Those who can make you believe absurdities, can make you commit atrocities.", a: "Voltaire" },
-  { t: "Is there anyone so wise as to learn by the experience of others?", a: "Voltaire" },
-  { t: "Doubt is an uncomfortable condition, but certainty is a ridiculous one.", a: "Voltaire" },
-  { t: "The perfect is the enemy of the good.", a: "Voltaire" },
-  { t: "Life is a shipwreck, but we must not forget to sing in the lifeboats.", a: "Voltaire" },
-  { t: "He must be very ignorant for he answers every question he is asked.", a: "Voltaire" },
-  { t: "We are all guilty of the good we did not do.", a: "Voltaire" },
-  { t: "Prejudices are what fools use for reason.", a: "Voltaire" },
-  { t: "The longer we dwell on our misfortunes, the greater is their power to harm us.", a: "Voltaire" },
-  { t: "Out of the crooked timber of humanity, no straight thing was ever made.", a: "Immanuel Kant" },
-  { t: "Look closely. The beautiful may be small.", a: "Immanuel Kant" },
-  { t: "Science is organized knowledge. Wisdom is organized life.", a: "Immanuel Kant" },
-  { t: "Rules for happiness: something to do, someone to love, something to hope for.", a: "Immanuel Kant" },
-  { t: "Experience without theory is blind, but theory without experience is mere intellectual play.", a: "Immanuel Kant" },
-  { t: "Two things awe me most, the starry sky above me and the moral law within me.", a: "Immanuel Kant" },
-  { t: "Dare to know! Have courage to use your own reason!", a: "Immanuel Kant" },
-  { t: "The busier we are, the more acutely we feel that we live.", a: "Immanuel Kant" },
-  { t: "Happiness is not an ideal of reason, but of imagination.", a: "Immanuel Kant" },
-  { t: "Morality is not properly the doctrine of how we may make ourselves happy, but how we may make ourselves worthy of happiness.", a: "Immanuel Kant" },
-  { t: "By a lie, a man annihilates his dignity as a man.", a: "Immanuel Kant" },
-  { t: "The only thing permanent is change.", a: "Heraclitus" },
-  { t: "Even a soul submerged in sleep is hard at work and helps make something of the world.", a: "Heraclitus" },
-  { t: "Much learning does not teach understanding.", a: "Heraclitus" },
-  { t: "Time is a game played beautifully by children.", a: "Heraclitus" },
-  { t: "You cannot step into the same river twice.", a: "Heraclitus" },
-  { t: "Everything flows and nothing abides.", a: "Heraclitus" },
-  { t: "To be is to be perceived.", a: "George Berkeley" },
-  { t: "Few men think, yet all will have opinions.", a: "George Berkeley" },
-  { t: "Truth is the cry of all, but the game of few.", a: "George Berkeley" },
-  { t: "Reason is, and ought only to be the slave of the passions.", a: "David Hume" },
-  { t: "A wise man proportions his belief to the evidence.", a: "David Hume" },
-  { t: "Beauty in things exists in the mind which contemplates them.", a: "David Hume" },
-  { t: "To hate, to love, to think, to feel, to see; all this is nothing but to perceive.", a: "David Hume" },
-  { t: "Custom, then, is the great guide of human life.", a: "David Hume" },
-  { t: "Liberty of any kind is never lost all at once.", a: "David Hume" },
-  { t: "The rules of morality are not the conclusion of our reason.", a: "David Hume" },
-  { t: "Be a philosopher; but, amidst all your philosophy, be still a man.", a: "David Hume" },
-  { t: "Nothing is more free than the imagination of man.", a: "David Hume" },
-  { t: "All knowledge degenerates into probability.", a: "David Hume" },
-  { t: "When men are most sure and arrogant they are commonly most mistaken.", a: "David Hume" },
-  { t: "There is no such thing as an empty space or an empty time.", a: "Gottfried Wilhelm Leibniz" },
-  { t: "To love is to place our happiness in the happiness of another.", a: "Gottfried Wilhelm Leibniz" },
-  { t: "It is a good thing to read books, and it is a good thing to read men.", a: "Gottfried Wilhelm Leibniz" },
-  { t: "Music is the hidden arithmetical exercise of a mind unconscious that it is calculating.", a: "Gottfried Wilhelm Leibniz" },
-  { t: "We live in the best of all possible worlds.", a: "Gottfried Wilhelm Leibniz" },
-  { t: "I do not know how to teach philosophy without becoming a disturber of the peace.", a: "Baruch Spinoza" },
-  { t: "Peace is not an absence of war, it is a virtue, a state of mind, a disposition for benevolence, confidence, justice.", a: "Baruch Spinoza" },
-  { t: "Be not astonished at new ideas; for it is well known to you that a thing does not therefore cease to be true because it is not accepted by many.", a: "Baruch Spinoza" },
-  { t: "The highest activity a human being can attain is learning for understanding.", a: "Baruch Spinoza" },
-  { t: "I have striven not to laugh at human actions, not to weep at them, nor to hate them, but to understand them.", a: "Baruch Spinoza" },
-  { t: "If you want the present to be different from the past, study the past.", a: "Baruch Spinoza" },
-  { t: "Those who know how to think need no teachers.", a: "Mahatma Gandhi" },
-  { t: "An eye for an eye will only make the whole world blind.", a: "Mahatma Gandhi" },
-  { t: "Live as if you were to die tomorrow. Learn as if you were to live forever.", a: "Mahatma Gandhi" },
-  { t: "The weak can never forgive. Forgiveness is the attribute of the strong.", a: "Mahatma Gandhi" },
-  { t: "Happiness is when what you think, what you say, and what you do are in harmony.", a: "Mahatma Gandhi" },
-  { t: "Freedom is not worth having if it does not include the freedom to make mistakes.", a: "Mahatma Gandhi" },
-  { t: "In a gentle way, you can shake the world.", a: "Mahatma Gandhi" },
-  { t: "Action expresses priorities.", a: "Mahatma Gandhi" },
-  { t: "The future depends on what you do today.", a: "Mahatma Gandhi" },
-  { t: "Poverty is the worst form of violence.", a: "Mahatma Gandhi" },
-  { t: "You must be the change you wish to see in the world.", a: "Mahatma Gandhi" },
-  { t: "Truth never damages a cause that is just.", a: "Mahatma Gandhi" },
-  { t: "A coward is incapable of exhibiting love; it is the prerogative of the brave.", a: "Mahatma Gandhi" },
-  { t: "Faith is not something to grasp, it is a state to grow into.", a: "Mahatma Gandhi" },
-  { t: "To lose patience is to lose the battle.", a: "Mahatma Gandhi" },
-  { t: "My life is my message.", a: "Mahatma Gandhi" },
-  { t: "Man is but a reed, the most feeble thing in nature, but he is a thinking reed.", a: "Blaise Pascal" },
-  { t: "All of humanity's problems stem from man's inability to sit quietly in a room alone.", a: "Blaise Pascal" },
-  { t: "The heart has its reasons which reason knows nothing of.", a: "Blaise Pascal" },
-  { t: "Kind words do not cost much. Yet they accomplish much.", a: "Blaise Pascal" },
-  { t: "Clarity of mind means clarity of passion, too.", a: "Blaise Pascal" },
-  { t: "People are almost always better persuaded by reasons they themselves discovered than those that came into the minds of others.", a: "Blaise Pascal" },
-  { t: "There are only two kinds of men: the righteous who think they are sinners and the sinners who think they are righteous.", a: "Blaise Pascal" },
-  { t: "Justice without force is powerless; force without justice is tyrannical.", a: "Blaise Pascal" },
-  { t: "We know the truth, not only by the reason, but by the heart.", a: "Blaise Pascal" },
-  { t: "I have made this letter longer than usual, only because I have not had the time to make it shorter.", a: "Blaise Pascal" },
-  { t: "It is not death that a man should fear, but he should fear never beginning to live.", a: "Marcus Aurelius" },
-  { t: "Our life is what our thoughts make it.", a: "Marcus Aurelius" },
-  { t: "Accept the things to which fate binds you, and love the people with whom fate brings you together.", a: "Marcus Aurelius" },
-  { t: "The best revenge is to be unlike him who performed the injury.", a: "Marcus Aurelius" },
-  { t: "Let men see, let them know, a real man, who lives as he was meant to live.", a: "Marcus Aurelius" },
-  { t: "Nothing happens to any man that he is not formed by nature to bear.", a: "Marcus Aurelius" },
-  { t: "What we do now echoes in eternity.", a: "Marcus Aurelius" },
-  { t: "Death smiles at us all, but all a man can do is smile back.", a: "Marcus Aurelius" },
-  { t: "To love only what happens, what was destined. No greater harmony.", a: "Marcus Aurelius" },
-  { t: "Every living organism is fulfilled when it follows the right path for its own nature.", a: "Marcus Aurelius" },
-  { t: "Dwell on the beauty of life. Watch the stars, and see yourself running with them.", a: "Marcus Aurelius" },
-  { t: "A person's worth is measured by the worth of what he values.", a: "Marcus Aurelius" },
-  { t: "Whenever you are about to find fault with someone, ask yourself the following question: What fault of mine most nearly resembles the one I am about to criticize?", a: "Marcus Aurelius" },
-  { t: "There is no more liberating, no more exhilarating experience than to determine one's position, state it bravely, and then act boldly.", a: "Eleanor Roosevelt" },
-  { t: "Do one thing every day that scares you.", a: "Eleanor Roosevelt" },
-  { t: "No one can make you feel inferior without your consent.", a: "Eleanor Roosevelt" },
-  { t: "Great minds discuss ideas; average minds discuss events; small minds discuss people.", a: "Eleanor Roosevelt" },
-  { t: "The future belongs to those who believe in the beauty of their dreams.", a: "Eleanor Roosevelt" },
-  { t: "It is better to light a candle than curse the darkness.", a: "Eleanor Roosevelt" },
-  { t: "Do what you feel in your heart to be right – for you'll be criticized anyway.", a: "Eleanor Roosevelt" },
-  { t: "Life is a series of experiences, each one of which makes us bigger, even though sometimes it is hard to realize this.", a: "Eleanor Roosevelt" },
-  { t: "The purpose of life is to live it, to taste experience to the utmost, to reach out eagerly and without fear for newer and richer experience.", a: "Eleanor Roosevelt" },
-  { t: "He who knows all the answers has not been asked all the questions.", a: "Confucius" },
-  { t: "Life is really simple, but we insist on making it complicated.", a: "Confucius" },
-  { t: "Wheresoever you go, go with all your heart.", a: "Confucius" },
-  { t: "Real knowledge is to know the extent of one's ignorance.", a: "Confucius" },
-  { t: "By three methods we may learn wisdom: First, by reflection; Second, by imitation; and third by experience.", a: "Confucius" },
-  { t: "Everything has beauty, but not everyone sees it.", a: "Confucius" },
-  { t: "Our greatest glory is not in never falling, but in rising every time we fall.", a: "Confucius" },
-  { t: "To be wronged is nothing, unless you continue to remember it.", a: "Confucius" },
-  { t: "Choose a job you love, and you will never have to work a day in your life.", a: "Confucius" },
-  { t: "The man who asks a question is a fool for a minute, the man who does not ask is a fool for life.", a: "Confucius" },
-  { t: "Ignorance is the night of the mind, but a night without moon and star.", a: "Confucius" },
-  { t: "Looking at small advantages prevents great affairs from being accomplished.", a: "Confucius" },
-  { t: "When anger rises, think of the consequences.", a: "Confucius" },
-  { t: "I hear and I forget. I see and I remember. I do and I understand.", a: "Confucius" },
-  { t: "Silence is a true friend who never betrays.", a: "Confucius" },
-  { t: "The cautious seldom err.", a: "Confucius" },
-  { t: "When it is obvious that the goals cannot be reached, don't adjust the goals, adjust the action steps.", a: "Confucius" },
-  { t: "Do not impose on others what you yourself do not desire.", a: "Confucius" },
-  { t: "Better a diamond with a flaw than a pebble without.", a: "Confucius" },
-  { t: "Study the past if you would define the future.", a: "Confucius" },
-  { t: "Respect yourself and others will respect you.", a: "Confucius" },
-  { t: "Attack the evil that is within yourself, rather than attacking the evil that is in others.", a: "Confucius" },
-  { t: "He who speaks without modesty will find it difficult to make his words good.", a: "Confucius" },
-  { t: "It is easy to hate and it is difficult to love. All good things are difficult to achieve.", a: "Confucius" },
-  { t: "The superior man thinks always of virtue; the common man thinks of comfort.", a: "Confucius" },
-  { t: "Virtue is not left to stand alone. He who practices it will have neighbors.", a: "Confucius" },
-  { t: "I want to be like water. I want to slip through fingers, but hold up a ship.", a: "Michelle Williams" },
-  { t: "Empty your mind, be formless, shapeless — like water.", a: "Bruce Lee" },
-  { t: "Adapt what is useful, reject what is useless, and add what is specifically your own.", a: "Bruce Lee" },
-  { t: "A wise man can learn more from a foolish question than a fool can learn from a wise answer.", a: "Bruce Lee" },
-  { t: "Mistakes are always forgivable, if one has the courage to admit them.", a: "Bruce Lee" },
-  { t: "If you spend too much time thinking about a thing, you'll never get it done.", a: "Bruce Lee" },
-  { t: "Knowing is not enough, we must apply. Willing is not enough, we must do.", a: "Bruce Lee" },
-  { t: "Always be yourself, express yourself, have faith in yourself.", a: "Bruce Lee" },
-  { t: "To hell with circumstances; I create opportunities.", a: "Bruce Lee" },
-  { t: "Simplicity is the key to brilliance.", a: "Bruce Lee" },
-  { t: "A goal is not always meant to be reached, it often serves simply as something to aim at.", a: "Bruce Lee" },
-  { t: "As you think, so shall you become.", a: "Bruce Lee" },
-  { t: "The successful warrior is the average man, with laser-like focus.", a: "Bruce Lee" },
-  { t: "Showing off is the fool's idea of glory.", a: "Bruce Lee" },
-  { t: "Don't fear failure. Not failure, but low aim, is the crime.", a: "Bruce Lee" },
-  { t: "Take things as they are. Punch when you have to punch. Kick when you have to kick.", a: "Bruce Lee" },
-  { t: "Life is never stagnation. It is constant movement.", a: "Bruce Lee" },
-  { t: "Absorb what is useful, Discard what is not, Add what is uniquely your own.", a: "Bruce Lee" },
-  { t: "Love is like a friendship caught on fire.", a: "Bruce Lee" },
-  { t: "In the middle of difficulty lies opportunity.", a: "Albert Einstein" },
-  { t: "Life is like riding a bicycle. To keep your balance, you must keep moving.", a: "Albert Einstein" },
-  { t: "Anyone who has never made a mistake has never tried anything new.", a: "Albert Einstein" },
-  { t: "A person who never made a mistake never tried anything new.", a: "Albert Einstein" },
-  { t: "Only two things are infinite, the universe and human stupidity, and I'm not sure about the former.", a: "Albert Einstein" },
-  { t: "Try not to become a man of success. Rather become a man of value.", a: "Albert Einstein" },
-  { t: "Look deep into nature, and then you will understand everything better.", a: "Albert Einstein" },
-  { t: "Weakness of attitude becomes weakness of character.", a: "Albert Einstein" },
-  { t: "Logic will get you from A to Z; imagination will get you everywhere.", a: "Albert Einstein" },
-  { t: "Peace cannot be kept by force; it can only be achieved by understanding.", a: "Albert Einstein" },
-  { t: "It's not that I'm so smart, it's just that I stay with problems longer.", a: "Albert Einstein" },
-  { t: "We cannot solve our problems with the same thinking we used when we created them.", a: "Albert Einstein" },
-  { t: "Education is what remains after one has forgotten what one has learned in school.", a: "Albert Einstein" },
-  { t: "A clever person solves a problem. A wise person avoids it.", a: "Albert Einstein" },
-  { t: "Genius is 1% talent and 99% percent hard work.", a: "Albert Einstein" },
-  { t: "Great spirits have always encountered violent opposition from mediocre minds.", a: "Albert Einstein" },
-  { t: "True art is characterized by an irresistible urge in the creative artist.", a: "Albert Einstein" },
-  { t: "You never fail until you stop trying.", a: "Albert Einstein" },
-  { t: "I have no special talent. I am only passionately curious.", a: "Albert Einstein" },
-  { t: "If you can't explain it simply, you don't understand it well enough.", a: "Albert Einstein" },
-  { t: "The world is a dangerous place to live; not because of the people who are evil, but because of the people who don't do anything about it.", a: "Albert Einstein" },
-  { t: "Black holes are where God divided by zero.", a: "Albert Einstein" },
-  { t: "The measure of intelligence is the ability to change.", a: "Albert Einstein" },
-  { t: "Reality is merely an illusion, albeit a very persistent one.", a: "Albert Einstein" },
-  { t: "Creativity is intelligence having fun.", a: "Albert Einstein" },
-  { t: "If you want to live a happy life, tie it to a goal, not to people or things.", a: "Albert Einstein" },
-  { t: "Everything must be made as simple as possible. But not simpler.", a: "Albert Einstein" },
-  { t: "What is right is not always popular and what is popular is not always right.", a: "Albert Einstein" },
-  { t: "The pursuit of truth and beauty is a sphere of activity in which we are permitted to remain children all our lives.", a: "Albert Einstein" },
-  { t: "Coincidence is God's way of remaining anonymous.", a: "Albert Einstein" },
-  { t: "When you trip over love, it is easy to get up. But when you fall in love, it is impossible to stand again.", a: "Albert Einstein" },
-  { t: "Once you stop learning, you start dying.", a: "Albert Einstein" },
-  { t: "A good traveler has no fixed plans, and is not intent on arriving.", a: "Lao Tzu" },
-  { t: "Those who know do not speak. Those who speak do not know.", a: "Lao Tzu" },
-  { t: "When I let go of what I am, I become what I might be.", a: "Lao Tzu" },
-  { t: "Being deeply loved by someone gives you strength, while loving someone deeply gives you courage.", a: "Lao Tzu" },
-  { t: "Simplicity, patience, compassion. These three are your greatest treasures.", a: "Lao Tzu" },
-  { t: "He who conquers others is strong; He who conquers himself is mighty.", a: "Lao Tzu" },
-  { t: "If you are depressed you are living in the past. If you are anxious you are living in the future.", a: "Lao Tzu" },
-  { t: "Truthful words are not beautiful; beautiful words are not truthful.", a: "Lao Tzu" },
-  { t: "To know yet to think that one does not know is best.", a: "Lao Tzu" },
-  { t: "An ant on the move does more than a dozing ox.", a: "Lao Tzu" },
-  { t: "Respond intelligently even to unintelligent treatment.", a: "Lao Tzu" },
-  { t: "Silence is a source of great strength.", a: "Lao Tzu" },
-  { t: "Do the difficult things while they are easy and do the great things while they are small.", a: "Lao Tzu" },
-  { t: "Care about what other people think and you will always be their prisoner.", a: "Lao Tzu" },
-  { t: "Life and death are one thread, the same line viewed from different sides.", a: "Lao Tzu" },
-  { t: "To realize that you do not understand is a virtue.", a: "Lao Tzu" },
-  { t: "The words of truth are always paradoxical.", a: "Lao Tzu" },
-  { t: "Manifest plainness, embrace simplicity, reduce selfishness, have few desires.", a: "Lao Tzu" },
-  { t: "He who knows, does not speak. He who speaks, does not know.", a: "Lao Tzu" },
-  { t: "Nature does not hurry, yet everything is accomplished.", a: "Lao Tzu" },
-  { t: "Mastering others is strength. Mastering yourself is true power.", a: "Lao Tzu" },
-  { t: "Violence, even well intentioned, always bounces back upon oneself.", a: "Lao Tzu" },
-  { t: "Loss is not as bad as wanting more.", a: "Lao Tzu" },
-  { t: "If you realize that all things change, there is nothing you will try to hold on to.", a: "Lao Tzu" },
-  { t: "When the student is ready the teacher will appear.", a: "Lao Tzu" },
-  { t: "What the caterpillar calls the end of the world, the master calls a butterfly.", a: "Richard Bach" },
-  { t: "There is no such thing as a problem without a gift for you in its hands.", a: "Richard Bach" },
-  { t: "You teach best what you most need to learn.", a: "Richard Bach" },
-  { t: "Argue for your limitations, and sure enough they're yours.", a: "Richard Bach" },
-  { t: "A cloud does not know why it moves in just such a direction and at such a speed.", a: "Richard Bach" },
-  { t: "The mark of your ignorance is the depth of your belief in injustice and tragedy.", a: "Richard Bach" },
-  { t: "Learning is finding out what you already know.", a: "Richard Bach" },
-  { t: "Your only obligation in any lifetime is to be true to yourself.", a: "Richard Bach" },
-  { t: "In order to live free and happily, you must sacrifice boredom.", a: "Richard Bach" },
-  { t: "If you love someone, set them free. If they come back they're yours.", a: "Richard Bach" },
-  { t: "Listen to your heart. It knows all things.", a: "Paulo Coelho" },
-  { t: "When you want something, all the universe conspires in helping you to achieve it.", a: "Paulo Coelho" },
-  { t: "There is only one thing that makes a dream impossible to achieve: the fear of failure.", a: "Paulo Coelho" },
-  { t: "The secret of life, though, is to fall seven times and to get up eight times.", a: "Paulo Coelho" },
-  { t: "People are capable, at any time in their lives, of doing what they dream of.", a: "Paulo Coelho" },
-  { t: "Remember that wherever your heart is, there you will find your treasure.", a: "Paulo Coelho" },
-  { t: "It's the possibility of having a dream come true that makes life interesting.", a: "Paulo Coelho" },
-  { t: "A child can teach an adult three things: to be happy for no reason, to always be busy with something, and to know how to demand with all his might that which he desires.", a: "Paulo Coelho" },
-  { t: "Be brave. Take risks. Nothing can substitute experience.", a: "Paulo Coelho" },
-  { t: "You drown not by falling into a river, but by staying submerged in it.", a: "Paulo Coelho" },
-  { t: "Waiting is painful. Forgetting is painful. But not knowing which to do is the worst kind of suffering.", a: "Paulo Coelho" },
-  { t: "One is loved because one is loved. No reason is needed for loving.", a: "Paulo Coelho" },
-  { t: "Tears are words that need to be written.", a: "Paulo Coelho" },
-  { t: "When we love, we always strive to become better than we are.", a: "Paulo Coelho" },
-  { t: "Everything that happens once can never happen again. But everything that happens twice will surely happen a third time.", a: "Paulo Coelho" },
-  { t: "Don't allow your mind to tell your heart what to do. The mind gives up easily.", a: "Paulo Coelho" },
-  { t: "You can become blind by seeing each day as a similar one.", a: "Paulo Coelho" },
-  { t: "It takes a huge effort to free yourself from memory.", a: "Paulo Coelho" },
-  { t: "Happiness is something that multiplies when it is divided.", a: "Paulo Coelho" },
-  { t: "No one can lie, no one can hide anything, when he looks directly into someone's eyes.", a: "Paulo Coelho" },
-  { t: "Whatever you do in life, you will be insignificant. But it is very important that you do it.", a: "Mahatma Gandhi" },
-  { t: "Earth provides enough to satisfy every man's needs, but not every man's greed.", a: "Mahatma Gandhi" },
-  { t: "It is health that is real wealth and not pieces of gold and silver.", a: "Mahatma Gandhi" },
-  { t: "A man is but the product of his thoughts; what he thinks, he becomes.", a: "Mahatma Gandhi" },
-  { t: "The best way to find yourself is to lose yourself in the service of others.", a: "Mahatma Gandhi" },
-  { t: "Non-violence is the greatest force at the disposal of mankind.", a: "Mahatma Gandhi" },
-  { t: "Where there is love there is life.", a: "Mahatma Gandhi" },
-  { t: "I will not let anyone walk through my mind with their dirty feet.", a: "Mahatma Gandhi" },
-  { t: "There is more to life than simply increasing its speed.", a: "Mahatma Gandhi" },
-  { t: "Freedom is not worth having if it does not connote freedom to err.", a: "Mahatma Gandhi" },
-  { t: "If I have the belief that I can do it, I shall surely acquire the capacity to do it.", a: "Mahatma Gandhi" },
-  { t: "Nobody can hurt me without my permission.", a: "Mahatma Gandhi" },
-  { t: "To believe in something, and not to live it, is dishonest.", a: "Mahatma Gandhi" },
-  { t: "A man who was completely innocent, offered himself as a sacrifice.", a: "Mahatma Gandhi" },
-  { t: "An eye for eye only ends up making the whole world blind.", a: "Mahatma Gandhi" },
-  { t: "You can chain me, you can torture me, you can even destroy this body.", a: "Mahatma Gandhi" },
-  { t: "Service which is rendered without joy helps neither the servant nor the served.", a: "Mahatma Gandhi" },
-  { t: "There is no way to peace, there is only peace.", a: "Mahatma Gandhi" },
-  { t: "A small body of determined spirits fired by an unquenchable faith in their mission can alter the course of history.", a: "Mahatma Gandhi" },
-  { t: "First they ignore you, then they laugh at you, then they fight you, then you win.", a: "Mahatma Gandhi" },
-  { t: "Each night, when I go to sleep, I die. And the next morning, when I wake up, I am reborn.", a: "Mahatma Gandhi" },
-  { t: "My faith is brightest in the midst of impenetrable darkness.", a: "Mahatma Gandhi" },
-  { t: "Morality is the basis of things and truth is the substance of all morality.", a: "Mahatma Gandhi" },
-  { t: "If we are to teach real peace in this world, and if we are to carry on a real war against war, we shall have to begin with the children.", a: "Mahatma Gandhi" },
-  { t: "Peace is its own reward.", a: "Mahatma Gandhi" },
-  { t: "We read the world wrong and say that it deceives us.", a: "Rabindranath Tagore" },
-  { t: "Clouds come floating into my life, no longer to carry rain or usher storm, but to add color to my sunset sky.", a: "Rabindranath Tagore" },
-  { t: "You can't cross the sea merely by standing and staring at the water.", a: "Rabindranath Tagore" },
-  { t: "Let your life lightly dance on the edges of Time like dew on the tip of a leaf.", a: "Rabindranath Tagore" },
-  { t: "The butterfly counts not months but moments, and has time enough.", a: "Rabindranath Tagore" },
-  { t: "If you cry because the sun has gone out of your life, your tears will prevent you from seeing the stars.", a: "Rabindranath Tagore" },
-  { t: "Reach high, for stars lie hidden in your soul.", a: "Rabindranath Tagore" },
-  { t: "Love's gift cannot be given, it waits to be accepted.", a: "Rabindranath Tagore" },
-  { t: "Faith is the bird that feels the light when the dawn is still dark.", a: "Rabindranath Tagore" },
-  { t: "By plucking her petals you do not gather the beauty of the flower.", a: "Rabindranath Tagore" },
-  { t: "I slept and dreamt that life was joy. I awoke and saw that life was service.", a: "Rabindranath Tagore" },
-  { t: "Depth of friendship does not depend on length of acquaintance.", a: "Rabindranath Tagore" },
-  { t: "Everything comes to us that belongs to us if we create the capacity to receive it.", a: "Rabindranath Tagore" },
-  { t: "The highest education is that which does not merely give us information but makes our life in harmony with all existence.", a: "Rabindranath Tagore" },
-  { t: "Let me not pray to be sheltered from dangers, but to be fearless in facing them.", a: "Rabindranath Tagore" },
-  { t: "Trees are the earth's endless effort to speak to the listening heaven.", a: "Rabindranath Tagore" },
-  { t: "It is very simple to be happy, but it is very difficult to be simple.", a: "Rabindranath Tagore" },
-  { t: "I have become my own version of an optimist. If I can't make it through one door, I'll go through another.", a: "Rabindranath Tagore" },
-  { t: "You do not lead by hitting people over the head—that's assault, not leadership.", a: "Dwight D. Eisenhower" },
-  { t: "In preparing for battle I have always found that plans are useless, but planning is indispensable.", a: "Dwight D. Eisenhower" },
-  { t: "Pessimism never won any battle.", a: "Dwight D. Eisenhower" },
-  { t: "Leadership is the art of getting someone else to do something you want done because he wants to do it.", a: "Dwight D. Eisenhower" },
-  { t: "The supreme quality for leadership is unquestionably integrity.", a: "Dwight D. Eisenhower" },
-  { t: "What counts is not necessarily the size of the dog in the fight—it's the size of the fight in the dog.", a: "Dwight D. Eisenhower" },
-  { t: "Farming looks mighty easy when your plow is a pencil and you're a thousand miles from the corn field.", a: "Dwight D. Eisenhower" },
-  { t: "Never waste a minute thinking about people you don't like.", a: "Dwight D. Eisenhower" },
-  { t: "There are no victories at discount prices.", a: "Dwight D. Eisenhower" },
-  { t: "A people that values its privileges above its principles soon loses both.", a: "Dwight D. Eisenhower" },
-  { t: "The history of free men is never really written by chance but by choice.", a: "Dwight D. Eisenhower" },
-  { t: "Only our individual faith in freedom can keep us free.", a: "Dwight D. Eisenhower" },
-  { t: "Neither a wise man nor a brave man lies down on the tracks of history to wait for the train of the future to run over him.", a: "Dwight D. Eisenhower" },
-  { t: "Every gun that is made, every warship launched, every rocket fired signifies, in the final sense, a theft from those who hunger.", a: "Dwight D. Eisenhower" },
-  { t: "Here in America we are descended in blood and in spirit from revolutionists and rebels.", a: "Dwight D. Eisenhower" },
-  { t: "I'd rather be a little nobody, then to be a evil somebody.", a: "Abraham Lincoln" },
-  { t: "Folks are usually about as happy as they make up their minds to be.", a: "Abraham Lincoln" },
-  { t: "Whatever you are, be a good one.", a: "Abraham Lincoln" },
-  { t: "I walk slowly, but I never walk backward.", a: "Abraham Lincoln" },
-  { t: "Those who deny freedom to others, deserve it not for themselves.", a: "Abraham Lincoln" },
-  { t: "You can fool all the people some of the time, and some of the people all the time, but you cannot fool all the people all the time.", a: "Abraham Lincoln" },
-  { t: "My Best Friend is a person who will give me a book I have not read.", a: "Abraham Lincoln" },
-  { t: "Nearly all men can stand adversity, but if you want to test a man's character, give him power.", a: "Abraham Lincoln" },
-  { t: "I am a slow walker, but I never walk back.", a: "Abraham Lincoln" },
-  { t: "And in the end it's not the years in your life that count; it's the life in your years.", a: "Abraham Lincoln" },
-  { t: "Better to remain silent and be thought a fool than to speak out and remove all doubt.", a: "Abraham Lincoln" },
-  { t: "Character is like a tree and reputation like a shadow.", a: "Abraham Lincoln" },
-  { t: "Always bear in mind that your own resolution to succeed is more important than any one thing.", a: "Abraham Lincoln" },
-  { t: "Give me six hours to chop down a tree and I will spend the first four sharpening the axe.", a: "Abraham Lincoln" },
-  { t: "No man has a good enough memory to be a successful liar.", a: "Abraham Lincoln" },
-  { t: "Things may come to those who wait, but only the things left by those who hustle.", a: "Abraham Lincoln" },
-  { t: "Am I not destroying my enemies when I make friends of them?", a: "Abraham Lincoln" },
-  { t: "He has a right to criticize, who has a heart to help.", a: "Abraham Lincoln" },
-  { t: "Tact is the ability to describe others as they see themselves.", a: "Abraham Lincoln" },
-  { t: "I care not for a man's religion whose dog and cat are not the better for it.", a: "Abraham Lincoln" },
-  { t: "Government of the people, by the people, for the people, shall not perish from the Earth.", a: "Abraham Lincoln" },
-  { t: "Leave nothing for tomorrow which can be done today.", a: "Abraham Lincoln" },
-  { t: "I like to see a man proud of the place in which he lives.", a: "Abraham Lincoln" },
-  { t: "I do not think much of a man who is not wiser today than he was yesterday.", a: "Abraham Lincoln" },
-  { t: "To alleviate the pain of another is to alleviate one's own.", a: "Abraham Lincoln" },
-  { t: "My great concern is not whether you have failed, but whether you are content with your failure.", a: "Abraham Lincoln" },
-  { t: "Do I not destroy my enemies when I make them my friends?", a: "Abraham Lincoln" },
-  { t: "If I were two-faced, would I be wearing this one?", a: "Abraham Lincoln" },
-  { t: "Be sure you put your feet in the right place, then stand firm.", a: "Abraham Lincoln" },
-  { t: "A house divided against itself cannot stand.", a: "Abraham Lincoln" },
-  { t: "We must not be enemies. Though passion may have strained, it must not break our bonds of affection.", a: "Abraham Lincoln" },
-  { t: "I remember my mother's prayers and they have always followed me.", a: "Abraham Lincoln" },
-  { t: "All that I am, or hope to be, I owe to my angel mother.", a: "Abraham Lincoln" },
-  { t: "Every man's happiness is his own responsibility.", a: "Abraham Lincoln" },
-  { t: "You cannot escape the responsibility of tomorrow by evading it today.", a: "Abraham Lincoln" },
-  { t: "Most folks are about as happy as they make up their minds to be.", a: "Abraham Lincoln" },
-  { t: "I will prepare and some day my chance will come.", a: "Abraham Lincoln" },
-  { t: "The best way to destroy an enemy is to make him a friend.", a: "Abraham Lincoln" },
-  { t: "Common looking people are the best in the world.", a: "Abraham Lincoln" },
-  { t: "Truth is generally the best vindication against slander.", a: "Abraham Lincoln" },
-  { t: "If you look for the bad in people expecting to find it, you surely will.", a: "Abraham Lincoln" },
-  { t: "Don't interfere with anything in the Constitution.", a: "Abraham Lincoln" },
-  { t: "Those who look for the bad in people will surely find it.", a: "Abraham Lincoln" },
-  { t: "You have to do your own growing no matter how tall your grandfather was.", a: "Abraham Lincoln" },
-  { t: "The probability that we may fail in the struggle ought not to deter us.", a: "Abraham Lincoln" },
-  { t: "Determine that the thing can and shall be done, and then we shall find the way.", a: "Abraham Lincoln" },
-  { t: "Important principles may, and must, be inflexible.", a: "Abraham Lincoln" },
-  { t: "Stand with anybody that stands right.", a: "Abraham Lincoln" },
-  { t: "To give victory to the right, not bloody bullets, but peaceful ballots only, are necessary.", a: "Abraham Lincoln" },
-  { t: "My father taught me to work, but not to love it. I never did like to work.", a: "Abraham Lincoln" },
-  { t: "Force is all-conquering, but its victories are short-lived.", a: "Abraham Lincoln" },
-  { t: "Adhere to your purpose and you will soon feel as well as you ever did.", a: "Abraham Lincoln" },
-  { t: "I have always found that mercy bears richer fruits than strict justice.", a: "Abraham Lincoln" },
-  { t: "No matter how much cats fight, there always seem to be plenty of kittens.", a: "Abraham Lincoln" },
-  { t: "Let us have faith that right makes might.", a: "Abraham Lincoln" },
-  { t: "Upon the subject of education, I can only say that I view it as the most important subject.", a: "Abraham Lincoln" },
-  { t: "Kites rise highest against the wind, not with it.", a: "Winston Churchill" },
-  { t: "Success is not final, failure is not fatal: it is the courage to continue that counts.", a: "Winston Churchill" },
-  { t: "A pessimist sees the difficulty in every opportunity; an optimist sees the opportunity.", a: "Winston Churchill" },
-  { t: "Never, never, never give up.", a: "Winston Churchill" },
-  { t: "To improve is to change; to be perfect is to change often.", a: "Winston Churchill" },
-  { t: "If you are going through hell, keep going.", a: "Winston Churchill" },
-  { t: "Attitude is a little thing that makes a big difference.", a: "Winston Churchill" },
-  { t: "Continuous effort - not strength or intelligence - is the key to unlocking our potential.", a: "Winston Churchill" },
-  { t: "The price of greatness is responsibility.", a: "Winston Churchill" },
-  { t: "We make a living by what we get, but we make a life by what we give.", a: "Winston Churchill" },
-  { t: "Courage is what it takes to stand up and speak; courage is also what it takes to sit down and listen.", a: "Winston Churchill" },
-  { t: "You have enemies? Good. That means you've stood up for something, sometime in your life.", a: "Winston Churchill" },
-  { t: "History will be kind to me for I intend to write it.", a: "Winston Churchill" },
-  { t: "Play the game for more than you can afford to lose.", a: "Winston Churchill" },
-  { t: "The farther backward you can look, the farther forward you are likely to see.", a: "Winston Churchill" },
-  { t: "Every man's life ends the same way. It is only the details of how he lived and how he died that distinguish one man from another.", a: "Ernest Hemingway" },
-  { t: "There is nothing noble in being superior to your fellow man; true nobility is being superior to your former self.", a: "Ernest Hemingway" },
-  { t: "Courage is grace under pressure.", a: "Ernest Hemingway" },
-  { t: "The world breaks everyone, and afterward, some are strong at the broken places.", a: "Ernest Hemingway" },
-  { t: "The best way to find out if you can trust somebody is to trust them.", a: "Ernest Hemingway" },
-  { t: "Never confuse movement with action.", a: "Ernest Hemingway" },
-  { t: "I love sleep. My life has the tendency to fall apart when I'm awake, you know?", a: "Ernest Hemingway" },
-  { t: "Happiness in intelligent people is the rarest thing I know.", a: "Ernest Hemingway" },
-  { t: "There is no friend as loyal as a book.", a: "Ernest Hemingway" },
-  { t: "When people talk, listen completely. Most people never listen.", a: "Ernest Hemingway" },
-  { t: "All thinking men are atheists.", a: "Ernest Hemingway" },
-  { t: "Worry a little bit every day and in a lifetime you will lose a couple of years.", a: "Ernest Hemingway" },
-  { t: "Always do sober what you said you'd do drunk. That will teach you to keep your mouth shut.", a: "Ernest Hemingway" },
-  { t: "Forget your personal tragedy. We are all bitched from the start.", a: "Ernest Hemingway" },
-  { t: "A man's got to take a lot of punishment to write a really funny book.", a: "Ernest Hemingway" },
-  { t: "But man is not made for defeat. A man can be destroyed but not defeated.", a: "Ernest Hemingway" },
-  { t: "An intelligent man is sometimes forced to be drunk to spend time with his fools.", a: "Ernest Hemingway" },
-  { t: "Write hard and clear about what hurts.", a: "Ernest Hemingway" },
-  { t: "The most painful thing is losing yourself in the process of loving someone too much.", a: "Ernest Hemingway" },
-  { t: "Before you react, think. Before you spend, earn. Before you criticize, wait. Before you quit, try.", a: "Ernest Hemingway" },
-  { t: "Be entirely tolerant or not at all.", a: "James Joyce" },
-  { t: "Mistakes are the portals of discovery.", a: "James Joyce" },
-  { t: "Your mind will give back to you exactly what you put into it.", a: "James Joyce" },
-  { t: "History is a nightmare from which I am trying to awake.", a: "James Joyce" },
-  { t: "To learn one must be humble. But life is the great teacher.", a: "James Joyce" },
-  { t: "Love loves to love love.", a: "James Joyce" },
-  { t: "Absence, the highest form of presence.", a: "James Joyce" },
-  { t: "The sea, the snotgreen sea, the scrotumtightening sea.", a: "James Joyce" },
-  { t: "Christopher Columbus, as everyone knows, is honored by posterity because he was the last to discover America.", a: "James Joyce" },
-  { t: "They lived and laughed and loved and left.", a: "James Joyce" },
-  { t: "The object of the artist is the creation of the beautiful.", a: "James Joyce" },
-  { t: "I am tomorrow, or some future day, what I establish today.", a: "James Joyce" },
-  { t: "Shakespeare is the happy hunting ground of all minds that have lost their balance.", a: "James Joyce" },
-  { t: "My soul is a hidden orchestra; I know not what instruments I sound.", a: "Fernando Pessoa" },
-  { t: "I bear the wounds of all the battles I avoided.", a: "Fernando Pessoa" },
-  { t: "We never love anyone. What we love is the idea we have of someone.", a: "Fernando Pessoa" },
-  { t: "Everything is zero.", a: "Fernando Pessoa" },
-  { t: "To think is to destroy. Thought itself is destroyed by the process.", a: "Fernando Pessoa" },
-  { t: "There are ships sailing to many ports, but not a single one goes where life is not painful.", a: "Fernando Pessoa" },
-  { t: "Freedom is the possibility of isolation.", a: "Fernando Pessoa" },
-  { t: "Life is whatever we make it. The traveler is the journey.", a: "Fernando Pessoa" },
-  { t: "No one comprehends another. We are islands in a sea of misunderstandings.", a: "Fernando Pessoa" },
-  { t: "I have in me all the dreams of the world.", a: "Fernando Pessoa" }
+  { t: "Waste no more time arguing about what a good man should be. Be one.", a: "Marcus Aurelius" }
 ];
 
 /* ── SHORTCUTS GENERATION ── */
@@ -1449,6 +1052,134 @@ document.addEventListener('keydown', e => {
   const isInput = document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
   if(!isInput && !e.metaKey && !e.ctrlKey && !e.altKey && e.key.length === 1 && omnibar) omnibar.focus();
 });
+
+/* ── CALCULATOR LOGIC ── */
+const calcDisplay = document.getElementById('calc-display');
+let currentVal = '0';
+let previousVal = '';
+let operation = null;
+let shouldResetScreen = false;
+
+function updateDisplay() {
+  calcDisplay.textContent = currentVal;
+  calcDisplay.scrollLeft = calcDisplay.scrollWidth; // Keep latest numbers in view
+}
+
+function calcNum(num) {
+  if (currentVal === '0' || shouldResetScreen) {
+    currentVal = num;
+    shouldResetScreen = false;
+  } else {
+    currentVal += num;
+  }
+  updateDisplay();
+}
+
+function calcOp(op) {
+  if (operation !== null) calcEq();
+  previousVal = currentVal;
+  operation = op;
+  shouldResetScreen = true;
+}
+
+function calcEq() {
+  if (operation === null || shouldResetScreen) return;
+  let result;
+  const prev = parseFloat(previousVal);
+  const current = parseFloat(currentVal);
+  switch (operation) {
+    case '+': result = prev + current; break;
+    case '-': result = prev - current; break;
+    case '*': result = prev * current; break;
+    case '/': result = current === 0 ? 'Error' : prev / current; break;
+  }
+  currentVal = result.toString();
+  operation = null;
+  shouldResetScreen = true;
+  updateDisplay();
+}
+
+function calcClear() {
+  currentVal = '0';
+  previousVal = '';
+  operation = null;
+  updateDisplay();
+}
+
+function calcToggleSign() {
+  if (currentVal === 'Error') return;
+  currentVal = (parseFloat(currentVal) * -1).toString();
+  updateDisplay();
+}
+
+function calcPercent() {
+  if (currentVal === 'Error') return;
+  currentVal = (parseFloat(currentVal) / 100).toString();
+  updateDisplay();
+}
+
+function calcCustom(factor) {
+  if (currentVal === 'Error') return;
+  currentVal = (parseFloat(currentVal) * factor).toString();
+  updateDisplay();
+}
+
+/* ── SCRATCHPAD LOGIC ── */
+const scratchpadInput = document.getElementById('scratchpad-input');
+const saveIndicator = document.getElementById('save-indicator');
+let saveTimeout;
+
+// Load saved text
+scratchpadInput.value = storage.get('salut_scratchpad') || '';
+
+// Auto-save on type
+scratchpadInput.addEventListener('input', () => {
+  clearTimeout(saveTimeout);
+  saveIndicator.classList.remove('visible');
+  saveTimeout = setTimeout(() => {
+    storage.set('salut_scratchpad', scratchpadInput.value);
+    saveIndicator.classList.add('visible');
+    setTimeout(() => saveIndicator.classList.remove('visible'), 2000);
+  }, 500);
+});
+
+// Clear Button
+document.getElementById('clear-btn').addEventListener('click', () => {
+  scratchpadInput.value = '';
+  storage.set('salut_scratchpad', '');
+  scratchpadInput.focus();
+});
+
+// Copy Button
+document.getElementById('copy-btn').addEventListener('click', () => {
+  scratchpadInput.select();
+  document.execCommand('copy');
+  
+  // Show tick icon temporarily
+  const btn = document.getElementById('copy-btn');
+  const originalHTML = btn.innerHTML;
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+  setTimeout(() => btn.innerHTML = originalHTML, 1500);
+});
+
+// Paste Button
+document.getElementById('paste-btn').addEventListener('click', async () => {
+  try {
+    const text = await navigator.clipboard.readText();
+    scratchpadInput.value += (scratchpadInput.value ? '\n' : '') + text;
+    scratchpadInput.dispatchEvent(new Event('input')); // Trigger save
+  } catch (err) {
+    console.error('Failed to read clipboard text: ', err);
+  }
+});
+
+/* ── RANDOM QUOTE LOGIC ── */
+function initQuote() {
+  const quote = quotes[Math.floor(Math.random() * quotes.length)];
+  document.getElementById('quote-text').textContent = `"${quote.t}"`;
+  document.getElementById('quote-author').textContent = quote.a;
+}
+initQuote();
 </script>
 </body>
 </html>
