@@ -300,7 +300,10 @@ form#search-form { width: 100%; }
 .weather-back {
   transform: rotateY(180deg);
   padding: 12px 24px 16px 24px;
+  pointer-events: none;
 }
+.weather-flip-container.flipped .weather-front { pointer-events: none; }
+.weather-flip-container.flipped .weather-back { pointer-events: auto; }
 
 .weather-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .weather-city { font-family: var(--font-main); font-weight: 800; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
@@ -406,7 +409,10 @@ form#search-form { width: 100%; }
 
 .calc-back {
   transform: rotateY(180deg);
+  pointer-events: none;
 }
+.calc-flip-container.flipped .calc-front { pointer-events: none; }
+.calc-flip-container.flipped .calc-back { pointer-events: auto; }
 
 /* TradingView */
 .voo-widget { 
@@ -894,8 +900,14 @@ input[type="range"].timer-slider::-moz-range-thumb {
 <script>
 /* ── LOCAL STORAGE UTILS ── */
 const storage = {
-  get: k => localStorage.getItem(k),
-  set: (k, v) => localStorage.setItem(k, v)
+  get: k => {
+    try { return localStorage.getItem(k); } 
+    catch(e) { return null; }
+  },
+  set: (k, v) => {
+    try { localStorage.setItem(k, v); } 
+    catch(e) { console.warn("Storage access restricted"); }
+  }
 };
 
 /* ── SEARCH HANDLER ── */
@@ -1064,7 +1076,7 @@ else window.addEventListener('load', initTV);
 /* ── DATA: SHORTCUTS & QUOTES ── */
 const FAVICON_BASE = "https://icons.duckduckgo.com/ip3/";
 const sites = [
-  { k:"a", n:"Amazon",    s:"https://www.amazon.com/s?k=", d:"amazon.com" },
+  { k:"a", n:"Amazon",   s:"https://www.amazon.com/s?k=", d:"amazon.com" },
   { k:"c", n:"ChatGPT",   s:"https://chatgpt.com/?q=", d:"chatgpt.com" },
   { k:"p", n:"Disney+",   s:"https://www.disneyplus.com/search?q=", d:"disneyplus.com" },
   { k:"e", n:"eBay",      s:"https://www.ebay.com/sch/i.html?_nkw=", d:"ebay.com" },
@@ -1201,11 +1213,16 @@ function stripFloatError(num) {
 }
 
 function calcNum(num) {
-  if (CalcState.currentVal === '0' || CalcState.shouldResetScreen) {
-    CalcState.currentVal = num;
+  if (CalcState.shouldResetScreen) {
+    CalcState.currentVal = num === '.' ? '0.' : num;
     CalcState.shouldResetScreen = false;
   } else {
-    CalcState.currentVal += num;
+    if (CalcState.currentVal === '0') {
+      CalcState.currentVal = num === '.' ? '0.' : num;
+    } else {
+      if (num === '.' && CalcState.currentVal.includes('.')) return;
+      CalcState.currentVal += num;
+    }
   }
   updateCalcDisplay();
 }
