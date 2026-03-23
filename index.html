@@ -498,6 +498,86 @@ form#search-form { width: 100%; }
   color: var(--text);
 }
 
+/* Timer Flip Setup */
+.timer-flip-container {
+  perspective: 1000px;
+  height: 168px; /* Locked to the natural height of the timer */
+  flex-shrink: 0;
+  animation: fadeUp 0.4s 0.2s ease both;
+}
+
+.timer-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.timer-flip-container.flipped .timer-inner {
+  transform: rotateY(180deg);
+}
+
+.timer-front, .timer-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  background: var(--card);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.timer-back {
+  transform: rotateY(180deg);
+  pointer-events: none;
+  padding: 12px 16px 8px 16px; /* Reduced bottom padding */
+}
+
+.timer-back .widget-header {
+  margin-bottom: 6px; /* Tighter header margin */
+}
+
+.timer-flip-container.flipped .timer-front { pointer-events: none; }
+.timer-flip-container.flipped .timer-back { pointer-events: auto; }
+
+/* Military Alphabet Grid */
+.alpha-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(9, auto);
+  grid-auto-flow: column;
+  gap: 2px 6px; /* Reduced vertical gap */
+}
+
+.alpha-item {
+  display: flex;
+  align-items: baseline;
+  font-size: 9px; /* Slightly smaller font to fit 9 rows */
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.alpha-letter {
+  font-family: var(--font-main);
+  font-weight: 800;
+  color: var(--yellow);
+  margin-right: 4px;
+  min-width: 8px;
+}
+
+.alpha-word {
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 /* Timer Widget */
 .timer-widget {
   padding: 12px 16px;
@@ -515,6 +595,8 @@ form#search-form { width: 100%; }
   font-variant-numeric: tabular-nums;
   padding: 0;
   line-height: 1;
+  margin-top: -14px; /* Nudges the timer up further */
+  margin-bottom: 10px;
 }
 .timer-controls {
   display: flex;
@@ -771,25 +853,73 @@ input[type="range"].timer-slider::-moz-range-thumb {
       </div>
     </div>
 
-    <!-- Timer Widget -->
-    <div class="widget-card timer-widget">
-      <div class="widget-header">
-        <span class="widget-title">Timer</span>
-      </div>
-      <div class="timer-display" id="timer-display">00:00</div>
-      <div class="timer-controls">
-        <div class="slider-group">
-          <span class="slider-label">Hr</span>
-          <input type="range" class="timer-slider" id="timer-slider-hr" min="0" max="24" value="0" step="1" aria-label="Hours">
+    <!-- Timer Widget (Flip Container) -->
+    <div class="timer-flip-container" id="timer-flip-widget">
+      <div class="timer-inner">
+        
+        <!-- Front (Timer) -->
+        <div class="timer-front timer-widget">
+          <div class="widget-header">
+            <span class="widget-title">Timer</span>
+            <button type="button" class="flip-btn" aria-label="Flip to Alphabet" onclick="document.getElementById('timer-flip-widget').classList.add('flipped')" title="Flip to Alphabet">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.13 15.57a9 9 0 1 0 3.84-10.36L2 9"></path></svg>
+            </button>
+          </div>
+          <div class="timer-display" id="timer-display">00:00</div>
+          <div class="timer-controls">
+            <div class="slider-group">
+              <span class="slider-label">Hr</span>
+              <input type="range" class="timer-slider" id="timer-slider-hr" min="0" max="24" value="0" step="1" aria-label="Hours">
+            </div>
+            <div class="slider-group">
+              <span class="slider-label">Min</span>
+              <input type="range" class="timer-slider" id="timer-slider-min" min="0" max="59" value="0" step="1" aria-label="Minutes">
+            </div>
+          </div>
+          <div class="timer-actions">
+            <button type="button" class="timer-btn primary" id="timer-start-btn" onclick="toggleTimer()">Start</button>
+            <button type="button" class="timer-btn" onclick="resetTimer()">Reset</button>
+          </div>
         </div>
-        <div class="slider-group">
-          <span class="slider-label">Min</span>
-          <input type="range" class="timer-slider" id="timer-slider-min" min="0" max="59" value="0" step="1" aria-label="Minutes">
+        
+        <!-- Back (Military Alphabet) -->
+        <div class="timer-back">
+          <div class="widget-header">
+            <span class="widget-title">Phonetic Alphabet</span>
+            <button type="button" class="flip-btn" aria-label="Back to Timer" onclick="document.getElementById('timer-flip-widget').classList.remove('flipped')" title="Back to Timer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+          </div>
+          <div class="alpha-grid">
+            <div class="alpha-item"><span class="alpha-letter">A</span><span class="alpha-word">Alpha</span></div>
+            <div class="alpha-item"><span class="alpha-letter">B</span><span class="alpha-word">Bravo</span></div>
+            <div class="alpha-item"><span class="alpha-letter">C</span><span class="alpha-word">Charlie</span></div>
+            <div class="alpha-item"><span class="alpha-letter">D</span><span class="alpha-word">Delta</span></div>
+            <div class="alpha-item"><span class="alpha-letter">E</span><span class="alpha-word">Echo</span></div>
+            <div class="alpha-item"><span class="alpha-letter">F</span><span class="alpha-word">Foxtrot</span></div>
+            <div class="alpha-item"><span class="alpha-letter">G</span><span class="alpha-word">Golf</span></div>
+            <div class="alpha-item"><span class="alpha-letter">H</span><span class="alpha-word">Hotel</span></div>
+            <div class="alpha-item"><span class="alpha-letter">I</span><span class="alpha-word">India</span></div>
+            <div class="alpha-item"><span class="alpha-letter">J</span><span class="alpha-word">Juliett</span></div>
+            <div class="alpha-item"><span class="alpha-letter">K</span><span class="alpha-word">Kilo</span></div>
+            <div class="alpha-item"><span class="alpha-letter">L</span><span class="alpha-word">Lima</span></div>
+            <div class="alpha-item"><span class="alpha-letter">M</span><span class="alpha-word">Mike</span></div>
+            <div class="alpha-item"><span class="alpha-letter">N</span><span class="alpha-word">November</span></div>
+            <div class="alpha-item"><span class="alpha-letter">O</span><span class="alpha-word">Oscar</span></div>
+            <div class="alpha-item"><span class="alpha-letter">P</span><span class="alpha-word">Papa</span></div>
+            <div class="alpha-item"><span class="alpha-letter">Q</span><span class="alpha-word">Quebec</span></div>
+            <div class="alpha-item"><span class="alpha-letter">R</span><span class="alpha-word">Romeo</span></div>
+            <div class="alpha-item"><span class="alpha-letter">S</span><span class="alpha-word">Sierra</span></div>
+            <div class="alpha-item"><span class="alpha-letter">T</span><span class="alpha-word">Tango</span></div>
+            <div class="alpha-item"><span class="alpha-letter">U</span><span class="alpha-word">Uniform</span></div>
+            <div class="alpha-item"><span class="alpha-letter">V</span><span class="alpha-word">Victor</span></div>
+            <div class="alpha-item"><span class="alpha-letter">W</span><span class="alpha-word">Whiskey</span></div>
+            <div class="alpha-item"><span class="alpha-letter">X</span><span class="alpha-word">X-ray</span></div>
+            <div class="alpha-item"><span class="alpha-letter">Y</span><span class="alpha-word">Yankee</span></div>
+            <div class="alpha-item"><span class="alpha-letter">Z</span><span class="alpha-word">Zulu</span></div>
+          </div>
         </div>
-      </div>
-      <div class="timer-actions">
-        <button type="button" class="timer-btn primary" id="timer-start-btn" onclick="toggleTimer()">Start</button>
-        <button type="button" class="timer-btn" onclick="resetTimer()">Reset</button>
+
       </div>
     </div>
   </div>
@@ -968,8 +1098,11 @@ async function fetchWeather(lat, lon, cityName = "Local") {
   const TIME_KEY = 'weatherTime';
   
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=auto&forecast_days=7`;
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=${encodeURIComponent(tz)}&forecast_days=7`;
+    
     const response = await fetch(url);
+    if (!response.ok) throw new Error("HTTP " + response.status);
     const data = await response.json();
     
     data.cityName = cityName; 
@@ -979,6 +1112,25 @@ async function fetchWeather(lat, lon, cityName = "Local") {
     renderWeather(data);
   } catch(e) {
     console.error("Weather fetch failed:", e);
+    // Fallback mock data if the API is blocked by network or iframe sandbox constraints
+    const mockData = {
+      cityName: cityName === "Local" ? "Local (Offline)" : "Burbank, CA (Offline)",
+      current: { temperature_2m: 72, weather_code: 0 },
+      hourly: {
+        temperature_2m: Array(24).fill(72).map((t, i) => t + Math.sin(i)*5),
+        weather_code: Array(24).fill(0)
+      },
+      daily: {
+        time: Array(7).fill(0).map((_, i) => {
+          const d = new Date(); d.setDate(d.getDate() + i);
+          return d.toISOString().split('T')[0];
+        }),
+        temperature_2m_max: Array(7).fill(78),
+        temperature_2m_min: Array(7).fill(62),
+        weather_code: Array(7).fill(0)
+      }
+    };
+    renderWeather(mockData);
   }
 }
 
@@ -1203,7 +1355,24 @@ const CalcState = {
 };
 
 function updateCalcDisplay() {
-  CalcState.displayEl.textContent = CalcState.currentVal;
+  let displayText = CalcState.currentVal;
+  
+  // If an operation is active, show the full equation
+  if (CalcState.operation !== null) {
+    let opSymbol = CalcState.operation;
+    if (opSymbol === '*') opSymbol = '×';
+    if (opSymbol === '/') opSymbol = '÷';
+    
+    if (CalcState.shouldResetScreen) {
+      // Just pressed the operator
+      displayText = `${CalcState.previousVal} ${opSymbol}`;
+    } else {
+      // Typing the second number
+      displayText = `${CalcState.previousVal} ${opSymbol} ${CalcState.currentVal}`;
+    }
+  }
+
+  CalcState.displayEl.textContent = displayText;
   CalcState.displayEl.scrollLeft = CalcState.displayEl.scrollWidth; 
 }
 
@@ -1232,6 +1401,7 @@ function calcOp(op) {
   CalcState.previousVal = CalcState.currentVal;
   CalcState.operation = op;
   CalcState.shouldResetScreen = true;
+  updateCalcDisplay();
 }
 
 function calcEq() {
