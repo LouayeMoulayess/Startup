@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://icons.duckduckgo.com">
 <link rel="preconnect" href="https://api.open-meteo.com">
+<link rel="preconnect" href="https://geocoding-api.open-meteo.com">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23fba31b' stroke='%23e37812' stroke-width='2'/%3E%3Cellipse cx='20' cy='18' rx='8' ry='4' fill='%23fff' opacity='0.5' transform='rotate(-30 20 18)'/%3E%3Cg fill='%23db2416'%3E%3Cpolygon points='32,15 34,21 40,21 35,25 37,31 32,27 27,31 29,25 24,21 30,21'/%3E%3Cpolygon points='20,30 22,36 28,36 23,40 25,46 20,42 15,46 17,40 12,36 18,36'/%3E%3Cpolygon points='44,30 46,36 52,36 47,40 49,46 44,42 39,46 41,40 36,36 42,36'/%3E%3Cpolygon points='32,44 34,50 40,50 35,54 37,60 32,56 27,60 29,54 24,50 30,50'/%3E%3C/g%3E%3C/svg%3E">
 
@@ -79,6 +80,28 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
+
+/* ── SETTINGS BTN ── */
+.settings-btn {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.settings-btn:hover {
+  background: var(--border);
+  color: var(--text);
+}
+.settings-btn svg { width: 20px; height: 20px; }
 
 header { 
   width: 100%; 
@@ -252,6 +275,7 @@ form#search-form { width: 100%; }
   opacity: 1; 
 }
 
+/* General Widget Styles */
 .widget-card {
   background: var(--card);
   backdrop-filter: blur(10px);
@@ -260,15 +284,43 @@ form#search-form { width: 100%; }
   animation: fadeUp 0.4s 0.2s ease both;
   overflow: hidden;
 }
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+.widget-title {
+  font-family: var(--font-main);
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.flip-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+  outline: none;
+}
+.flip-btn:hover { color: var(--text); }
+.flip-btn svg { width: 14px; height: 14px; }
 
-/* Weather Flip Widget Setup */
+/* Weather Widget */
 .weather-flip-container {
   perspective: 1000px;
   height: 180px;
   flex-shrink: 0;
   animation: fadeUp 0.4s 0.2s ease both;
 }
-
 .weather-inner {
   position: relative;
   width: 100%;
@@ -276,11 +328,9 @@ form#search-form { width: 100%; }
   transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
   transform-style: preserve-3d;
 }
-
 .weather-flip-container.flipped .weather-inner {
   transform: rotateY(180deg);
 }
-
 .weather-front, .weather-back {
   position: absolute;
   top: 0;
@@ -295,7 +345,6 @@ form#search-form { width: 100%; }
   display: flex;
   flex-direction: column;
 }
-
 .weather-front { padding: 7px 24px 33px 24px; }
 .weather-back {
   transform: rotateY(180deg);
@@ -325,7 +374,6 @@ form#search-form { width: 100%; }
   flex: 1;
   margin-top: 8px;
 }
-
 .daily-item {
   display: flex;
   justify-content: space-between;
@@ -333,43 +381,10 @@ form#search-form { width: 100%; }
   font-size: 12px;
   font-weight: 600;
 }
-
 .d-day { width: 40px; color: var(--muted); }
 .d-icon { font-size: 14px; text-align: center; flex: 1; }
 .d-temp { width: 60px; text-align: right; color: var(--muted); font-size: 11px; }
 .d-temp-max { color: var(--text); font-size: 12px; margin-left: 4px; }
-
-.flip-btn {
-  background: transparent;
-  border: none;
-  color: var(--muted);
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s;
-  outline: none;
-}
-.flip-btn:hover { color: var(--text); }
-.flip-btn svg { width: 14px; height: 14px; }
-
-/* General Widget Header */
-.widget-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  flex-shrink: 0;
-}
-.widget-title {
-  font-family: var(--font-main);
-  font-weight: 800;
-  font-size: 12px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
 
 /* Calculator & VOO Flip Setup */
 .calc-flip-container {
@@ -378,7 +393,6 @@ form#search-form { width: 100%; }
   flex-shrink: 0;
   animation: fadeUp 0.4s 0.2s ease both;
 }
-
 .calc-inner {
   position: relative;
   width: 100%;
@@ -386,11 +400,9 @@ form#search-form { width: 100%; }
   transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
   transform-style: preserve-3d;
 }
-
 .calc-flip-container.flipped .calc-inner {
   transform: rotateY(180deg);
 }
-
 .calc-front, .calc-back {
   position: absolute;
   top: 0;
@@ -406,7 +418,6 @@ form#search-form { width: 100%; }
   flex-direction: column;
   padding: 16px;
 }
-
 .calc-back {
   transform: rotateY(180deg);
   pointer-events: none;
@@ -429,7 +440,6 @@ form#search-form { width: 100%; }
   gap: 12px;
   flex: 1; 
 }
-
 .calc-display {
   font-family: var(--font-main);
   font-weight: 800;
@@ -443,11 +453,9 @@ form#search-form { width: 100%; }
   overflow-x: auto;
   white-space: nowrap;
 }
-
 @media (prefers-color-scheme: dark) {
   .calc-display { background: rgba(0, 0, 0, 0.2); border-color: transparent; }
 }
-
 .calc-display::-webkit-scrollbar { display: none; }
 .calc-grid {
   display: grid;
@@ -456,7 +464,6 @@ form#search-form { width: 100%; }
   gap: 8px;
   flex: 1; 
 }
-
 .calc-btn {
   background: var(--bg);
   border: 1px solid var(--border);
@@ -471,7 +478,6 @@ form#search-form { width: 100%; }
   justify-content: center;
   transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.05s;
 }
-
 .calc-btn:hover { background: var(--border); border-color: var(--yellow); }
 .calc-btn:active { transform: scale(0.96); }
 .calc-btn.span-2 { grid-column: span 2; }
@@ -487,11 +493,9 @@ form#search-form { width: 100%; }
   background: rgba(0,0,0,0.02);
   border-color: transparent;
 }
-
 @media (prefers-color-scheme: dark) {
   .calc-btn.btn-custom { background: rgba(255,255,255,0.03); }
 }
-
 .calc-btn.btn-custom:hover {
   background: var(--bg);
   border-color: var(--border);
@@ -501,11 +505,10 @@ form#search-form { width: 100%; }
 /* Timer Flip Setup */
 .timer-flip-container {
   perspective: 1000px;
-  height: 168px; /* Locked to the natural height of the timer */
+  height: 168px;
   flex-shrink: 0;
   animation: fadeUp 0.4s 0.2s ease both;
 }
-
 .timer-inner {
   position: relative;
   width: 100%;
@@ -513,11 +516,7 @@ form#search-form { width: 100%; }
   transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
   transform-style: preserve-3d;
 }
-
-.timer-flip-container.flipped .timer-inner {
-  transform: rotateY(180deg);
-}
-
+.timer-flip-container.flipped .timer-inner { transform: rotateY(180deg); }
 .timer-front, .timer-back {
   position: absolute;
   top: 0;
@@ -532,17 +531,12 @@ form#search-form { width: 100%; }
   display: flex;
   flex-direction: column;
 }
-
 .timer-back {
   transform: rotateY(180deg);
   pointer-events: none;
-  padding: 12px 16px 8px 16px; /* Reduced bottom padding */
+  padding: 12px 16px 8px 16px;
 }
-
-.timer-back .widget-header {
-  margin-bottom: 6px; /* Tighter header margin */
-}
-
+.timer-back .widget-header { margin-bottom: 6px; }
 .timer-flip-container.flipped .timer-front { pointer-events: none; }
 .timer-flip-container.flipped .timer-back { pointer-events: auto; }
 
@@ -552,17 +546,15 @@ form#search-form { width: 100%; }
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(9, auto);
   grid-auto-flow: column;
-  gap: 2px 6px; /* Reduced vertical gap */
+  gap: 2px 6px;
 }
-
 .alpha-item {
   display: flex;
   align-items: baseline;
-  font-size: 9px; /* Slightly smaller font to fit 9 rows */
+  font-size: 9px;
   line-height: 1.1;
   white-space: nowrap;
 }
-
 .alpha-letter {
   font-family: var(--font-main);
   font-weight: 800;
@@ -570,7 +562,6 @@ form#search-form { width: 100%; }
   margin-right: 4px;
   min-width: 8px;
 }
-
 .alpha-word {
   font-weight: 600;
   color: var(--muted);
@@ -595,7 +586,7 @@ form#search-form { width: 100%; }
   font-variant-numeric: tabular-nums;
   padding: 0;
   line-height: 1;
-  margin-top: -14px; /* Nudges the timer up further */
+  margin-top: -14px;
   margin-bottom: 10px;
 }
 .timer-controls {
@@ -645,9 +636,7 @@ input[type="range"].timer-slider::-webkit-slider-thumb {
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   transition: transform 0.1s;
 }
-input[type="range"].timer-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-}
+input[type="range"].timer-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
 input[type="range"].timer-slider::-moz-range-thumb {
   width: 16px;
   height: 16px;
@@ -689,21 +678,18 @@ input[type="range"].timer-slider::-moz-range-thumb {
   flex: 1; 
   min-height: 250px; 
 }
-
 .scratchpad-header {
   display: flex;
-  justify-content: flex-end; /* Aligns actions to the right natively */
+  justify-content: flex-end; 
   align-items: center;
   padding: 16px 20px;
   border-bottom: 1px solid var(--border);
 }
-
 .scratchpad-actions { 
   display: flex; 
   align-items: center; 
   gap: 12px; 
 }
-
 .save-indicator { 
   font-size: 10px; 
   font-family: var(--font-main);
@@ -743,12 +729,7 @@ input[type="range"].timer-slider::-moz-range-thumb {
   line-height: 1.6;
   outline: none;
 }
-
-#scratchpad-input::placeholder {
-  opacity: 0.5;
-  font-style: italic;
-}
-
+#scratchpad-input::placeholder { opacity: 0.5; font-style: italic; }
 #scratchpad-input::-webkit-scrollbar { width: 4px; }
 #scratchpad-input::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
@@ -760,7 +741,6 @@ input[type="range"].timer-slider::-moz-range-thumb {
   text-align: center;
   animation: fadeUp 0.6s 0.5s ease both;
 }
-
 #quote-text {
   font-size: 15px;
   font-style: italic;
@@ -770,7 +750,6 @@ input[type="range"].timer-slider::-moz-range-thumb {
   max-width: 80%;
   margin: 0 auto;
 }
-
 #quote-author {
   font-family: var(--font-main);
   font-weight: 800;
@@ -781,12 +760,55 @@ input[type="range"].timer-slider::-moz-range-thumb {
   margin-top: 8px;
   display: block;
 }
-
 .bottom-divider { 
   margin-top: 30px; 
   margin-bottom: 4px; 
   opacity: 0.4; 
 }
+
+/* ── SETTINGS MODAL ── */
+.modal-overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+  opacity: 1; transition: opacity 0.2s;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.hidden { opacity: 0; pointer-events: none; }
+.modal-content {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.modal-content h2 { margin-bottom: 20px; font-weight: 800; font-size: 18px; color: var(--text); }
+.form-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+.form-group label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group textarea {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-main);
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+.form-group input:focus, .form-group textarea:focus { border-color: var(--yellow); }
+.form-group textarea { resize: vertical; font-size: 13px; font-family: monospace; white-space: pre; overflow-x: auto; line-height: 1.4; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.btn {
+  padding: 10px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--card); color: var(--text); font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: var(--font-main);
+}
+.btn:hover { background: var(--bg); border-color: var(--muted); }
+.btn.primary { background: var(--yellow); border-color: var(--yellow); color: #fff; }
+.btn.primary:hover { opacity: 0.9; }
 
 @media (max-width: 1150px) {
   .main-layout { flex-direction: column; align-items: center; }
@@ -796,6 +818,10 @@ input[type="range"].timer-slider::-moz-range-thumb {
 </style>
 </head>
 <body>
+
+<button id="settings-open-btn" class="settings-btn" title="Settings" aria-label="Settings">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+</button>
 
 <header>
   <div id="clock">
@@ -815,14 +841,13 @@ input[type="range"].timer-slider::-moz-range-thumb {
   <div class="left-panel">
     <div class="weather-flip-container" id="weather-widget">
       <div class="weather-inner">
-        
-        <!-- Weather Front (Current + Hourly) -->
+        <!-- Weather Front -->
         <div class="weather-front">
           <div class="weather-header">
-            <span class="weather-city">Location...</span>
+            <span class="weather-city" id="weather-city-front">Location...</span>
             <div style="display:flex; align-items:center; gap:8px;">
               <span id="weather-last-update">Live</span>
-              <button type="button" class="flip-btn" aria-label="Flip to 6-Day Forecast" onclick="document.getElementById('weather-widget').classList.add('flipped')" title="Flip to 6-Day Forecast">
+              <button type="button" class="flip-btn" aria-label="Flip to Forecast" onclick="document.getElementById('weather-widget').classList.add('flipped')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.13 15.57a9 9 0 1 0 3.84-10.36L2 9"></path></svg>
               </button>
             </div>
@@ -836,32 +861,27 @@ input[type="range"].timer-slider::-moz-range-thumb {
           </div>
           <div class="forecast-strip" id="forecast-container"></div>
         </div>
-        
-        <!-- Weather Back (6-Day Forecast) -->
+        <!-- Weather Back -->
         <div class="weather-back">
           <div class="weather-header">
             <span class="weather-city">6-Day Forecast</span>
-            <button type="button" class="flip-btn" aria-label="Back to Current Weather" onclick="document.getElementById('weather-widget').classList.remove('flipped')" title="Back to Current Weather">
+            <button type="button" class="flip-btn" aria-label="Back to Current Weather" onclick="document.getElementById('weather-widget').classList.remove('flipped')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
           </div>
-          <div class="daily-forecast-container" id="daily-forecast-container">
-            <!-- Populated by JS -->
-          </div>
+          <div class="daily-forecast-container" id="daily-forecast-container"></div>
         </div>
-
       </div>
     </div>
 
     <!-- Timer Widget (Flip Container) -->
     <div class="timer-flip-container" id="timer-flip-widget">
       <div class="timer-inner">
-        
         <!-- Front (Timer) -->
         <div class="timer-front timer-widget">
           <div class="widget-header">
             <span class="widget-title">Timer</span>
-            <button type="button" class="flip-btn" aria-label="Flip to Alphabet" onclick="document.getElementById('timer-flip-widget').classList.add('flipped')" title="Flip to Alphabet">
+            <button type="button" class="flip-btn" aria-label="Flip to Alphabet" onclick="document.getElementById('timer-flip-widget').classList.add('flipped')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.13 15.57a9 9 0 1 0 3.84-10.36L2 9"></path></svg>
             </button>
           </div>
@@ -869,7 +889,7 @@ input[type="range"].timer-slider::-moz-range-thumb {
           <div class="timer-controls">
             <div class="slider-group">
               <span class="slider-label">Hr</span>
-              <input type="range" class="timer-slider" id="timer-slider-hr" min="0" max="24" value="0" step="1" aria-label="Hours">
+              <input type="range" class="timer-slider" id="timer-slider-hr" min="0" max="3" value="0" step="1" aria-label="Hours">
             </div>
             <div class="slider-group">
               <span class="slider-label">Min</span>
@@ -877,16 +897,15 @@ input[type="range"].timer-slider::-moz-range-thumb {
             </div>
           </div>
           <div class="timer-actions">
-            <button type="button" class="timer-btn primary" id="timer-start-btn" onclick="toggleTimer()">Start</button>
-            <button type="button" class="timer-btn" onclick="resetTimer()">Reset</button>
+            <button type="button" class="timer-btn primary" id="timer-start-btn" onclick="TimerWidget.toggle()">Start</button>
+            <button type="button" class="timer-btn" onclick="TimerWidget.reset()">Reset</button>
           </div>
         </div>
-        
         <!-- Back (Military Alphabet) -->
         <div class="timer-back">
           <div class="widget-header">
             <span class="widget-title">Phonetic Alphabet</span>
-            <button type="button" class="flip-btn" aria-label="Back to Timer" onclick="document.getElementById('timer-flip-widget').classList.remove('flipped')" title="Back to Timer">
+            <button type="button" class="flip-btn" aria-label="Back to Timer" onclick="document.getElementById('timer-flip-widget').classList.remove('flipped')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
           </div>
@@ -919,7 +938,6 @@ input[type="range"].timer-slider::-moz-range-thumb {
             <div class="alpha-item"><span class="alpha-letter">Z</span><span class="alpha-word">Zulu</span></div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -927,7 +945,7 @@ input[type="range"].timer-slider::-moz-range-thumb {
   <!-- CENTER PANEL (Search & Scratchpad) -->
   <div class="container">
     <div class="omnibar-wrapper">
-      <form id="search-form" onsubmit="handleSearch(event)">
+      <form id="search-form" onsubmit="SearchWidget.handle(event)">
         <input type="text" id="omnibar" aria-label="Search" placeholder="Search" autofocus autocomplete="off" spellcheck="false">
       </form>
       <div id="shortcuts-grid"></div>
@@ -959,12 +977,11 @@ input[type="range"].timer-slider::-moz-range-thumb {
   <div class="side-panel">
     <div class="calc-flip-container" id="calc-flip-widget">
       <div class="calc-inner">
-        
         <!-- Front (Calculator) -->
         <div class="calc-front calculator-widget" id="calc-widget">
           <div class="widget-header">
             <span class="widget-title">Calculator</span>
-            <button type="button" class="flip-btn" aria-label="Flip to Market" onclick="document.getElementById('calc-flip-widget').classList.add('flipped')" title="Flip to Market">
+            <button type="button" class="flip-btn" aria-label="Flip to Market" onclick="document.getElementById('calc-flip-widget').classList.add('flipped')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.13 15.57a9 9 0 1 0 3.84-10.36L2 9"></path></svg>
             </button>
           </div>
@@ -972,54 +989,48 @@ input[type="range"].timer-slider::-moz-range-thumb {
           
           <div class="calc-grid">
             <!-- Row 1 -->
-            <button type="button" class="calc-btn btn-custom" aria-label="Calculate 5 percent" onclick="calcCustom(0.05)">5%</button>
-            <button type="button" class="calc-btn btn-clear" aria-label="Clear calculator" onclick="calcClear()">C</button>
-            <button type="button" class="calc-btn" aria-label="Paste" onclick="calcPaste()" title="Paste">
+            <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.05)">5%</button>
+            <button type="button" class="calc-btn btn-clear" onclick="CalculatorWidget.clear()">C</button>
+            <button type="button" class="calc-btn" onclick="CalculatorWidget.paste()" title="Paste">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
             </button>
-            <button type="button" class="calc-btn" aria-label="Percent" onclick="calcPercent()">%</button>
-            <button type="button" class="calc-btn btn-op" aria-label="Divide" onclick="calcOp('/')">÷</button>
-            
+            <button type="button" class="calc-btn" onclick="CalculatorWidget.percent()">%</button>
+            <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('/')">÷</button>
             <!-- Row 2 -->
-            <button type="button" class="calc-btn btn-custom" aria-label="Calculate 6 percent" onclick="calcCustom(0.06)">6%</button>
-            <button type="button" class="calc-btn" onclick="calcNum('7')">7</button>
-            <button type="button" class="calc-btn" onclick="calcNum('8')">8</button>
-            <button type="button" class="calc-btn" onclick="calcNum('9')">9</button>
-            <button type="button" class="calc-btn btn-op" aria-label="Multiply" onclick="calcOp('*')">×</button>
-            
+            <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.06)">6%</button>
+            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('7')">7</button>
+            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('8')">8</button>
+            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('9')">9</button>
+            <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('*')">×</button>
             <!-- Row 3 -->
-            <button type="button" class="calc-btn btn-custom" aria-label="Divide by 2" onclick="calcCustom(0.5)">÷ 2</button>
-            <button type="button" class="calc-btn" onclick="calcNum('4')">4</button>
-            <button type="button" class="calc-btn" onclick="calcNum('5')">5</button>
-            <button type="button" class="calc-btn" onclick="calcNum('6')">6</button>
-            <button type="button" class="calc-btn btn-op" aria-label="Subtract" onclick="calcOp('-')">-</button>
-            
+            <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.5)">÷ 2</button>
+            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('4')">4</button>
+            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('5')">5</button>
+            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('6')">6</button>
+            <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('-')">-</button>
             <!-- Row 4 -->
-            <button type="button" class="calc-btn btn-custom" aria-label="Half minus 5 percent" onclick="calcCustom(0.45)">½-5%</button>
-            <button type="button" class="calc-btn" onclick="calcNum('1')">1</button>
-            <button type="button" class="calc-btn" onclick="calcNum('2')">2</button>
-            <button type="button" class="calc-btn" onclick="calcNum('3')">3</button>
-            <button type="button" class="calc-btn btn-op" aria-label="Add" onclick="calcOp('+')">+</button>
-            
+            <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.45)">½-5%</button>
+            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('1')">1</button>
+            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('2')">2</button>
+            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('3')">3</button>
+            <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('+')">+</button>
             <!-- Row 5 -->
-            <button type="button" class="calc-btn btn-custom" aria-label="Half minus 6 percent" onclick="calcCustom(0.44)">½-6%</button>
-            <button type="button" class="calc-btn span-2" onclick="calcNum('0')">0</button>
-            <button type="button" class="calc-btn" aria-label="Decimal point" onclick="calcNum('.')">.</button>
-            <button type="button" class="calc-btn btn-eq" aria-label="Calculate equals" onclick="calcEq()">=</button>
+            <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.44)">½-6%</button>
+            <button type="button" class="calc-btn span-2" onclick="CalculatorWidget.num('0')">0</button>
+            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('.')">.</button>
+            <button type="button" class="calc-btn btn-eq" onclick="CalculatorWidget.eq()">=</button>
           </div>
         </div>
-
         <!-- Back (VOO / TradingView) -->
         <div class="calc-back voo-widget">
           <div class="widget-header">
-            <span class="widget-title">Market Overview</span>
-            <button type="button" class="flip-btn" aria-label="Back to Calculator" onclick="document.getElementById('calc-flip-widget').classList.remove('flipped')" title="Back to Calculator">
+            <span class="widget-title" id="market-title">Market Overview</span>
+            <button type="button" class="flip-btn" aria-label="Back to Calculator" onclick="document.getElementById('calc-flip-widget').classList.remove('flipped')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </button>
           </div>
           <div id="tv-widget-container" style="flex: 1; width: 100%;"></div>
         </div>
-
       </div>
     </div>
   </div>
@@ -1032,683 +1043,668 @@ input[type="range"].timer-slider::-moz-range-thumb {
   <span id="quote-author"></span>
 </div>
 
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h2>Dashboard Settings</h2>
+    
+    <div class="form-group">
+      <label for="set-city">Default Weather City</label>
+      <input type="text" id="set-city" placeholder="e.g. Burbank, CA">
+    </div>
+    
+    <div class="form-group">
+      <label for="set-ticker">Stock Ticker</label>
+      <input type="text" id="set-ticker" placeholder="e.g. AMEX:VOO or NASDAQ:AAPL">
+    </div>
+    
+    <div class="form-group">
+      <label for="set-shortcuts">Shortcuts (Name | Search URL | Icon Domain)</label>
+      <textarea id="set-shortcuts" rows="7" placeholder="Amazon | https://amazon.com/s?k= | amazon.com"></textarea>
+    </div>
+    
+    <div class="modal-actions">
+      <button id="settings-cancel" class="btn">Cancel</button>
+      <button id="settings-save" class="btn primary">Save & Reload</button>
+    </div>
+  </div>
+</div>
+
 <script>
-/* ── LOCAL STORAGE UTILS ── */
-const storage = {
-  get: k => {
-    try { return localStorage.getItem(k); } 
-    catch(e) { return null; }
+/* ==========================================
+   1. CORE UTILITIES & CONFIG
+========================================== */
+const StorageUtils = {
+  get: k => { try { return localStorage.getItem(k); } catch(e) { return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch(e) { console.warn("Storage restricted"); } }
+};
+
+const Config = {
+  data: {
+    city: "Burbank, CA",
+    lat: 34.1808,
+    lon: -118.3090,
+    ticker: "AMEX:VOO",
+    shortcuts: [
+      { k:"a", n:"Amazon",   s:"https://www.amazon.com/s?k=", d:"amazon.com" },
+      { k:"c", n:"ChatGPT",  s:"https://chatgpt.com/?q=", d:"chatgpt.com" },
+      { k:"p", n:"Disney+",  s:"https://www.disneyplus.com/search?q=", d:"disneyplus.com" },
+      { k:"e", n:"eBay",     s:"https://www.ebay.com/sch/i.html?_nkw=", d:"ebay.com" },
+      { k:"f", n:"Facebook", s:"https://www.facebook.com/search/top?q=", d:"facebook.com" },
+      { k:"i", n:"Google AI",s:"https://www.google.com/search?udm=50&q=", d:"google.com" },
+      { k:"h", n:"Hulu",     s:"https://www.hulu.com/search?q=", d:"hulu.com" },
+      { k:"d", n:"IMDb",     s:"https://www.imdb.com/find/?q=", d:"imdb.com" },
+      { k:"ig",n:"Insta",    s:"https://www.google.com/search?q=site:instagram.com+", d:"instagram.com" },
+      { k:"m", n:"Max",      s:"https://www.max.com/search?q=", d:"max.com" },
+      { k:"n", n:"Netflix",  s:"https://www.netflix.com/search?q=", d:"netflix.com" },
+      { k:"x", n:"Reddit",   s:"https://www.reddit.com/search/?q=", d:"reddit.com" },
+      { k:"y", n:"YouTube",  s:"https://www.youtube.com/results?search_query=", d:"youtube.com" }
+    ]
   },
-  set: (k, v) => {
-    try { localStorage.setItem(k, v); } 
-    catch(e) { console.warn("Storage access restricted"); }
-  }
+  init() {
+    const saved = StorageUtils.get('salut_config');
+    if (saved) {
+      try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch(e) {}
+    }
+  },
+  save() { StorageUtils.set('salut_config', JSON.stringify(this.data)); }
 };
 
-/* ── SEARCH HANDLER ── */
-function handleSearch(e) {
-  e.preventDefault();
-  const val = document.getElementById('omnibar').value.trim();
-  if (val) {
-    window.open("https://www.google.com/search?q=" + encodeURIComponent(val), "_blank", "noopener noreferrer");
-  }
-}
+/* ==========================================
+   2. WIDGETS
+========================================== */
 
-/* ── CLOCK LOGIC (OPTIMIZED) ── */
-const clockDOM = {
-  h: document.getElementById('h'),
-  m: document.getElementById('m'),
-  ampm: document.getElementById('ampm'),
-  date: document.getElementById('date'),
-  leb: document.getElementById('lebanon')
-};
+/* ── SETTINGS MODAL ── */
+const SettingsWidget = {
+  modal: document.getElementById('settings-modal'),
+  btnOpen: document.getElementById('settings-open-btn'),
+  btnCancel: document.getElementById('settings-cancel'),
+  btnSave: document.getElementById('settings-save'),
+  inputCity: document.getElementById('set-city'),
+  inputTicker: document.getElementById('set-ticker'),
+  inputShortcuts: document.getElementById('set-shortcuts'),
 
-function updateClock() {
-  const now = new Date(), rawH = now.getHours(), h12 = rawH % 12 || 12;
-  const hStr = h12.toString(), mStr = now.getMinutes().toString().padStart(2, '0');
-  
-  if(clockDOM.h && clockDOM.h.textContent !== hStr) {
-    clockDOM.h.classList.add('digit-changing');
-    setTimeout(() => { clockDOM.h.textContent = hStr; clockDOM.h.classList.replace('digit-changing', 'digit-incoming'); }, 150);
-  }
-  if(clockDOM.m && clockDOM.m.textContent !== mStr) {
-    clockDOM.m.classList.add('digit-changing');
-    setTimeout(() => { clockDOM.m.textContent = mStr; clockDOM.m.classList.replace('digit-changing', 'digit-incoming'); }, 150);
-  }
-  if(clockDOM.ampm) clockDOM.ampm.textContent = rawH >= 12 ? ' PM' : ' AM';
-  
-  const day = now.getDate(), suffix = ["th","st","nd","rd"][(day % 10 > 3 || Math.floor(day % 100 / 10) === 1) ? 0 : day % 10];
-  if(clockDOM.date) clockDOM.date.innerHTML = `<span class="day-name">${now.toLocaleDateString('en-US', { weekday: 'long' })}</span> ${day}${suffix} of ${now.toLocaleDateString('en-US', { month: 'long' })}`;
-  
-  const lbTime = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Beirut", hour: "numeric", minute: "2-digit" }).format(now);
-  if(clockDOM.leb) clockDOM.leb.innerHTML = `LEB &nbsp;·&nbsp; <span>${lbTime}</span>`;
-  
-  const delay = 1000 - now.getMilliseconds();
-  setTimeout(() => requestAnimationFrame(updateClock), delay);
-}
-updateClock();
-
-/* ── WEATHER & GEOLOCATION (OPTIMIZED) ── */
-const WEATHER_MAP = {
-  0: ["Clear", "☀️"], 1: ["Clear", "🌤️"], 2: ["Partly Cloudy", "⛅"], 3: ["Cloudy", "☁️"],
-  45: ["Fog", "🌫️"], 61: ["Rain", "🌧️"], 95: ["Storm", "⛈️"]
-};
-
-function getWeatherDetails(code) {
-  return WEATHER_MAP[code] || ["Cloudy", "☁️"];
-}
-
-async function fetchWeather(lat, lon, cityName = "Local") {
-  const CACHE_KEY = 'weatherData';
-  const TIME_KEY = 'weatherTime';
-  
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=${encodeURIComponent(tz)}&forecast_days=7`;
+  init() {
+    this.btnOpen.addEventListener('click', () => this.open());
+    this.btnCancel.addEventListener('click', () => this.close());
+    this.btnSave.addEventListener('click', () => this.save());
+  },
+  open() {
+    this.inputCity.value = Config.data.city;
+    this.inputTicker.value = Config.data.ticker;
+    this.inputShortcuts.value = Config.data.shortcuts.map(s => `${s.n} | ${s.s} | ${s.d}`).join('\n');
+    this.modal.classList.remove('hidden');
+  },
+  close() {
+    this.modal.classList.add('hidden');
+  },
+  async save() {
+    const newCity = this.inputCity.value.trim() || "Burbank, CA";
+    Config.data.ticker = this.inputTicker.value.trim() || "AMEX:VOO";
     
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("HTTP " + response.status);
-    const data = await response.json();
-    
-    data.cityName = cityName; 
-    storage.set(CACHE_KEY, JSON.stringify(data));
-    storage.set(TIME_KEY, Date.now());
-    
-    renderWeather(data);
-  } catch(e) {
-    console.error("Weather fetch failed:", e);
-    // Fallback mock data if the API is blocked by network or iframe sandbox constraints
-    const mockData = {
-      cityName: cityName === "Local" ? "Local (Offline)" : "Burbank, CA (Offline)",
-      current: { temperature_2m: 72, weather_code: 0 },
-      hourly: {
-        temperature_2m: Array(24).fill(72).map((t, i) => t + Math.sin(i)*5),
-        weather_code: Array(24).fill(0)
-      },
-      daily: {
-        time: Array(7).fill(0).map((_, i) => {
-          const d = new Date(); d.setDate(d.getDate() + i);
-          return d.toISOString().split('T')[0];
-        }),
-        temperature_2m_max: Array(7).fill(78),
-        temperature_2m_min: Array(7).fill(62),
-        weather_code: Array(7).fill(0)
+    // Parse shortcuts
+    const lines = this.inputShortcuts.value.split('\n');
+    const newShortcuts = [];
+    lines.forEach(line => {
+      const parts = line.split('|').map(p => p.trim());
+      if(parts.length >= 3 && parts[0]) {
+        newShortcuts.push({ k: parts[0].toLowerCase().charAt(0), n: parts[0], s: parts[1], d: parts[2] });
       }
-    };
-    renderWeather(mockData);
-  }
-}
+    });
+    if(newShortcuts.length > 0) Config.data.shortcuts = newShortcuts;
 
-function renderWeather(data) {
-  if(!data || !data.current) return;
-  
-  const [currDesc, currIcon] = getWeatherDetails(data.current.weather_code);
-  document.querySelectorAll('.weather-city').forEach(el => el.textContent = data.cityName || "Burbank, CA");
-  document.getElementById('curr-temp').textContent = Math.round(data.current.temperature_2m) + "°";
-  document.getElementById('curr-desc').textContent = currDesc;
-  document.getElementById('curr-icon').textContent = currIcon;
-  
-  // Render Hourly (Front)
-  const container = document.getElementById('forecast-container'), h = new Date().getHours();
-  if(container && data.hourly) {
-    let hourlyHTML = '';
-    for(let i=1; i<=6; i++) {
-      const idx = (h + i) % 24;
-      const [d, ic] = getWeatherDetails(data.hourly.weather_code[idx]);
-      const t = new Date(); t.setHours(idx);
-      hourlyHTML += `<div class="forecast-item"><span class="f-time">${t.getHours()%12||12}${t.getHours()>=12?'p':'a'}</span><span class="f-icon">${ic}</span><span class="f-temp">${Math.round(data.hourly.temperature_2m[idx])}°</span></div>`;
+    // Geocode new city if changed
+    if (newCity !== Config.data.city) {
+      this.btnSave.textContent = "Locating...";
+      try {
+        const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(newCity)}&count=1`);
+        const geo = await res.json();
+        if (geo.results && geo.results.length > 0) {
+          Config.data.city = geo.results[0].name + (geo.results[0].admin1 ? `, ${geo.results[0].admin1}` : '');
+          Config.data.lat = geo.results[0].latitude;
+          Config.data.lon = geo.results[0].longitude;
+          // Force weather refresh by clearing cache
+          StorageUtils.set('weatherTime', 0); 
+        } else {
+          Config.data.city = newCity; // Fallback to whatever they typed, though weather might fetch old coords
+        }
+      } catch(e) { console.warn("Geocoding failed", e); }
     }
-    container.innerHTML = hourlyHTML;
-  }
 
-  // Render Daily (Back)
-  const dailyContainer = document.getElementById('daily-forecast-container');
-  if(dailyContainer && data.daily) {
-    let dailyHTML = '';
-    for(let i=1; i<=6; i++) {
-      const dateObj = new Date(data.daily.time[i] + "T00:00:00");
-      const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
-      const [desc, icon] = getWeatherDetails(data.daily.weather_code[i]);
-      const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
-      const minTemp = Math.round(data.daily.temperature_2m_min[i]);
-      
-      dailyHTML += `<div class="daily-item"><span class="d-day">${dayName}</span><span class="d-icon" title="${desc}">${icon}</span><span class="d-temp">${minTemp}° <span class="d-temp-max">${maxTemp}°</span></span></div>`;
-    }
-    dailyContainer.innerHTML = dailyHTML;
+    Config.save();
+    window.location.reload(); // Simplest way to cleanly re-initialize everything
   }
-}
+};
 
-function initWeather() {
-  const lastFetch = storage.get('weatherTime');
-  const cacheAge = lastFetch ? (Date.now() - parseInt(lastFetch)) : Infinity;
-  
-  if (cacheAge < 900000) {
-    try {
-      renderWeather(JSON.parse(storage.get('weatherData')));
-    } catch (e) {
-      fetchWeather(34.1808, -118.3090, "Burbank, CA");
+/* ── SEARCH ── */
+const SearchWidget = {
+  omnibar: document.getElementById('omnibar'),
+  init() {
+    if(this.omnibar) {
+      this.omnibar.addEventListener('keydown', e => { if(e.key === "Escape") { this.omnibar.value = ""; this.omnibar.blur(); } });
     }
-  } else {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        pos => fetchWeather(pos.coords.latitude, pos.coords.longitude, "Local"),
-        err => fetchWeather(34.1808, -118.3090, "Burbank, CA"),
-        { timeout: 2000, maximumAge: 900000 }
-      );
+  },
+  handle(e) {
+    e.preventDefault();
+    const val = this.omnibar.value.trim();
+    if (val) window.open("https://www.google.com/search?q=" + encodeURIComponent(val), "_blank", "noopener noreferrer");
+  }
+};
+
+/* ── CLOCK ── */
+const ClockWidget = {
+  dom: {
+    h: document.getElementById('h'), m: document.getElementById('m'),
+    ampm: document.getElementById('ampm'), date: document.getElementById('date'),
+    leb: document.getElementById('lebanon')
+  },
+  init() { this.update(); },
+  update() {
+    const now = new Date(), rawH = now.getHours(), h12 = rawH % 12 || 12;
+    const hStr = h12.toString(), mStr = now.getMinutes().toString().padStart(2, '0');
+    
+    if(this.dom.h && this.dom.h.textContent !== hStr) {
+      this.dom.h.classList.add('digit-changing');
+      setTimeout(() => { this.dom.h.textContent = hStr; this.dom.h.classList.replace('digit-changing', 'digit-incoming'); }, 150);
+    }
+    if(this.dom.m && this.dom.m.textContent !== mStr) {
+      this.dom.m.classList.add('digit-changing');
+      setTimeout(() => { this.dom.m.textContent = mStr; this.dom.m.classList.replace('digit-changing', 'digit-incoming'); }, 150);
+    }
+    if(this.dom.ampm) this.dom.ampm.textContent = rawH >= 12 ? ' PM' : ' AM';
+    
+    const day = now.getDate(), suffix = ["th","st","nd","rd"][(day % 10 > 3 || Math.floor(day % 100 / 10) === 1) ? 0 : day % 10];
+    if(this.dom.date) this.dom.date.innerHTML = `<span class="day-name">${now.toLocaleDateString('en-US', { weekday: 'long' })}</span> ${day}${suffix} of ${now.toLocaleDateString('en-US', { month: 'long' })}`;
+    
+    const lbTime = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Beirut", hour: "numeric", minute: "2-digit" }).format(now);
+    if(this.dom.leb) this.dom.leb.innerHTML = `LEB &nbsp;·&nbsp; <span>${lbTime}</span>`;
+    
+    setTimeout(() => requestAnimationFrame(() => this.update()), 1000 - now.getMilliseconds());
+  }
+};
+
+/* ── WEATHER ── */
+const WeatherWidget = {
+  MAP: {
+    0: ["Clear", "☀️"], 1: ["Clear", "🌤️"], 2: ["Partly Cloudy", "⛅"], 3: ["Cloudy", "☁️"],
+    45: ["Fog", "🌫️"], 61: ["Rain", "🌧️"], 95: ["Storm", "⛈️"]
+  },
+  init() {
+    const lastFetch = StorageUtils.get('weatherTime');
+    const cacheAge = lastFetch ? (Date.now() - parseInt(lastFetch)) : Infinity;
+    
+    if (cacheAge < 900000) {
+      try { this.render(JSON.parse(StorageUtils.get('weatherData'))); } 
+      catch (e) { this.fetch(Config.data.lat, Config.data.lon, Config.data.city); }
     } else {
-      fetchWeather(34.1808, -118.3090, "Burbank, CA");
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          pos => this.fetch(pos.coords.latitude, pos.coords.longitude, "Local"),
+          err => this.fetch(Config.data.lat, Config.data.lon, Config.data.city),
+          { timeout: 2000, maximumAge: 900000 }
+        );
+      } else {
+        this.fetch(Config.data.lat, Config.data.lon, Config.data.city);
+      }
     }
-  }
-}
+  },
+  async fetch(lat, lon, cityName) {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=${encodeURIComponent(tz)}&forecast_days=7`;
+      
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      const data = await response.json();
+      
+      data.cityName = cityName; 
+      StorageUtils.set('weatherData', JSON.stringify(data));
+      StorageUtils.set('weatherTime', Date.now());
+      this.render(data);
+    } catch(e) {
+      console.warn("Weather fetch failed, utilizing mock data", e);
+      this.renderMock(cityName);
+    }
+  },
+  render(data) {
+    if(!data || !data.current) return;
+    const [currDesc, currIcon] = this.MAP[data.current.weather_code] || ["Cloudy", "☁️"];
+    
+    document.getElementById('weather-city-front').textContent = data.cityName || Config.data.city;
+    document.getElementById('curr-temp').textContent = Math.round(data.current.temperature_2m) + "°";
+    document.getElementById('curr-desc').textContent = currDesc;
+    document.getElementById('curr-icon').textContent = currIcon;
+    
+    // Hourly
+    const container = document.getElementById('forecast-container'), h = new Date().getHours();
+    if(container && data.hourly) {
+      let hourlyHTML = '';
+      for(let i=1; i<=6; i++) {
+        const idx = (h + i) % 24;
+        const [_, ic] = this.MAP[data.hourly.weather_code[idx]] || ["", "☁️"];
+        const t = new Date(); t.setHours(idx);
+        hourlyHTML += `<div class="forecast-item"><span class="f-time">${t.getHours()%12||12}${t.getHours()>=12?'p':'a'}</span><span class="f-icon">${ic}</span><span class="f-temp">${Math.round(data.hourly.temperature_2m[idx])}°</span></div>`;
+      }
+      container.innerHTML = hourlyHTML;
+    }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initWeather);
-} else {
-  initWeather();
-}
+    // Daily
+    const dailyContainer = document.getElementById('daily-forecast-container');
+    if(dailyContainer && data.daily) {
+      let dailyHTML = '';
+      for(let i=1; i<=6; i++) {
+        const dateObj = new Date(data.daily.time[i] + "T00:00:00");
+        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+        const [desc, icon] = this.MAP[data.daily.weather_code[i]] || ["", "☁️"];
+        const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
+        const minTemp = Math.round(data.daily.temperature_2m_min[i]);
+        dailyHTML += `<div class="daily-item"><span class="d-day">${dayName}</span><span class="d-icon" title="${desc}">${icon}</span><span class="d-temp">${minTemp}° <span class="d-temp-max">${maxTemp}°</span></span></div>`;
+      }
+      dailyContainer.innerHTML = dailyHTML;
+    }
+  },
+  renderMock(cityName) {
+    this.render({
+      cityName: cityName === "Local" ? "Local (Offline)" : `${Config.data.city} (Offline)`,
+      current: { temperature_2m: 72, weather_code: 0 },
+      hourly: { temperature_2m: Array(24).fill(72).map((t,i) => t+Math.sin(i)*5), weather_code: Array(24).fill(0) },
+      daily: {
+        time: Array(7).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d.toISOString().split('T')[0]; }),
+        temperature_2m_max: Array(7).fill(78), temperature_2m_min: Array(7).fill(62), weather_code: Array(7).fill(0)
+      }
+    });
+  }
+};
 
 /* ── TRADINGVIEW ── */
-function initTV() {
-  const container = document.getElementById('tv-widget-container');
-  if(!container) return;
-  const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  container.innerHTML = '<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';
-  const s = document.createElement('script');
-  s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
-  s.async = true;
-  s.innerHTML = JSON.stringify({
-    "symbols": [["", "AMEX:VOO|1D"]],
-    "chartOnly": false, "width": "100%", "height": "100%", 
-    "colorTheme": isDark ? "dark" : "light", 
-    "backgroundColor": isDark ? "#1c1c1c" : "#ffffff", 
-    "fontFamily": "Plus Jakarta Sans, sans-serif", "fontSize": "11", "lineWidth": 2, "lineColor": "#d4a017", 
-    "topColor": "rgba(212,160,23,0.05)", "bottomColor": "rgba(255,255,255,0)", 
-    "hideDateRanges": false, "dateRanges": ["1d|1","5d|5","1m|30","6m|180"]
-  });
-  container.querySelector('.tradingview-widget-container').appendChild(s);
-}
-if(window.requestIdleCallback) requestIdleCallback(initTV);
-else window.addEventListener('load', initTV);
-
-/* ── DATA: SHORTCUTS & QUOTES ── */
-const FAVICON_BASE = "https://icons.duckduckgo.com/ip3/";
-const sites = [
-  { k:"a", n:"Amazon",   s:"https://www.amazon.com/s?k=", d:"amazon.com" },
-  { k:"c", n:"ChatGPT",   s:"https://chatgpt.com/?q=", d:"chatgpt.com" },
-  { k:"p", n:"Disney+",   s:"https://www.disneyplus.com/search?q=", d:"disneyplus.com" },
-  { k:"e", n:"eBay",      s:"https://www.ebay.com/sch/i.html?_nkw=", d:"ebay.com" },
-  { k:"f", n:"Facebook",  s:"https://www.facebook.com/search/top?q=", d:"facebook.com" },
-  { k:"i", n:"Google AI", s:"https://www.google.com/search?udm=50&q=", d:"google.com" },
-  { k:"h", n:"Hulu",      s:"https://www.hulu.com/search?q=", d:"hulu.com" },
-  { k:"d", n:"IMDb",      s:"https://www.imdb.com/find/?q=", d:"imdb.com" },
-  { k:"ig",n:"Instagram", s:"https://www.google.com/search?q=site:instagram.com+", d:"instagram.com" },
-  { k:"m", n:"Max",       s:"https://www.max.com/search?q=", d:"max.com" },
-  { k:"n", n:"Netflix",   s:"https://www.netflix.com/search?q=", d:"netflix.com" },
-  { k:"x", n:"Reddit",    s:"https://www.reddit.com/search/?q=", d:"reddit.com" },
-  { k:"r", n:"Rotten T",  s:"https://www.rottentomatoes.com/search?search=", d:"rottentomatoes.com" },
-  { k:"y", n:"YouTube",   s:"https://www.youtube.com/results?search_query=", d:"youtube.com" },
-  { k:"u", n:"YT Music",  s:"https://music.youtube.com/search?q=", d:"music.youtube.com" }
-];
-
-const quotes = [
-  { t: "The happiness of your life depends upon the quality of your thoughts.", a: "Marcus Aurelius" },
-  { t: "We suffer more often in imagination than in reality.", a: "Seneca" },
-  { t: "He who has a why to live can bear almost any how.", a: "Friedrich Nietzsche" },
-  { t: "The only constant in life is change.", a: "Heraclitus" },
-  { t: "Nature does not hurry, yet everything is accomplished.", a: "Lao Tzu" },
-  { t: "I think, therefore I am.", a: "René Descartes" },
-  { t: "In the depth of winter, I finally learned that within me there lay an invincible summer.", a: "Albert Camus" },
-  { t: "Knowing yourself is the beginning of all wisdom.", a: "Aristotle" },
-  { t: "The only true wisdom is in knowing you know nothing.", a: "Socrates" },
-  { t: "It does not matter how slowly you go as long as you do not stop.", a: "Confucius" },
-  { t: "The journey of a thousand miles begins with one step.", a: "Lao Tzu" },
-  { t: "To live is the rarest thing in the world. Most people exist, that is all.", a: "Oscar Wilde" },
-  { t: "Imagination is more important than knowledge.", a: "Albert Einstein" },
-  { t: "First say to yourself what you would be; and then do what you have to do.", a: "Epictetus" },
-  { t: "Waste no more time arguing about what a good man should be. Be one.", a: "Marcus Aurelius" }
-];
-
-/* ── SHORTCUTS GENERATION ── */
-const omnibar = document.getElementById('omnibar');
-const grid = document.getElementById('shortcuts-grid');
-
-const savedOrder = storage.get('salut_shortcuts_order');
-if (savedOrder) {
-  try {
-    const orderArr = JSON.parse(savedOrder);
-    sites.sort((a, b) => {
-      const iA = orderArr.indexOf(a.k), iB = orderArr.indexOf(b.k);
-      return (iA === -1 ? 99 : iA) - (iB === -1 ? 99 : iB);
+const MarketWidget = {
+  init() {
+    const container = document.getElementById('tv-widget-container');
+    const title = document.getElementById('market-title');
+    if(!container) return;
+    
+    if(title) title.textContent = Config.data.ticker;
+    
+    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    container.innerHTML = '<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';
+    
+    const s = document.createElement('script');
+    s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
+    s.async = true;
+    s.innerHTML = JSON.stringify({
+      "symbols": [["", `${Config.data.ticker}|1D`]],
+      "chartOnly": false, "width": "100%", "height": "100%", 
+      "colorTheme": isDark ? "dark" : "light", 
+      "backgroundColor": isDark ? "#1c1c1c" : "#ffffff", 
+      "fontFamily": "Plus Jakarta Sans, sans-serif", "fontSize": "11", "lineWidth": 2, "lineColor": "#d4a017", 
+      "topColor": "rgba(212,160,23,0.05)", "bottomColor": "rgba(255,255,255,0)", 
+      "hideDateRanges": false, "dateRanges": ["1d|1","5d|5","1m|30","6m|180"]
     });
-  } catch(e) {}
-}
+    container.querySelector('.tradingview-widget-container').appendChild(s);
+  }
+};
 
-const shortcutFragment = document.createDocumentFragment();
+/* ── SHORTCUTS ── */
+const ShortcutsWidget = {
+  grid: document.getElementById('shortcuts-grid'),
+  init() {
+    if(!this.grid) return;
+    const savedOrder = StorageUtils.get('salut_shortcuts_order');
+    let sites = [...Config.data.shortcuts];
+    
+    if (savedOrder) {
+      try {
+        const orderArr = JSON.parse(savedOrder);
+        sites.sort((a, b) => {
+          const iA = orderArr.indexOf(a.n), iB = orderArr.indexOf(b.n);
+          return (iA === -1 ? 99 : iA) - (iB === -1 ? 99 : iB);
+        });
+      } catch(e) {}
+    }
 
-sites.forEach((site, index) => {
-  const a = document.createElement('a');
-  a.className = 'shortcut-item';
-  a.draggable = true;
-  a.dataset.key = site.k;
-  a.title = site.n;
-  a.style.animationDelay = `${0.2 + (index * 0.04)}s`;
-  a.href = site.d.split('.').length > 2 ? `https://${site.d}` : `https://www.${site.d}`;
-  a.target = "_blank";
-  a.rel = "noopener noreferrer";
-  
-  a.onclick = e => {
-    const val = omnibar.value.trim();
-    if(val) {
+    const frag = document.createDocumentFragment();
+    sites.forEach((site, index) => {
+      const a = document.createElement('a');
+      a.className = 'shortcut-item';
+      a.draggable = true;
+      a.dataset.key = site.n;
+      a.title = site.n;
+      a.style.animationDelay = `${0.2 + (index * 0.04)}s`;
+      a.href = site.d.split('.').length > 2 ? `https://${site.d}` : `https://www.${site.d}`;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      
+      a.onclick = e => {
+        const val = SearchWidget.omnibar.value.trim();
+        if(val) {
+          e.preventDefault();
+          window.open(site.s + encodeURIComponent(val), "_blank", "noopener noreferrer");
+        }
+      };
+      a.addEventListener('dragstart', () => a.classList.add('dragging'));
+      a.addEventListener('dragend', () => a.classList.remove('dragging'));
+      a.innerHTML = `<img src="https://icons.duckduckgo.com/ip3/${site.d}.ico" loading="lazy" width="16" height="16" onerror="this.style.display='none'"><span>${site.n}</span>`;
+      frag.appendChild(a);
+    });
+
+    const clearBtn = document.createElement('a');
+    clearBtn.className = 'shortcut-item clear-btn';
+    clearBtn.title = "Clear Search";
+    clearBtn.style.animationDelay = `${0.2 + (sites.length * 0.04)}s`;
+    clearBtn.href = "#";
+    clearBtn.onclick = e => { e.preventDefault(); SearchWidget.omnibar.value = ""; SearchWidget.omnibar.focus(); };
+    clearBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>`;
+    frag.appendChild(clearBtn);
+
+    this.grid.innerHTML = '';
+    this.grid.appendChild(frag);
+    this.bindDragDrop(clearBtn);
+  },
+  bindDragDrop(clearBtn) {
+    this.grid.addEventListener('dragover', e => {
       e.preventDefault();
-      window.open(site.s + encodeURIComponent(val), "_blank", "noopener noreferrer");
-    }
-  };
-  a.addEventListener('dragstart', () => a.classList.add('dragging'));
-  a.addEventListener('dragend', () => a.classList.remove('dragging'));
-  a.innerHTML = `<img src="${FAVICON_BASE}${site.d}.ico" loading="lazy" width="16" height="16" onerror="this.style.display='none'"><span>${site.n}</span>`;
-  shortcutFragment.appendChild(a);
-});
-
-const clearBtn = document.createElement('a');
-clearBtn.className = 'shortcut-item clear-btn';
-clearBtn.title = "Clear Search";
-clearBtn.style.animationDelay = `${0.2 + (sites.length * 0.04)}s`;
-clearBtn.href = "#";
-clearBtn.onclick = e => { e.preventDefault(); omnibar.value = ""; omnibar.focus(); };
-clearBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>`;
-shortcutFragment.appendChild(clearBtn);
-
-if (grid) grid.appendChild(shortcutFragment);
-
-/* ── DRAG & DROP ── */
-if (grid) {
-  grid.addEventListener('dragover', e => {
-    e.preventDefault();
-    const dragging = document.querySelector('.dragging');
-    if(!dragging) return;
-    const elements = [...grid.querySelectorAll('.shortcut-item:not(.dragging)')];
-    const closest = elements.find(child => {
-       const box = child.getBoundingClientRect();
-       return e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom;
+      const dragging = document.querySelector('.dragging');
+      if(!dragging) return;
+      const elements = [...this.grid.querySelectorAll('.shortcut-item:not(.dragging)')];
+      const closest = elements.find(child => {
+         const box = child.getBoundingClientRect();
+         return e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom;
+      });
+      if(closest && closest.draggable) { 
+         const box = closest.getBoundingClientRect();
+         if(e.clientX < box.left + box.width / 2) this.grid.insertBefore(dragging, closest);
+         else this.grid.insertBefore(dragging, closest.nextSibling);
+      }
     });
-    if(closest && closest.draggable) { 
-       const box = closest.getBoundingClientRect();
-       if(e.clientX < box.left + box.width / 2) grid.insertBefore(dragging, closest);
-       else grid.insertBefore(dragging, closest.nextSibling);
+    this.grid.addEventListener('drop', () => {
+      this.grid.appendChild(clearBtn);
+      const currentItems = [...this.grid.querySelectorAll('.shortcut-item[draggable="true"]')];
+      StorageUtils.set('salut_shortcuts_order', JSON.stringify(currentItems.map(el => el.dataset.key)));
+    });
+  }
+};
+
+/* ── CALCULATOR ── */
+const CalculatorWidget = {
+  displayEl: document.getElementById('calc-display'),
+  currentVal: '0',
+  previousVal: '',
+  operation: null,
+  shouldResetScreen: false,
+
+  update() {
+    let displayText = this.currentVal;
+    if (this.operation !== null) {
+      let opSymbol = this.operation;
+      if (opSymbol === '*') opSymbol = '×';
+      if (opSymbol === '/') opSymbol = '÷';
+      displayText = this.shouldResetScreen 
+        ? `${this.previousVal} ${opSymbol}` 
+        : `${this.previousVal} ${opSymbol} ${this.currentVal}`;
     }
-  });
-  grid.addEventListener('drop', () => {
-    grid.appendChild(clearBtn);
-    const currentItems = [...grid.querySelectorAll('.shortcut-item[draggable="true"]')];
-    storage.set('salut_shortcuts_order', JSON.stringify(currentItems.map(el => el.dataset.key)));
-  });
-}
+    this.displayEl.textContent = displayText;
+    this.displayEl.scrollLeft = this.displayEl.scrollWidth; 
+  },
+  stripErr(num) { return parseFloat(num.toPrecision(12)); },
+  num(n) {
+    if (this.shouldResetScreen) {
+      this.currentVal = n === '.' ? '0.' : n;
+      this.shouldResetScreen = false;
+    } else {
+      if (this.currentVal === '0') this.currentVal = n === '.' ? '0.' : n;
+      else {
+        if (n === '.' && this.currentVal.includes('.')) return;
+        this.currentVal += n;
+      }
+    }
+    this.update();
+  },
+  op(o) {
+    if (this.operation !== null) this.eq();
+    this.previousVal = this.currentVal;
+    this.operation = o;
+    this.shouldResetScreen = true;
+    this.update();
+  },
+  eq() {
+    if (this.operation === null || this.shouldResetScreen) return;
+    let result;
+    const prev = parseFloat(this.previousVal), current = parseFloat(this.currentVal);
+    switch (this.operation) {
+      case '+': result = prev + current; break;
+      case '-': result = prev - current; break;
+      case '*': result = prev * current; break;
+      case '/': result = current === 0 ? 'Error' : prev / current; break;
+    }
+    if (result !== 'Error') result = this.stripErr(result);
+    this.currentVal = result.toString();
+    this.operation = null;
+    this.shouldResetScreen = true;
+    this.update();
+  },
+  clear() {
+    this.currentVal = '0';
+    this.previousVal = '';
+    this.operation = null;
+    this.update();
+  },
+  percent() {
+    if (this.currentVal === 'Error') return;
+    this.currentVal = this.stripErr(parseFloat(this.currentVal) / 100).toString();
+    this.update();
+  },
+  custom(factor) {
+    if (this.currentVal === 'Error') return;
+    this.currentVal = this.stripErr(parseFloat(this.currentVal) * factor).toString();
+    this.update();
+  },
+  async paste() {
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.readText) throw new Error("Clipboard API not supported");
+      const text = await navigator.clipboard.readText();
+      const parsed = parseFloat(text.replace(/[^0-9.-]/g, ''));
+      if (!isNaN(parsed)) {
+        this.currentVal = this.stripErr(parsed).toString();
+        this.shouldResetScreen = true;
+        this.update();
+      }
+    } catch (err) {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      this.displayEl.textContent = `Press ${isMac ? 'Cmd+V' : 'Ctrl+V'}`;
+      this.displayEl.style.fontSize = "22px";
+      setTimeout(() => { this.displayEl.style.fontSize = ""; this.update(); }, 2500);
+    }
+  }
+};
 
-if(omnibar) omnibar.addEventListener('keydown', e => { if(e.key === "Escape") { omnibar.value = ""; omnibar.blur(); } });
+/* ── SCRATCHPAD ── */
+const ScratchpadWidget = {
+  input: document.getElementById('scratchpad-input'),
+  indicator: document.getElementById('save-indicator'),
+  timeout: null,
+  
+  init() {
+    this.input.value = StorageUtils.get('salut_scratchpad') || '';
+    
+    this.input.addEventListener('input', () => {
+      clearTimeout(this.timeout);
+      this.indicator.classList.remove('visible');
+      this.timeout = setTimeout(() => {
+        StorageUtils.set('salut_scratchpad', this.input.value);
+        this.indicator.classList.add('visible');
+        setTimeout(() => this.indicator.classList.remove('visible'), 2000);
+      }, 500);
+    });
 
-/* ── GLOBAL KEYBOARD / PASTE HANDLERS ── */
+    document.getElementById('share-btn').addEventListener('click', async () => {
+      const text = this.input.value.trim();
+      if (!text) return;
+      if (navigator.share) {
+        try { await navigator.share({ text: text }); } catch (err) { console.error('Share failed', err); }
+      } else {
+        this.input.select(); document.execCommand('copy');
+        this.indicator.textContent = 'Copied!'; this.indicator.classList.add('visible');
+        setTimeout(() => { this.indicator.classList.remove('visible'); setTimeout(() => this.indicator.textContent = 'Saved', 300); }, 2000);
+      }
+    });
+
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      this.input.value = ''; StorageUtils.set('salut_scratchpad', ''); this.input.focus();
+    });
+
+    document.getElementById('copy-btn').addEventListener('click', () => {
+      this.input.select(); document.execCommand('copy');
+      const btn = document.getElementById('copy-btn'), orig = btn.innerHTML;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+      setTimeout(() => btn.innerHTML = orig, 1500);
+    });
+
+    document.getElementById('paste-btn').addEventListener('click', async () => {
+      try {
+        if (!navigator.clipboard) throw new Error("Clipboard API not supported");
+        this.input.value += (this.input.value ? '\n' : '') + await navigator.clipboard.readText();
+        this.input.dispatchEvent(new Event('input')); 
+      } catch (err) {
+        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        const orig = this.input.placeholder;
+        this.input.placeholder = `[Click here & press ${isMac ? 'Cmd+V' : 'Ctrl+V'}]`;
+        this.input.focus();
+        setTimeout(() => this.input.placeholder = orig, 3000);
+      }
+    });
+  }
+};
+
+/* ── TIMER ── */
+const TimerWidget = {
+  seconds: 0, interval: null, isRunning: false,
+  displayEl: document.getElementById('timer-display'),
+  startBtn: document.getElementById('timer-start-btn'),
+  sliderHr: document.getElementById('timer-slider-hr'),
+  sliderMin: document.getElementById('timer-slider-min'),
+
+  init() {
+    const updateFromSliders = () => {
+      if (this.isRunning) return; 
+      this.seconds = ((parseInt(this.sliderHr.value) || 0) * 3600) + ((parseInt(this.sliderMin.value) || 0) * 60);
+      this.updateDisplay();
+    };
+    if (this.sliderHr) this.sliderHr.addEventListener('input', updateFromSliders);
+    if (this.sliderMin) this.sliderMin.addEventListener('input', updateFromSliders);
+  },
+  format() {
+    const h = Math.floor(this.seconds / 3600), m = Math.floor((this.seconds % 3600) / 60).toString().padStart(2, '0'), s = (this.seconds % 60).toString().padStart(2, '0');
+    return h > 0 ? (!this.isRunning && s === '00' ? `${h}:${m}` : `${h}:${m}:${s}`) : `${m}:${s}`;
+  },
+  updateDisplay() { this.displayEl.textContent = this.format(); },
+  toggle() {
+    if (this.isRunning) {
+      clearInterval(this.interval); this.isRunning = false; this.startBtn.textContent = 'Start'; this.updateDisplay();
+    } else {
+      if (this.seconds <= 0) return;
+      this.isRunning = true; this.startBtn.textContent = 'Pause'; this.updateDisplay();
+      this.interval = setInterval(() => {
+        this.seconds--; this.updateDisplay();
+        if (this.sliderHr) this.sliderHr.value = Math.floor(this.seconds / 3600);
+        if (this.sliderMin) this.sliderMin.value = Math.floor((this.seconds % 3600) / 60);
+        if (this.seconds <= 0) {
+          clearInterval(this.interval); this.isRunning = false; this.startBtn.textContent = 'Start';
+          if (this.sliderHr) this.sliderHr.value = 0; if (this.sliderMin) this.sliderMin.value = 0;
+          this.playAlarm();
+        }
+      }, 1000);
+    }
+  },
+  reset() {
+    clearInterval(this.interval); this.isRunning = false; this.seconds = 0; this.startBtn.textContent = 'Start';
+    if (this.sliderHr) this.sliderHr.value = 0; if (this.sliderMin) this.sliderMin.value = 0;
+    this.updateDisplay();
+  },
+  playAlarm() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    let beeps = 0;
+    const playBeep = () => {
+      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime); 
+      gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5);
+      osc.start(); osc.stop(ctx.currentTime + 0.5);
+    };
+    playBeep();
+    const beepInt = setInterval(() => { beeps++; if(beeps >= 3) clearInterval(beepInt); else playBeep(); }, 400);
+  }
+};
+
+/* ── QUOTE ── */
+const QuoteWidget = {
+  quotes: [
+    { t: "The happiness of your life depends upon the quality of your thoughts.", a: "Marcus Aurelius" },
+    { t: "We suffer more often in imagination than in reality.", a: "Seneca" },
+    { t: "He who has a why to live can bear almost any how.", a: "Friedrich Nietzsche" },
+    { t: "The only constant in life is change.", a: "Heraclitus" },
+    { t: "Nature does not hurry, yet everything is accomplished.", a: "Lao Tzu" },
+    { t: "I think, therefore I am.", a: "René Descartes" },
+    { t: "In the depth of winter, I finally learned that within me there lay an invincible summer.", a: "Albert Camus" },
+    { t: "Knowing yourself is the beginning of all wisdom.", a: "Aristotle" },
+    { t: "The only true wisdom is in knowing you know nothing.", a: "Socrates" },
+    { t: "It does not matter how slowly you go as long as you do not stop.", a: "Confucius" }
+  ],
+  init() {
+    const q = this.quotes[Math.floor(Math.random() * this.quotes.length)];
+    document.getElementById('quote-text').textContent = `"${q.t}"`;
+    document.getElementById('quote-author').textContent = q.a;
+  }
+};
+
+/* ── GLOBAL EVENTS ── */
 document.addEventListener('keydown', e => {
   const isInput = document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
-  if(!isInput && !e.metaKey && !e.ctrlKey && !e.altKey && e.key.length === 1 && omnibar) omnibar.focus();
+  if(!isInput && !e.metaKey && !e.ctrlKey && !e.altKey && e.key.length === 1 && SearchWidget.omnibar) SearchWidget.omnibar.focus();
 });
 
 document.addEventListener('paste', e => {
   const isInput = document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
-  
-  // If the user presses Ctrl+V anywhere outside of the text box/search bar, send it to the calculator
   if (!isInput && e.clipboardData) {
     const text = e.clipboardData.getData('text');
     if (text) {
-      const cleanText = text.replace(/[^0-9.-]/g, '');
-      const parsed = parseFloat(cleanText);
+      const parsed = parseFloat(text.replace(/[^0-9.-]/g, ''));
       if (!isNaN(parsed)) {
         e.preventDefault();
-        CalcState.currentVal = stripFloatError(parsed).toString();
-        CalcState.shouldResetScreen = true;
-        updateCalcDisplay();
-        
-        // Ensure calc flip is showing the calculator front
+        CalculatorWidget.currentVal = CalculatorWidget.stripErr(parsed).toString();
+        CalculatorWidget.shouldResetScreen = true;
+        CalculatorWidget.update();
         document.getElementById('calc-flip-widget').classList.remove('flipped');
       }
     }
   }
 });
 
-/* ── CALCULATOR LOGIC (OPTIMIZED) ── */
-const CalcState = {
-  displayEl: document.getElementById('calc-display'),
-  currentVal: '0',
-  previousVal: '',
-  operation: null,
-  shouldResetScreen: false
-};
-
-function updateCalcDisplay() {
-  let displayText = CalcState.currentVal;
-  
-  // If an operation is active, show the full equation
-  if (CalcState.operation !== null) {
-    let opSymbol = CalcState.operation;
-    if (opSymbol === '*') opSymbol = '×';
-    if (opSymbol === '/') opSymbol = '÷';
-    
-    if (CalcState.shouldResetScreen) {
-      // Just pressed the operator
-      displayText = `${CalcState.previousVal} ${opSymbol}`;
-    } else {
-      // Typing the second number
-      displayText = `${CalcState.previousVal} ${opSymbol} ${CalcState.currentVal}`;
-    }
-  }
-
-  CalcState.displayEl.textContent = displayText;
-  CalcState.displayEl.scrollLeft = CalcState.displayEl.scrollWidth; 
+/* ── BOOTSTRAP APP ── */
+function initializeApp() {
+  Config.init();
+  SettingsWidget.init();
+  ClockWidget.init();
+  SearchWidget.init();
+  ShortcutsWidget.init();
+  ScratchpadWidget.init();
+  TimerWidget.init();
+  QuoteWidget.init();
 }
 
-function stripFloatError(num) {
-  // Trims long trailing floating-point errors (e.g. 0.300000000004 -> 0.3)
-  return parseFloat(num.toPrecision(12));
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
 }
 
-function calcNum(num) {
-  if (CalcState.shouldResetScreen) {
-    CalcState.currentVal = num === '.' ? '0.' : num;
-    CalcState.shouldResetScreen = false;
-  } else {
-    if (CalcState.currentVal === '0') {
-      CalcState.currentVal = num === '.' ? '0.' : num;
-    } else {
-      if (num === '.' && CalcState.currentVal.includes('.')) return;
-      CalcState.currentVal += num;
-    }
-  }
-  updateCalcDisplay();
+// TV & Weather handle their own async loading to prevent blocking
+if(window.requestIdleCallback) {
+  requestIdleCallback(() => { MarketWidget.init(); WeatherWidget.init(); });
+} else {
+  window.addEventListener('load', () => { MarketWidget.init(); WeatherWidget.init(); });
 }
-
-function calcOp(op) {
-  if (CalcState.operation !== null) calcEq();
-  CalcState.previousVal = CalcState.currentVal;
-  CalcState.operation = op;
-  CalcState.shouldResetScreen = true;
-  updateCalcDisplay();
-}
-
-function calcEq() {
-  if (CalcState.operation === null || CalcState.shouldResetScreen) return;
-  let result;
-  const prev = parseFloat(CalcState.previousVal);
-  const current = parseFloat(CalcState.currentVal);
-  switch (CalcState.operation) {
-    case '+': result = prev + current; break;
-    case '-': result = prev - current; break;
-    case '*': result = prev * current; break;
-    case '/': result = current === 0 ? 'Error' : prev / current; break;
-  }
-  
-  if (result !== 'Error') {
-    result = stripFloatError(result);
-  }
-  
-  CalcState.currentVal = result.toString();
-  CalcState.operation = null;
-  CalcState.shouldResetScreen = true;
-  updateCalcDisplay();
-}
-
-function calcClear() {
-  CalcState.currentVal = '0';
-  CalcState.previousVal = '';
-  CalcState.operation = null;
-  updateCalcDisplay();
-}
-
-async function calcPaste() {
-  try {
-    if (!navigator.clipboard || !navigator.clipboard.readText) {
-      throw new Error("Clipboard API not supported");
-    }
-    const text = await navigator.clipboard.readText();
-    const cleanText = text.replace(/[^0-9.-]/g, '');
-    const parsed = parseFloat(cleanText);
-    if (!isNaN(parsed)) {
-      CalcState.currentVal = stripFloatError(parsed).toString();
-      CalcState.shouldResetScreen = true;
-      updateCalcDisplay();
-    }
-  } catch (err) {
-    console.warn('Clipboard read failed, falling back to manual prompt', err);
-    
-    // Fallback UI to instruct user to paste manually if the browser blocked it
-    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-    const shortcut = isMac ? 'Cmd+V' : 'Ctrl+V';
-    
-    CalcState.displayEl.textContent = `Press ${shortcut}`;
-    CalcState.displayEl.style.fontSize = "22px"; // Fit the text
-    
-    setTimeout(() => {
-      CalcState.displayEl.style.fontSize = ""; // reset
-      updateCalcDisplay();
-    }, 2500);
-  }
-}
-
-function calcToggleSign() {
-  if (CalcState.currentVal === 'Error') return;
-  CalcState.currentVal = stripFloatError(parseFloat(CalcState.currentVal) * -1).toString();
-  updateCalcDisplay();
-}
-
-function calcPercent() {
-  if (CalcState.currentVal === 'Error') return;
-  CalcState.currentVal = stripFloatError(parseFloat(CalcState.currentVal) / 100).toString();
-  updateCalcDisplay();
-}
-
-function calcCustom(factor) {
-  if (CalcState.currentVal === 'Error') return;
-  CalcState.currentVal = stripFloatError(parseFloat(CalcState.currentVal) * factor).toString();
-  updateCalcDisplay();
-}
-
-/* ── SCRATCHPAD LOGIC (OPTIMIZED) ── */
-const Scratchpad = {
-  input: document.getElementById('scratchpad-input'),
-  indicator: document.getElementById('save-indicator'),
-  timeout: null,
-  
-  init() {
-    this.input.value = storage.get('salut_scratchpad') || '';
-    
-    // Auto-save on type
-    this.input.addEventListener('input', () => {
-      clearTimeout(this.timeout);
-      this.indicator.classList.remove('visible');
-      this.timeout = setTimeout(() => {
-        storage.set('salut_scratchpad', this.input.value);
-        this.indicator.classList.add('visible');
-        setTimeout(() => this.indicator.classList.remove('visible'), 2000);
-      }, 500);
-    });
-
-    // Actions
-    document.getElementById('share-btn').addEventListener('click', async () => {
-      const text = this.input.value.trim();
-      if (!text) return;
-      if (navigator.share) {
-        try {
-          await navigator.share({ text: text });
-        } catch (err) {
-          console.error('Share failed:', err);
-        }
-      } else {
-        // Fallback for browsers that don't support native share: Copy to clipboard
-        this.input.select();
-        document.execCommand('copy');
-        this.indicator.textContent = 'Copied!';
-        this.indicator.classList.add('visible');
-        setTimeout(() => {
-          this.indicator.classList.remove('visible');
-          setTimeout(() => this.indicator.textContent = 'Saved', 300);
-        }, 2000);
-      }
-    });
-
-    document.getElementById('clear-btn').addEventListener('click', () => {
-      this.input.value = '';
-      storage.set('salut_scratchpad', '');
-      this.input.focus();
-    });
-
-    document.getElementById('copy-btn').addEventListener('click', () => {
-      this.input.select();
-      document.execCommand('copy');
-      const btn = document.getElementById('copy-btn');
-      const originalHTML = btn.innerHTML;
-      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-      setTimeout(() => btn.innerHTML = originalHTML, 1500);
-    });
-
-    document.getElementById('paste-btn').addEventListener('click', async () => {
-      try {
-        if (!navigator.clipboard || !navigator.clipboard.readText) throw new Error("Clipboard API not supported");
-        const text = await navigator.clipboard.readText();
-        this.input.value += (this.input.value ? '\n' : '') + text;
-        this.input.dispatchEvent(new Event('input')); // Trigger save
-      } catch (err) {
-        console.warn('Failed to read clipboard text: ', err);
-        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-        const origPlaceholder = this.input.placeholder;
-        this.input.placeholder = `[Click here and press ${isMac ? 'Cmd+V' : 'Ctrl+V'} to paste]`;
-        this.input.focus();
-        setTimeout(() => this.input.placeholder = origPlaceholder, 3000);
-      }
-    });
-  }
-};
-Scratchpad.init();
-
-/* ── TIMER LOGIC (OPTIMIZED) ── */
-const TimerState = {
-  seconds: 0,
-  interval: null,
-  isRunning: false,
-  displayEl: document.getElementById('timer-display'),
-  startBtn: document.getElementById('timer-start-btn'),
-  sliderHr: document.getElementById('timer-slider-hr'),
-  sliderMin: document.getElementById('timer-slider-min')
-};
-
-function formatTimer(totalSeconds) {
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
-  const s = (totalSeconds % 60).toString().padStart(2, '0');
-  
-  if (h > 0) {
-    if (!TimerState.isRunning && s === '00') {
-      return `${h}:${m}`;
-    }
-    return `${h}:${m}:${s}`;
-  }
-  return `${m}:${s}`;
-}
-
-function updateTimerDisplay() {
-  TimerState.displayEl.textContent = formatTimer(TimerState.seconds);
-}
-
-function updateTimeFromSliders() {
-  if (TimerState.isRunning) return; 
-  const h = parseInt(TimerState.sliderHr.value) || 0;
-  const m = parseInt(TimerState.sliderMin.value) || 0;
-  TimerState.seconds = (h * 3600) + (m * 60);
-  updateTimerDisplay();
-}
-
-if (TimerState.sliderHr) TimerState.sliderHr.addEventListener('input', updateTimeFromSliders);
-if (TimerState.sliderMin) TimerState.sliderMin.addEventListener('input', updateTimeFromSliders);
-
-function toggleTimer() {
-  if (TimerState.isRunning) {
-    clearInterval(TimerState.interval);
-    TimerState.isRunning = false;
-    TimerState.startBtn.textContent = 'Start';
-    updateTimerDisplay(); 
-  } else {
-    if (TimerState.seconds <= 0) return;
-    TimerState.isRunning = true;
-    TimerState.startBtn.textContent = 'Pause';
-    updateTimerDisplay(); 
-    
-    TimerState.interval = setInterval(() => {
-      TimerState.seconds--;
-      updateTimerDisplay();
-      
-      if (TimerState.sliderHr) TimerState.sliderHr.value = Math.floor(TimerState.seconds / 3600);
-      if (TimerState.sliderMin) TimerState.sliderMin.value = Math.floor((TimerState.seconds % 3600) / 60);
-      
-      if (TimerState.seconds <= 0) {
-        clearInterval(TimerState.interval);
-        TimerState.isRunning = false;
-        TimerState.startBtn.textContent = 'Start';
-        if (TimerState.sliderHr) TimerState.sliderHr.value = 0;
-        if (TimerState.sliderMin) TimerState.sliderMin.value = 0;
-        playAlarm();
-      }
-    }, 1000);
-  }
-}
-
-function resetTimer() {
-  clearInterval(TimerState.interval);
-  TimerState.isRunning = false;
-  TimerState.seconds = 0;
-  TimerState.startBtn.textContent = 'Start';
-  if (TimerState.sliderHr) TimerState.sliderHr.value = 0;
-  if (TimerState.sliderMin) TimerState.sliderMin.value = 0;
-  updateTimerDisplay();
-}
-
-function playAlarm() {
-  const AudioContext = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContext) return;
-  const ctx = new AudioContext();
-  
-  let beeps = 0;
-  const playBeep = () => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(880, ctx.currentTime); 
-    
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5);
-    
-    osc.start();
-    osc.stop(ctx.currentTime + 0.5);
-  };
-  
-  playBeep();
-  const beepInterval = setInterval(() => {
-    beeps++;
-    if (beeps >= 3) {
-      clearInterval(beepInterval);
-    } else {
-      playBeep();
-    }
-  }, 400);
-}
-
-/* ── RANDOM QUOTE LOGIC ── */
-function initQuote() {
-  const quote = quotes[Math.floor(Math.random() * quotes.length)];
-  document.getElementById('quote-text').textContent = `"${quote.t}"`;
-  document.getElementById('quote-author').textContent = quote.a;
-}
-initQuote();
 </script>
 </body>
 </html>
