@@ -314,24 +314,23 @@ form#search-form { width: 100%; }
 .flip-btn:hover { color: var(--text); }
 .flip-btn svg { width: 14px; height: 14px; }
 
-/* Weather Widget */
-.weather-flip-container {
+/* ── FLIP CARD SYSTEM ── */
+.flip-container {
   perspective: 1000px;
-  height: 180px;
   flex-shrink: 0;
   animation: fadeUp 0.4s 0.2s ease both;
 }
-.weather-inner {
+.flip-inner {
   position: relative;
   width: 100%;
   height: 100%;
   transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
   transform-style: preserve-3d;
 }
-.weather-flip-container.flipped .weather-inner {
+.flip-container.flipped .flip-inner {
   transform: rotateY(180deg);
 }
-.weather-front, .weather-back {
+.flip-front, .flip-back {
   position: absolute;
   top: 0;
   left: 0;
@@ -345,14 +344,17 @@ form#search-form { width: 100%; }
   display: flex;
   flex-direction: column;
 }
-.weather-front { padding: 7px 24px 33px 24px; }
-.weather-back {
+.flip-back {
   transform: rotateY(180deg);
-  padding: 12px 24px 16px 24px;
   pointer-events: none;
 }
-.weather-flip-container.flipped .weather-front { pointer-events: none; }
-.weather-flip-container.flipped .weather-back { pointer-events: auto; }
+.flip-container.flipped .flip-front { pointer-events: none; }
+.flip-container.flipped .flip-back { pointer-events: auto; }
+
+/* Weather Specifics */
+#weather-widget { height: 180px; }
+.weather-front { padding: 7px 24px 33px 24px; }
+.weather-back { padding: 12px 24px 16px 24px; }
 
 .weather-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .weather-city { font-family: var(--font-main); font-weight: 800; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
@@ -386,44 +388,9 @@ form#search-form { width: 100%; }
 .d-temp { width: 60px; text-align: right; color: var(--muted); font-size: 11px; }
 .d-temp-max { color: var(--text); font-size: 12px; margin-left: 4px; }
 
-/* Calculator & VOO Flip Setup */
-.calc-flip-container {
-  perspective: 1000px;
-  height: 390px;
-  flex-shrink: 0;
-  animation: fadeUp 0.4s 0.2s ease both;
-}
-.calc-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-  transform-style: preserve-3d;
-}
-.calc-flip-container.flipped .calc-inner {
-  transform: rotateY(180deg);
-}
-.calc-front, .calc-back {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  background: var(--card);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-}
-.calc-back {
-  transform: rotateY(180deg);
-  pointer-events: none;
-}
-.calc-flip-container.flipped .calc-front { pointer-events: none; }
-.calc-flip-container.flipped .calc-back { pointer-events: auto; }
+/* Calculator Specifics */
+#calc-flip-widget { height: 390px; }
+.calc-front, .calc-back { padding: 16px; }
 
 /* TradingView */
 .voo-widget { 
@@ -502,43 +469,10 @@ form#search-form { width: 100%; }
   color: var(--text);
 }
 
-/* Timer Flip Setup */
-.timer-flip-container {
-  perspective: 1000px;
-  height: 168px;
-  flex-shrink: 0;
-  animation: fadeUp 0.4s 0.2s ease both;
-}
-.timer-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-  transform-style: preserve-3d;
-}
-.timer-flip-container.flipped .timer-inner { transform: rotateY(180deg); }
-.timer-front, .timer-back {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  background: var(--card);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  display: flex;
-  flex-direction: column;
-}
-.timer-back {
-  transform: rotateY(180deg);
-  pointer-events: none;
-  padding: 12px 16px 8px 16px;
-}
+/* Timer Specifics */
+#timer-flip-widget { height: 168px; }
+.timer-back { padding: 12px 16px 8px 16px; }
 .timer-back .widget-header { margin-bottom: 6px; }
-.timer-flip-container.flipped .timer-front { pointer-events: none; }
-.timer-flip-container.flipped .timer-back { pointer-events: auto; }
 
 /* Military Alphabet Grid */
 .alpha-grid {
@@ -839,10 +773,10 @@ input[type="range"].timer-slider::-moz-range-thumb {
   
   <!-- LEFT PANEL (Weather & Timer) -->
   <div class="left-panel">
-    <div class="weather-flip-container" id="weather-widget">
-      <div class="weather-inner">
+    <div class="flip-container" id="weather-widget">
+      <div class="flip-inner">
         <!-- Weather Front -->
-        <div class="weather-front">
+        <div class="flip-front weather-front">
           <div class="weather-header">
             <span class="weather-city" id="weather-city-front">Location...</span>
             <div style="display:flex; align-items:center; gap:8px;">
@@ -862,7 +796,7 @@ input[type="range"].timer-slider::-moz-range-thumb {
           <div class="forecast-strip" id="forecast-container"></div>
         </div>
         <!-- Weather Back -->
-        <div class="weather-back">
+        <div class="flip-back weather-back">
           <div class="weather-header">
             <span class="weather-city">6-Day Forecast</span>
             <button type="button" class="flip-btn" aria-label="Back to Current Weather" onclick="document.getElementById('weather-widget').classList.remove('flipped')">
@@ -875,10 +809,10 @@ input[type="range"].timer-slider::-moz-range-thumb {
     </div>
 
     <!-- Timer Widget (Flip Container) -->
-    <div class="timer-flip-container" id="timer-flip-widget">
-      <div class="timer-inner">
+    <div class="flip-container" id="timer-flip-widget">
+      <div class="flip-inner">
         <!-- Front (Timer) -->
-        <div class="timer-front timer-widget">
+        <div class="flip-front timer-front timer-widget">
           <div class="widget-header">
             <span class="widget-title">Timer</span>
             <button type="button" class="flip-btn" aria-label="Flip to Alphabet" onclick="document.getElementById('timer-flip-widget').classList.add('flipped')">
@@ -902,7 +836,7 @@ input[type="range"].timer-slider::-moz-range-thumb {
           </div>
         </div>
         <!-- Back (Military Alphabet) -->
-        <div class="timer-back">
+        <div class="flip-back timer-back">
           <div class="widget-header">
             <span class="widget-title">Phonetic Alphabet</span>
             <button type="button" class="flip-btn" aria-label="Back to Timer" onclick="document.getElementById('timer-flip-widget').classList.remove('flipped')">
@@ -972,10 +906,10 @@ input[type="range"].timer-slider::-moz-range-thumb {
 
   <!-- RIGHT PANEL (Calculator & VOO) -->
   <div class="side-panel">
-    <div class="calc-flip-container" id="calc-flip-widget">
-      <div class="calc-inner">
+    <div class="flip-container" id="calc-flip-widget">
+      <div class="flip-inner">
         <!-- Front (Calculator) -->
-        <div class="calc-front calculator-widget" id="calc-widget">
+        <div class="flip-front calc-front calculator-widget" id="calc-widget">
           <div class="widget-header">
             <span class="widget-title">Calculator</span>
             <button type="button" class="flip-btn" aria-label="Flip to Market" onclick="document.getElementById('calc-flip-widget').classList.add('flipped')">
@@ -1019,7 +953,7 @@ input[type="range"].timer-slider::-moz-range-thumb {
           </div>
         </div>
         <!-- Back (VOO / TradingView) -->
-        <div class="calc-back voo-widget">
+        <div class="flip-back calc-back voo-widget">
           <div class="widget-header">
             <span class="widget-title" id="market-title">Market Overview</span>
             <button type="button" class="flip-btn" aria-label="Back to Calculator" onclick="document.getElementById('calc-flip-widget').classList.remove('flipped')">
@@ -1071,6 +1005,17 @@ input[type="range"].timer-slider::-moz-range-thumb {
 /* ==========================================
    1. CORE UTILITIES & CONFIG
 ========================================== */
+const CONSTANTS = {
+  WEATHER_CACHE_MS: 900000,
+  GEO_TIMEOUT_MS: 2000,
+  CLOCK_ANIM_MS: 150,
+  SCRATCHPAD_DEBOUNCE_MS: 500,
+  INDICATOR_DELAY_MS: 2000,
+  COPY_FEEDBACK_MS: 1500,
+  PASTE_ERROR_MS: 2500,
+  TICK_MS: 1000
+};
+
 const StorageUtils = {
   get: k => { try { return localStorage.getItem(k); } catch(e) { return null; } },
   set: (k, v) => { try { localStorage.setItem(k, v); } catch(e) { console.warn("Storage restricted"); } }
@@ -1094,6 +1039,7 @@ const Config = {
       { k:"ig",n:"Insta",    s:"https://www.google.com/search?q=site:instagram.com+", d:"instagram.com" },
       { k:"k", n:"Keep",     s:"https://keep.google.com/#search/text=", d:"keep.google.com" },
       { k:"m", n:"Max",      s:"https://www.max.com/search?q=", d:"max.com" },
+      { k:"mu", n:"Music",   s:"https://music.youtube.com/search?q=", d:"music.youtube.com" },
       { k:"n", n:"Netflix",  s:"https://www.netflix.com/search?q=", d:"netflix.com" },
       { k:"x", n:"Reddit",   s:"https://www.reddit.com/search/?q=", d:"reddit.com" },
       { k:"y", n:"YouTube",  s:"https://www.youtube.com/results?search_query=", d:"youtube.com" }
@@ -1203,11 +1149,11 @@ const ClockWidget = {
     
     if(this.dom.h && this.dom.h.textContent !== hStr) {
       this.dom.h.classList.add('digit-changing');
-      setTimeout(() => { this.dom.h.textContent = hStr; this.dom.h.classList.replace('digit-changing', 'digit-incoming'); }, 150);
+      setTimeout(() => { this.dom.h.textContent = hStr; this.dom.h.classList.replace('digit-changing', 'digit-incoming'); }, CONSTANTS.CLOCK_ANIM_MS);
     }
     if(this.dom.m && this.dom.m.textContent !== mStr) {
       this.dom.m.classList.add('digit-changing');
-      setTimeout(() => { this.dom.m.textContent = mStr; this.dom.m.classList.replace('digit-changing', 'digit-incoming'); }, 150);
+      setTimeout(() => { this.dom.m.textContent = mStr; this.dom.m.classList.replace('digit-changing', 'digit-incoming'); }, CONSTANTS.CLOCK_ANIM_MS);
     }
     if(this.dom.ampm) this.dom.ampm.textContent = rawH >= 12 ? ' PM' : ' AM';
     
@@ -1231,7 +1177,7 @@ const WeatherWidget = {
     const lastFetch = StorageUtils.get('weatherTime');
     const cacheAge = lastFetch ? (Date.now() - parseInt(lastFetch)) : Infinity;
     
-    if (cacheAge < 900000) {
+    if (cacheAge < CONSTANTS.WEATHER_CACHE_MS) {
       try { this.render(JSON.parse(StorageUtils.get('weatherData'))); } 
       catch (e) { this.fetch(Config.data.lat, Config.data.lon, Config.data.city); }
     } else {
@@ -1239,7 +1185,7 @@ const WeatherWidget = {
         navigator.geolocation.getCurrentPosition(
           pos => this.fetch(pos.coords.latitude, pos.coords.longitude, "Local"),
           err => this.fetch(Config.data.lat, Config.data.lon, Config.data.city),
-          { timeout: 2000, maximumAge: 900000 }
+          { timeout: CONSTANTS.GEO_TIMEOUT_MS, maximumAge: CONSTANTS.WEATHER_CACHE_MS }
         );
       } else {
         this.fetch(Config.data.lat, Config.data.lon, Config.data.city);
@@ -1510,7 +1456,7 @@ const CalculatorWidget = {
       const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
       this.displayEl.textContent = `Press ${isMac ? 'Cmd+V' : 'Ctrl+V'}`;
       this.displayEl.style.fontSize = "22px";
-      setTimeout(() => { this.displayEl.style.fontSize = ""; this.update(); }, 2500);
+      setTimeout(() => { this.displayEl.style.fontSize = ""; this.update(); }, CONSTANTS.PASTE_ERROR_MS);
     }
   }
 };
@@ -1530,8 +1476,8 @@ const ScratchpadWidget = {
       this.timeout = setTimeout(() => {
         StorageUtils.set('salut_scratchpad', this.input.value);
         this.indicator.classList.add('visible');
-        setTimeout(() => this.indicator.classList.remove('visible'), 2000);
-      }, 500);
+        setTimeout(() => this.indicator.classList.remove('visible'), CONSTANTS.INDICATOR_DELAY_MS);
+      }, CONSTANTS.SCRATCHPAD_DEBOUNCE_MS);
     });
 
     document.getElementById('clear-btn').addEventListener('click', () => {
@@ -1542,7 +1488,7 @@ const ScratchpadWidget = {
       this.input.select(); document.execCommand('copy');
       const btn = document.getElementById('copy-btn'), orig = btn.innerHTML;
       btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-      setTimeout(() => btn.innerHTML = orig, 1500);
+      setTimeout(() => btn.innerHTML = orig, CONSTANTS.COPY_FEEDBACK_MS);
     });
 
     document.getElementById('paste-btn').addEventListener('click', async () => {
@@ -1598,7 +1544,7 @@ const TimerWidget = {
           if (this.sliderHr) this.sliderHr.value = 0; if (this.sliderMin) this.sliderMin.value = 0;
           this.playAlarm();
         }
-      }, 1000);
+      }, CONSTANTS.TICK_MS);
     }
   },
   reset() {
