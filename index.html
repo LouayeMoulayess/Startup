@@ -955,9 +955,6 @@ input[type="range"].timer-slider::-moz-range-thumb {
       <div class="scratchpad-header">
         <div class="scratchpad-actions">
           <span class="save-indicator" id="save-indicator">Saved</span>
-          <button type="button" class="action-btn" id="share-btn" aria-label="Share note" title="Share note">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-          </button>
           <button type="button" class="action-btn" id="clear-btn" aria-label="Clear scratchpad" title="Clear scratchpad">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
           </button>
@@ -969,7 +966,7 @@ input[type="range"].timer-slider::-moz-range-thumb {
           </button>
         </div>
       </div>
-      <textarea id="scratchpad-input" aria-label="Scratchpad text area" placeholder="Jot down a thought..."></textarea>
+      <textarea id="scratchpad-input" aria-label="Scratchpad text area" placeholder="Side quest log..."></textarea>
     </div>
   </div>
 
@@ -1535,18 +1532,6 @@ const ScratchpadWidget = {
         this.indicator.classList.add('visible');
         setTimeout(() => this.indicator.classList.remove('visible'), 2000);
       }, 500);
-    });
-
-    document.getElementById('share-btn').addEventListener('click', async () => {
-      const text = this.input.value.trim();
-      if (!text) return;
-      if (navigator.share) {
-        try { await navigator.share({ text: text }); } catch (err) { console.error('Share failed', err); }
-      } else {
-        this.input.select(); document.execCommand('copy');
-        this.indicator.textContent = 'Copied!'; this.indicator.classList.add('visible');
-        setTimeout(() => { this.indicator.classList.remove('visible'); setTimeout(() => this.indicator.textContent = 'Saved', 300); }, 2000);
-      }
     });
 
     document.getElementById('clear-btn').addEventListener('click', () => {
