@@ -18,6 +18,7 @@
 
 <!-- Optimized Font Loading -->
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.cdnfonts.com/css/gilroy-bold" rel="stylesheet">
 
 <style>
 :root {
@@ -195,8 +196,8 @@ form#search-form { width: 100%; }
   backdrop-filter: blur(10px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: 800;
+  font-family: 'Gilroy', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 900;
   font-size: 20px;
   color: var(--text);
   outline: none;
@@ -211,6 +212,7 @@ form#search-form { width: 100%; }
 #omnibar::placeholder {
   opacity: 0.3;
   font-style: italic;
+  font-size: 14px;
 }
 
 #shortcuts-grid {
@@ -880,7 +882,7 @@ input[type="range"].timer-slider::-moz-range-thumb {
   <div class="container">
     <div class="omnibar-wrapper">
       <form id="search-form" onsubmit="SearchWidget.handle(event)">
-        <input type="text" id="omnibar" aria-label="Search" placeholder="Search" autofocus autocomplete="off" spellcheck="false">
+        <input type="text" id="omnibar" aria-label="Search" placeholder="Hey!    Listen! ..." autofocus autocomplete="off" spellcheck="false">
       </form>
       <div id="shortcuts-grid"></div>
     </div>
@@ -1126,6 +1128,22 @@ const SearchWidget = {
   init() {
     if(this.omnibar) {
       this.omnibar.addEventListener('keydown', e => { if(e.key === "Escape") { this.omnibar.value = ""; this.omnibar.blur(); } });
+      
+      // Auto-capitalize the first letter
+      this.omnibar.addEventListener('input', () => {
+        if (this.omnibar.value.length > 0) {
+          const start = this.omnibar.selectionStart;
+          const end = this.omnibar.selectionEnd;
+          const firstChar = this.omnibar.value.charAt(0);
+          const upperFirstChar = firstChar.toUpperCase();
+
+          if (firstChar !== upperFirstChar) {
+            this.omnibar.value = upperFirstChar + this.omnibar.value.slice(1);
+            // Restore cursor position so it doesn't jump to the end
+            this.omnibar.setSelectionRange(start, end);
+          }
+        }
+      });
     }
   },
   handle(e) {
@@ -1471,6 +1489,19 @@ const ScratchpadWidget = {
     this.input.value = StorageUtils.get('salut_scratchpad') || '';
     
     this.input.addEventListener('input', () => {
+      // Auto-capitalize first letter
+      if (this.input.value.length > 0) {
+        const start = this.input.selectionStart;
+        const end = this.input.selectionEnd;
+        const firstChar = this.input.value.charAt(0);
+        const upperFirstChar = firstChar.toUpperCase();
+
+        if (firstChar !== upperFirstChar) {
+          this.input.value = upperFirstChar + this.input.value.slice(1);
+          this.input.setSelectionRange(start, end);
+        }
+      }
+
       clearTimeout(this.timeout);
       this.indicator.classList.remove('visible');
       this.timeout = setTimeout(() => {
