@@ -937,6 +937,9 @@ input[type="range"].timer-slider::-moz-range-thumb {
       <div class="scratchpad-header">
         <div class="scratchpad-actions">
           <span class="save-indicator" id="save-indicator">Saved</span>
+          <button type="button" class="action-btn" id="share-btn" aria-label="Share note" title="Share note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          </button>
           <button type="button" class="action-btn" id="clear-btn" aria-label="Clear scratchpad" title="Clear scratchpad">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
           </button>
@@ -971,7 +974,9 @@ input[type="range"].timer-slider::-moz-range-thumb {
             <!-- Row 1 -->
             <button type="button" class="calc-btn btn-custom" aria-label="Calculate 5 percent" onclick="calcCustom(0.05)">5%</button>
             <button type="button" class="calc-btn btn-clear" aria-label="Clear calculator" onclick="calcClear()">C</button>
-            <button type="button" class="calc-btn" aria-label="Toggle sign" onclick="calcToggleSign()">+/-</button>
+            <button type="button" class="calc-btn" aria-label="Paste" onclick="calcPaste()" title="Paste">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            </button>
             <button type="button" class="calc-btn" aria-label="Percent" onclick="calcPercent()">%</button>
             <button type="button" class="calc-btn btn-op" aria-label="Divide" onclick="calcOp('/')">÷</button>
             
@@ -1340,9 +1345,33 @@ if (grid) {
 }
 
 if(omnibar) omnibar.addEventListener('keydown', e => { if(e.key === "Escape") { omnibar.value = ""; omnibar.blur(); } });
+
+/* ── GLOBAL KEYBOARD / PASTE HANDLERS ── */
 document.addEventListener('keydown', e => {
   const isInput = document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
   if(!isInput && !e.metaKey && !e.ctrlKey && !e.altKey && e.key.length === 1 && omnibar) omnibar.focus();
+});
+
+document.addEventListener('paste', e => {
+  const isInput = document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
+  
+  // If the user presses Ctrl+V anywhere outside of the text box/search bar, send it to the calculator
+  if (!isInput && e.clipboardData) {
+    const text = e.clipboardData.getData('text');
+    if (text) {
+      const cleanText = text.replace(/[^0-9.-]/g, '');
+      const parsed = parseFloat(cleanText);
+      if (!isNaN(parsed)) {
+        e.preventDefault();
+        CalcState.currentVal = stripFloatError(parsed).toString();
+        CalcState.shouldResetScreen = true;
+        updateCalcDisplay();
+        
+        // Ensure calc flip is showing the calculator front
+        document.getElementById('calc-flip-widget').classList.remove('flipped');
+      }
+    }
+  }
 });
 
 /* ── CALCULATOR LOGIC (OPTIMIZED) ── */
@@ -1433,6 +1462,36 @@ function calcClear() {
   updateCalcDisplay();
 }
 
+async function calcPaste() {
+  try {
+    if (!navigator.clipboard || !navigator.clipboard.readText) {
+      throw new Error("Clipboard API not supported");
+    }
+    const text = await navigator.clipboard.readText();
+    const cleanText = text.replace(/[^0-9.-]/g, '');
+    const parsed = parseFloat(cleanText);
+    if (!isNaN(parsed)) {
+      CalcState.currentVal = stripFloatError(parsed).toString();
+      CalcState.shouldResetScreen = true;
+      updateCalcDisplay();
+    }
+  } catch (err) {
+    console.warn('Clipboard read failed, falling back to manual prompt', err);
+    
+    // Fallback UI to instruct user to paste manually if the browser blocked it
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    const shortcut = isMac ? 'Cmd+V' : 'Ctrl+V';
+    
+    CalcState.displayEl.textContent = `Press ${shortcut}`;
+    CalcState.displayEl.style.fontSize = "22px"; // Fit the text
+    
+    setTimeout(() => {
+      CalcState.displayEl.style.fontSize = ""; // reset
+      updateCalcDisplay();
+    }, 2500);
+  }
+}
+
 function calcToggleSign() {
   if (CalcState.currentVal === 'Error') return;
   CalcState.currentVal = stripFloatError(parseFloat(CalcState.currentVal) * -1).toString();
@@ -1472,6 +1531,28 @@ const Scratchpad = {
     });
 
     // Actions
+    document.getElementById('share-btn').addEventListener('click', async () => {
+      const text = this.input.value.trim();
+      if (!text) return;
+      if (navigator.share) {
+        try {
+          await navigator.share({ text: text });
+        } catch (err) {
+          console.error('Share failed:', err);
+        }
+      } else {
+        // Fallback for browsers that don't support native share: Copy to clipboard
+        this.input.select();
+        document.execCommand('copy');
+        this.indicator.textContent = 'Copied!';
+        this.indicator.classList.add('visible');
+        setTimeout(() => {
+          this.indicator.classList.remove('visible');
+          setTimeout(() => this.indicator.textContent = 'Saved', 300);
+        }, 2000);
+      }
+    });
+
     document.getElementById('clear-btn').addEventListener('click', () => {
       this.input.value = '';
       storage.set('salut_scratchpad', '');
@@ -1489,11 +1570,17 @@ const Scratchpad = {
 
     document.getElementById('paste-btn').addEventListener('click', async () => {
       try {
+        if (!navigator.clipboard || !navigator.clipboard.readText) throw new Error("Clipboard API not supported");
         const text = await navigator.clipboard.readText();
         this.input.value += (this.input.value ? '\n' : '') + text;
         this.input.dispatchEvent(new Event('input')); // Trigger save
       } catch (err) {
-        console.error('Failed to read clipboard text: ', err);
+        console.warn('Failed to read clipboard text: ', err);
+        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        const origPlaceholder = this.input.placeholder;
+        this.input.placeholder = `[Click here and press ${isMac ? 'Cmd+V' : 'Ctrl+V'} to paste]`;
+        this.input.focus();
+        setTimeout(() => this.input.placeholder = origPlaceholder, 3000);
       }
     });
   }
