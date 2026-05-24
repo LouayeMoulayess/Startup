@@ -391,12 +391,12 @@ form#search-form { width: 100%; }
 .d-temp-max { color: var(--text); font-size: 12px; margin-left: 4px; }
 
 /* Calculator Specifics */
-#calc-flip-widget { height: 390px; }
-.calc-front, .calc-back { padding: 16px; }
+#calc-widget { height: 400px; padding: 16px; flex: none; }
 
 /* TradingView */
 .voo-widget { 
-  flex: 1; 
+  height: 390px; 
+  padding: 12px 16px 16px 16px;
   display: flex;
   flex-direction: column;
 }
@@ -431,7 +431,7 @@ form#search-form { width: 100%; }
   display: flex;
   flex-direction: column;
   gap: 12px;
-  flex: 1; 
+  flex: none; 
 }
 .calc-display {
   font-family: var(--font-main);
@@ -494,137 +494,6 @@ form#search-form { width: 100%; }
   border-color: var(--border);
   color: var(--text);
 }
-
-/* Timer Specifics */
-#timer-flip-widget { height: 168px; }
-.timer-back { padding: 12px 16px 8px 16px; }
-.timer-back .widget-header { margin-bottom: 6px; }
-
-/* Military Alphabet Grid */
-.alpha-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(9, auto);
-  grid-auto-flow: column;
-  gap: 2px 6px;
-}
-.alpha-item {
-  display: flex;
-  align-items: baseline;
-  font-size: 9px;
-  line-height: 1.1;
-  white-space: nowrap;
-}
-.alpha-letter {
-  font-family: var(--font-main);
-  font-weight: 800;
-  color: var(--yellow);
-  margin-right: 4px;
-  min-width: 8px;
-}
-.alpha-word {
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Timer Widget */
-.timer-widget {
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.timer-display {
-  font-family: var(--font-main);
-  font-weight: 800;
-  font-size: 40px;
-  text-align: center;
-  color: var(--text);
-  letter-spacing: -1px;
-  font-variant-numeric: tabular-nums;
-  padding: 0;
-  line-height: 1;
-  margin-top: -14px;
-  margin-bottom: 10px;
-}
-.timer-controls {
-  display: flex;
-  flex-direction: row;
-  padding: 4px 0;
-  gap: 12px;
-  align-items: center;
-  width: 100%;
-}
-.slider-group {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.slider-label {
-  font-size: 10px;
-  font-weight: 800;
-  color: var(--muted);
-  text-transform: uppercase;
-  width: 22px;
-  text-align: right;
-}
-.timer-actions {
-  display: flex;
-  gap: 8px;
-}
-input[type="range"].timer-slider {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--border);
-  outline: none;
-  cursor: pointer;
-}
-input[type="range"].timer-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--yellow);
-  cursor: pointer;
-  border: 2px solid var(--card);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  transition: transform 0.1s;
-}
-input[type="range"].timer-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
-input[type="range"].timer-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--yellow);
-  cursor: pointer;
-  border: 2px solid var(--card);
-}
-.timer-btn {
-  flex: 1;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-main);
-  font-weight: 700;
-  font-size: 12px;
-  color: var(--text);
-  padding: 8px 0;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.timer-btn:hover { background: var(--border); border-color: var(--yellow); }
-.timer-btn:active { transform: scale(0.96); }
-.timer-btn.primary { background: var(--yellow); color: #fff; border-color: var(--yellow); }
-.timer-btn.primary:hover { opacity: 0.9; border-color: var(--yellow); }
 
 /* Scratchpad */
 .scratchpad-container {
@@ -797,7 +666,7 @@ input[type="range"].timer-slider::-moz-range-thumb {
 
 <div class="main-layout">
   
-  <!-- LEFT PANEL (Weather & Timer) -->
+  <!-- LEFT PANEL (Weather & Market) -->
   <div class="left-panel">
     <div class="flip-container" id="weather-widget">
       <div class="flip-inner">
@@ -834,71 +703,15 @@ input[type="range"].timer-slider::-moz-range-thumb {
       </div>
     </div>
 
-    <!-- Timer Widget (Flip Container) -->
-    <div class="flip-container" id="timer-flip-widget">
-      <div class="flip-inner">
-        <!-- Front (Timer) -->
-        <div class="flip-front timer-front timer-widget">
-          <div class="widget-header">
-            <span class="widget-title">Timer</span>
-            <button type="button" class="flip-btn" aria-label="Flip to Alphabet" onclick="document.getElementById('timer-flip-widget').classList.add('flipped')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.13 15.57a9 9 0 1 0 3.84-10.36L2 9"></path></svg>
-            </button>
-          </div>
-          <div class="timer-display" id="timer-display">00:00</div>
-          <div class="timer-controls">
-            <div class="slider-group">
-              <span class="slider-label">Hr</span>
-              <input type="range" class="timer-slider" id="timer-slider-hr" min="0" max="3" value="0" step="1" aria-label="Hours">
-            </div>
-            <div class="slider-group">
-              <span class="slider-label">Min</span>
-              <input type="range" class="timer-slider" id="timer-slider-min" min="0" max="59" value="0" step="1" aria-label="Minutes">
-            </div>
-          </div>
-          <div class="timer-actions">
-            <button type="button" class="timer-btn primary" id="timer-start-btn" onclick="TimerWidget.toggle()">Start</button>
-            <button type="button" class="timer-btn" onclick="TimerWidget.reset()">Reset</button>
-          </div>
-        </div>
-        <!-- Back (Military Alphabet) -->
-        <div class="flip-back timer-back">
-          <div class="widget-header">
-            <span class="widget-title">Phonetic Alphabet</span>
-            <button type="button" class="flip-btn" aria-label="Back to Timer" onclick="document.getElementById('timer-flip-widget').classList.remove('flipped')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            </button>
-          </div>
-          <div class="alpha-grid">
-            <div class="alpha-item"><span class="alpha-letter">A</span><span class="alpha-word">Alpha</span></div>
-            <div class="alpha-item"><span class="alpha-letter">B</span><span class="alpha-word">Bravo</span></div>
-            <div class="alpha-item"><span class="alpha-letter">C</span><span class="alpha-word">Charlie</span></div>
-            <div class="alpha-item"><span class="alpha-letter">D</span><span class="alpha-word">Delta</span></div>
-            <div class="alpha-item"><span class="alpha-letter">E</span><span class="alpha-word">Echo</span></div>
-            <div class="alpha-item"><span class="alpha-letter">F</span><span class="alpha-word">Foxtrot</span></div>
-            <div class="alpha-item"><span class="alpha-letter">G</span><span class="alpha-word">Golf</span></div>
-            <div class="alpha-item"><span class="alpha-letter">H</span><span class="alpha-word">Hotel</span></div>
-            <div class="alpha-item"><span class="alpha-letter">I</span><span class="alpha-word">India</span></div>
-            <div class="alpha-item"><span class="alpha-letter">J</span><span class="alpha-word">Juliett</span></div>
-            <div class="alpha-item"><span class="alpha-letter">K</span><span class="alpha-word">Kilo</span></div>
-            <div class="alpha-item"><span class="alpha-letter">L</span><span class="alpha-word">Lima</span></div>
-            <div class="alpha-item"><span class="alpha-letter">M</span><span class="alpha-word">Mike</span></div>
-            <div class="alpha-item"><span class="alpha-letter">N</span><span class="alpha-word">November</span></div>
-            <div class="alpha-item"><span class="alpha-letter">O</span><span class="alpha-word">Oscar</span></div>
-            <div class="alpha-item"><span class="alpha-letter">P</span><span class="alpha-word">Papa</span></div>
-            <div class="alpha-item"><span class="alpha-letter">Q</span><span class="alpha-word">Quebec</span></div>
-            <div class="alpha-item"><span class="alpha-letter">R</span><span class="alpha-word">Romeo</span></div>
-            <div class="alpha-item"><span class="alpha-letter">S</span><span class="alpha-word">Sierra</span></div>
-            <div class="alpha-item"><span class="alpha-letter">T</span><span class="alpha-word">Tango</span></div>
-            <div class="alpha-item"><span class="alpha-letter">U</span><span class="alpha-word">Uniform</span></div>
-            <div class="alpha-item"><span class="alpha-letter">V</span><span class="alpha-word">Victor</span></div>
-            <div class="alpha-item"><span class="alpha-letter">W</span><span class="alpha-word">Whiskey</span></div>
-            <div class="alpha-item"><span class="alpha-letter">X</span><span class="alpha-word">X-ray</span></div>
-            <div class="alpha-item"><span class="alpha-letter">Y</span><span class="alpha-word">Yankee</span></div>
-            <div class="alpha-item"><span class="alpha-letter">Z</span><span class="alpha-word">Zulu</span></div>
-          </div>
+    <!-- VOO / TradingView Widget -->
+    <div class="widget-card voo-widget">
+      <div class="widget-header" style="margin-bottom: 8px;">
+        <div style="display: flex; align-items: center;">
+          <span class="widget-title" id="market-title">Market Overview</span>
+          <span id="market-status" class="market-status"></span>
         </div>
       </div>
+      <div id="tv-widget-container" style="flex: 1; width: 100%;"></div>
     </div>
   </div>
 
@@ -930,67 +743,46 @@ input[type="range"].timer-slider::-moz-range-thumb {
     </div>
   </div>
 
-  <!-- RIGHT PANEL (Calculator & VOO) -->
+  <!-- RIGHT PANEL (Calculator) -->
   <div class="side-panel">
-    <div class="flip-container" id="calc-flip-widget">
-      <div class="flip-inner">
-        <!-- Front (Calculator) -->
-        <div class="flip-front calc-front calculator-widget" id="calc-widget">
-          <div class="widget-header">
-            <span class="widget-title">Calculator</span>
-            <button type="button" class="flip-btn" aria-label="Flip to Market" onclick="document.getElementById('calc-flip-widget').classList.add('flipped')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.13 15.57a9 9 0 1 0 3.84-10.36L2 9"></path></svg>
-            </button>
-          </div>
-          <div class="calc-display" aria-label="Calculator display" id="calc-display">0</div>
-          
-          <div class="calc-grid">
-            <!-- Row 1 -->
-            <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.05)">5%</button>
-            <button type="button" class="calc-btn btn-clear" onclick="CalculatorWidget.clear()">C</button>
-            <button type="button" class="calc-btn" onclick="CalculatorWidget.paste()" title="Paste">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-            </button>
-            <button type="button" class="calc-btn" onclick="CalculatorWidget.percent()">%</button>
-            <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('/')">÷</button>
-            <!-- Row 2 -->
-            <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.06)">6%</button>
-            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('7')">7</button>
-            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('8')">8</button>
-            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('9')">9</button>
-            <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('*')">×</button>
-            <!-- Row 3 -->
-            <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.5)">÷ 2</button>
-            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('4')">4</button>
-            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('5')">5</button>
-            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('6')">6</button>
-            <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('-')">-</button>
-            <!-- Row 4 -->
-            <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.45)">½-5%</button>
-            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('1')">1</button>
-            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('2')">2</button>
-            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('3')">3</button>
-            <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('+')">+</button>
-            <!-- Row 5 -->
-            <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.44)">½-6%</button>
-            <button type="button" class="calc-btn span-2" onclick="CalculatorWidget.num('0')">0</button>
-            <button type="button" class="calc-btn" onclick="CalculatorWidget.num('.')">.</button>
-            <button type="button" class="calc-btn btn-eq" onclick="CalculatorWidget.eq()">=</button>
-          </div>
-        </div>
-        <!-- Back (VOO / TradingView) -->
-        <div class="flip-back calc-back voo-widget">
-          <div class="widget-header">
-            <div style="display: flex; align-items: center;">
-              <span class="widget-title" id="market-title">Market Overview</span>
-              <span id="market-status" class="market-status"></span>
-            </div>
-            <button type="button" class="flip-btn" aria-label="Back to Calculator" onclick="document.getElementById('calc-flip-widget').classList.remove('flipped')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            </button>
-          </div>
-          <div id="tv-widget-container" style="flex: 1; width: 100%;"></div>
-        </div>
+    <div class="widget-card calculator-widget" id="calc-widget">
+      <div class="widget-header">
+        <span class="widget-title">Calculator</span>
+      </div>
+      <div class="calc-display" aria-label="Calculator display" id="calc-display">0</div>
+      
+      <div class="calc-grid">
+        <!-- Row 1 -->
+        <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.05)">5%</button>
+        <button type="button" class="calc-btn btn-clear" onclick="CalculatorWidget.clear()">C</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.paste()" title="Paste">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+        </button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.percent()">%</button>
+        <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('/')">÷</button>
+        <!-- Row 2 -->
+        <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.06)">6%</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('7')">7</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('8')">8</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('9')">9</button>
+        <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('*')">×</button>
+        <!-- Row 3 -->
+        <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.5)">÷ 2</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('4')">4</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('5')">5</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('6')">6</button>
+        <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('-')">-</button>
+        <!-- Row 4 -->
+        <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.45)">½-5%</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('1')">1</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('2')">2</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('3')">3</button>
+        <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('+')">+</button>
+        <!-- Row 5 -->
+        <button type="button" class="calc-btn btn-custom" onclick="CalculatorWidget.custom(0.44)">½-6%</button>
+        <button type="button" class="calc-btn span-2" onclick="CalculatorWidget.num('0')">0</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('.')">.</button>
+        <button type="button" class="calc-btn btn-eq" onclick="CalculatorWidget.eq()">=</button>
       </div>
     </div>
   </div>
@@ -1190,23 +982,6 @@ const SearchWidget = {
     const val = this.omnibar.value.trim();
     if (!val) return;
 
-    // Smart Command: Quick Timer (e.g. "/timer 15")
-    if (val.toLowerCase().startsWith('/timer ')) {
-      const mins = parseInt(val.substring(7).trim());
-      if (!isNaN(mins) && mins > 0) {
-        document.getElementById('timer-flip-widget').classList.remove('flipped');
-        TimerWidget.reset();
-        TimerWidget.seconds = mins * 60;
-        if (TimerWidget.sliderHr) TimerWidget.sliderHr.value = Math.floor(mins / 60);
-        if (TimerWidget.sliderMin) TimerWidget.sliderMin.value = mins % 60;
-        TimerWidget.updateDisplay();
-        TimerWidget.toggle();
-        this.omnibar.value = '';
-        this.omnibar.blur();
-        return;
-      }
-    }
-
     // Smart Command: Quick Math (e.g. "120 * 0.20")
     const mathRegex = /^[\d\s\+\-\*\/\(\)\.]+$/;
     // Ensure it contains at least one math operator to differentiate from phone numbers/zips
@@ -1214,7 +989,6 @@ const SearchWidget = {
       try {
         const result = new Function(`return (${val})`)();
         if (!isNaN(result) && isFinite(result)) {
-          document.getElementById('calc-flip-widget').classList.remove('flipped');
           CalculatorWidget.currentVal = CalculatorWidget.stripErr(result).toString();
           CalculatorWidget.shouldResetScreen = true;
           CalculatorWidget.update();
@@ -1641,68 +1415,6 @@ const ScratchpadWidget = {
   }
 };
 
-/* ── TIMER ── */
-const TimerWidget = {
-  seconds: 0, interval: null, isRunning: false,
-  displayEl: document.getElementById('timer-display'),
-  startBtn: document.getElementById('timer-start-btn'),
-  sliderHr: document.getElementById('timer-slider-hr'),
-  sliderMin: document.getElementById('timer-slider-min'),
-
-  init() {
-    const updateFromSliders = () => {
-      if (this.isRunning) return; 
-      this.seconds = ((parseInt(this.sliderHr.value) || 0) * 3600) + ((parseInt(this.sliderMin.value) || 0) * 60);
-      this.updateDisplay();
-    };
-    if (this.sliderHr) this.sliderHr.addEventListener('input', updateFromSliders);
-    if (this.sliderMin) this.sliderMin.addEventListener('input', updateFromSliders);
-  },
-  format() {
-    const h = Math.floor(this.seconds / 3600), m = Math.floor((this.seconds % 3600) / 60).toString().padStart(2, '0'), s = (this.seconds % 60).toString().padStart(2, '0');
-    return h > 0 ? (!this.isRunning && s === '00' ? `${h}:${m}` : `${h}:${m}:${s}`) : `${m}:${s}`;
-  },
-  updateDisplay() { this.displayEl.textContent = this.format(); },
-  toggle() {
-    if (this.isRunning) {
-      clearInterval(this.interval); this.isRunning = false; this.startBtn.textContent = 'Start'; this.updateDisplay();
-    } else {
-      if (this.seconds <= 0) return;
-      this.isRunning = true; this.startBtn.textContent = 'Pause'; this.updateDisplay();
-      this.interval = setInterval(() => {
-        this.seconds--; this.updateDisplay();
-        if (this.sliderHr) this.sliderHr.value = Math.floor(this.seconds / 3600);
-        if (this.sliderMin) this.sliderMin.value = Math.floor((this.seconds % 3600) / 60);
-        if (this.seconds <= 0) {
-          clearInterval(this.interval); this.isRunning = false; this.startBtn.textContent = 'Start';
-          if (this.sliderHr) this.sliderHr.value = 0; if (this.sliderMin) this.sliderMin.value = 0;
-          this.playAlarm();
-        }
-      }, CONSTANTS.TICK_MS);
-    }
-  },
-  reset() {
-    clearInterval(this.interval); this.isRunning = false; this.seconds = 0; this.startBtn.textContent = 'Start';
-    if (this.sliderHr) this.sliderHr.value = 0; if (this.sliderMin) this.sliderMin.value = 0;
-    this.updateDisplay();
-  },
-  playAlarm() {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
-    let beeps = 0;
-    const playBeep = () => {
-      const osc = ctx.createOscillator(), gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.type = 'sine'; osc.frequency.setValueAtTime(880, ctx.currentTime); 
-      gain.gain.setValueAtTime(0.1, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5);
-      osc.start(); osc.stop(ctx.currentTime + 0.5);
-    };
-    playBeep();
-    const beepInt = setInterval(() => { beeps++; if(beeps >= 3) clearInterval(beepInt); else playBeep(); }, 400);
-  }
-};
-
 /* ── QUOTE ── */
 const QuoteWidget = {
   quotes: [
@@ -1741,7 +1453,6 @@ document.addEventListener('paste', e => {
         CalculatorWidget.currentVal = CalculatorWidget.stripErr(parsed).toString();
         CalculatorWidget.shouldResetScreen = true;
         CalculatorWidget.update();
-        document.getElementById('calc-flip-widget').classList.remove('flipped');
       }
     }
   }
@@ -1756,7 +1467,6 @@ function initializeApp() {
   SearchWidget.init();
   ShortcutsWidget.init();
   ScratchpadWidget.init();
-  TimerWidget.init();
   QuoteWidget.init();
 }
 
