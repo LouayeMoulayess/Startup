@@ -7,7 +7,6 @@
 <meta name="description" content="A fast, beautifully designed personal dashboard and start page.">
 <title>Salut!</title>
 
-<!-- Preconnect to external origins for performance -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://api.open-meteo.com">
@@ -224,21 +223,6 @@ form#search-form { width: 100%; }
   animation: fadeUp 0.4s 0.2s ease both;
   overflow: hidden;
 }
-.widget-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  flex-shrink: 0;
-}
-.widget-title {
-  font-family: var(--font-main);
-  font-weight: 700;
-  font-size: 10px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-}
 
 /* ── WEATHER PANEL ── */
 .weather-widget {
@@ -257,7 +241,6 @@ form#search-form { width: 100%; }
 .wp-daily { flex: 0 0 220px; }
 
 .weather-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.weather-title { font-family: var(--font-main); font-weight: 800; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
 .weather-city { font-family: var(--font-main); font-weight: 800; font-size: 16px; color: var(--text); }
 .location-fallback { color: var(--yellow); display: inline-flex; align-items: center; gap: 4px; }
 .location-fallback svg { width: 14px; height: 14px; }
@@ -273,8 +256,8 @@ form#search-form { width: 100%; }
 .forecast-strip { display: flex; justify-content: space-between; align-items: center; height: 100%; }
 .forecast-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
 .f-time { font-size: 11px; font-weight: 700; color: var(--muted); }
-.f-icon { font-size: 20px; }
-.f-temp { font-size: 13px; font-weight: 800; }
+.f-icon { font-size: 28px; } /* Increased icon size */
+.f-temp { font-size: 14px; font-weight: 800; }
 
 .daily-forecast-container { display: flex; flex-direction: column; justify-content: space-around; height: 100%; }
 .daily-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
@@ -283,66 +266,34 @@ form#search-form { width: 100%; }
 .d-temp { width: 70px; text-align: right; color: var(--muted); font-size: 12px; }
 .d-temp-max { color: var(--text); font-size: 13px; margin-left: 6px; font-weight: 700; }
 
-@media (max-width: 1150px) {
-  .weather-widget { flex-direction: column; padding: 24px; }
-  .wp-hourly { border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 24px 0; margin: 0; min-height: 120px; }
-}
-
-/* Calculator Specifics */
-#calc-widget { height: 400px; padding: 16px; flex: none; }
-
 /* TradingView */
-.voo-widget { height: 400px; padding: 12px 16px 16px 16px; display: flex; flex-direction: column; }
+.voo-widget { height: 400px; padding: 16px; display: flex; flex-direction: column; }
 #tv-widget-container { flex: 1; width: 100%; }
 .tradingview-widget-container { flex: 1; width: 100%; height: 100%; }
 
-.market-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 9px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-left: 8px;
-}
-.market-status::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
-.market-status.open { color: #2e7d32; background: rgba(46, 125, 50, 0.1); }
-.market-status.open::before { background: #2e7d32; }
-.market-status.closed { color: #db2416; background: rgba(219, 36, 22, 0.1); }
-.market-status.closed::before { background: #db2416; }
-@media (prefers-color-scheme: dark) {
-  .market-status.open { color: #4caf50; background: rgba(76, 175, 80, 0.15); }
-  .market-status.open::before { background: #4caf50; }
-  .market-status.closed { color: #ef5350; background: rgba(239, 83, 80, 0.15); }
-  .market-status.closed::before { background: #ef5350; }
-}
-
 /* Calculator */
-.calculator-widget { display: flex; flex-direction: column; gap: 12px; flex: none; }
+#calc-widget { height: 400px; padding: 24px 16px 16px; flex: none; display: flex; flex-direction: column; gap: 12px; }
 .calc-display {
   font-family: var(--font-main);
-  font-weight: 700;
-  font-size: 36px;
+  font-weight: 800;
+  font-size: 48px; /* Greatly increased font size */
   text-align: right;
   color: var(--text);
-  padding: 4px 8px 12px;
+  padding: 8px 8px 16px;
   background: transparent;
   border: none;
   overflow-x: auto;
   white-space: nowrap;
 }
 .calc-display::-webkit-scrollbar { display: none; }
-.calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 8px; flex: 1; }
+.calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 10px; flex: 1; }
 .calc-btn {
   background: rgba(0,0,0,0.03);
   border: none;
   border-radius: var(--radius-sm);
   font-family: var(--font-main);
   font-weight: 600;
-  font-size: 16px;
+  font-size: 18px; /* Slightly larger text on buttons */
   color: var(--text);
   cursor: pointer;
   display: flex;
@@ -352,11 +303,11 @@ form#search-form { width: 100%; }
 }
 @media (prefers-color-scheme: dark) { .calc-btn { background: rgba(255,255,255,0.04); } }
 
-.calc-btn svg { width: 16px; height: 16px; opacity: 0.7; }
+.calc-btn svg { width: 18px; height: 18px; opacity: 0.7; }
 .calc-btn:hover { background: var(--border); transform: translateY(-1px); }
 .calc-btn:active { transform: scale(0.96); }
 .calc-btn.span-2 { grid-column: span 2; }
-.calc-btn.btn-op { color: var(--yellow); font-size: 18px; font-weight: 700; }
+.calc-btn.btn-op { color: var(--yellow); font-size: 20px; font-weight: 700; }
 .calc-btn.btn-eq { background: var(--yellow); color: #fff; font-weight: 700; }
 .calc-btn.btn-eq:hover { opacity: 0.9; }
 .calc-btn.btn-clear { color: var(--muted); }
@@ -479,6 +430,8 @@ form#search-form { width: 100%; }
   .main-layout { flex-direction: column; align-items: center; }
   .left-panel, .container, .side-panel, .divider { max-width: 560px; width: 100%; flex: none; }
   .scratchpad-container { height: 320px; flex: none; }
+  .weather-widget { flex-direction: column; padding: 24px; }
+  .wp-hourly { border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 24px 0; margin: 0; min-height: 120px; }
 }
 </style>
 </head>
@@ -520,12 +473,7 @@ form#search-form { width: 100%; }
   <!-- LEFT PANEL (Market) -->
   <div class="left-panel">
     <div class="widget-card glass-panel voo-widget">
-      <div class="widget-header mb-8">
-        <div class="flex-center">
-          <span class="widget-title" id="market-title">Market Overview</span>
-          <span id="market-status" class="market-status"></span>
-        </div>
-      </div>
+      <!-- Header removed to maximize space -->
       <div id="tv-widget-container" class="skeleton skeleton-block"></div>
     </div>
   </div>
@@ -559,10 +507,8 @@ form#search-form { width: 100%; }
 
   <!-- RIGHT PANEL (Calculator) -->
   <div class="side-panel">
-    <div class="widget-card glass-panel calculator-widget" id="calc-widget">
-      <div class="widget-header">
-        <span class="widget-title">Calculator</span>
-      </div>
+    <div class="widget-card glass-panel" id="calc-widget">
+      <!-- Header removed to maximize space -->
       <div class="calc-display" aria-label="Calculator display" id="calc-display">0</div>
       
       <div class="calc-grid">
@@ -869,9 +815,12 @@ const WeatherWidget = {
     const lastFetch = StorageUtils.get('weatherTime');
     const cacheAge = lastFetch ? (Date.now() - parseInt(lastFetch)) : Infinity;
     
-    if (cacheAge < CONSTANTS.WEATHER_CACHE_MS) {
-      try { this.render(JSON.parse(StorageUtils.get('weatherData'))); } 
-      catch (e) { this.fetch(Config.data.lat, Config.data.lon, Config.data.city, false); }
+    let cachedData = null;
+    try { cachedData = JSON.parse(StorageUtils.get('weatherData')); } catch (e) {}
+    
+    // Check if cache is valid AND contains the new required fields to prevent infinite loading skeletons
+    if (cacheAge < CONSTANTS.WEATHER_CACHE_MS && cachedData && cachedData.current && cachedData.current.relative_humidity_2m !== undefined) {
+      this.render(cachedData);
     } else {
       if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
@@ -928,9 +877,13 @@ const WeatherWidget = {
     
     if(this.dom.currIcon) this.dom.currIcon.textContent = currIcon;
     
-    if(this.dom.currExtra && data.current.relative_humidity_2m !== undefined) {
+    if(this.dom.currExtra) {
       this.dom.currExtra.classList.remove('skeleton');
-      this.dom.currExtra.textContent = `Humidity: ${data.current.relative_humidity_2m}% • Wind: ${Math.round(data.current.wind_speed_10m)} mph`;
+      if(data.current.relative_humidity_2m !== undefined) {
+        this.dom.currExtra.textContent = `Humidity: ${data.current.relative_humidity_2m}% • Wind: ${Math.round(data.current.wind_speed_10m)} mph`;
+      } else {
+        this.dom.currExtra.textContent = ''; // Failsafe if data is missing despite checks
+      }
     }
 
     // Hourly
@@ -978,16 +931,7 @@ const WeatherWidget = {
 const MarketWidget = {
   init() {
     const container = document.getElementById('tv-widget-container');
-    const title = document.getElementById('market-title');
     if(!container) return;
-    
-    // Strip exchange prefix for a cleaner title (e.g., "BATS:VOO" -> "VOO")
-    if(title) {
-      title.textContent = Config.data.ticker.includes(':') ? Config.data.ticker.split(':')[1] : Config.data.ticker;
-    }
-    
-    this.updateStatus();
-    setInterval(() => this.updateStatus(), 60000);
     
     const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     
@@ -1007,26 +951,6 @@ const MarketWidget = {
     s.onload = () => container.classList.remove('skeleton', 'skeleton-block');
     container.innerHTML = '<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';
     container.querySelector('.tradingview-widget-container').appendChild(s);
-  },
-  updateStatus() {
-    const statusEl = document.getElementById('market-status');
-    if(!statusEl) return;
-    
-    try {
-      const now = new Date();
-      const estString = now.toLocaleString("en-US", { timeZone: "America/New_York" });
-      const estDate = new Date(estString);
-      const day = estDate.getDay();
-      const time = estDate.getHours() + (estDate.getMinutes() / 60);
-      
-      // Regular trading hours: Mon-Fri (1-5), 9:30 AM (9.5) to 4:00 PM (16.0)
-      const isOpen = (day !== 0 && day !== 6 && time >= 9.5 && time < 16);
-      
-      statusEl.textContent = isOpen ? 'Open' : 'Closed';
-      statusEl.className = 'market-status ' + (isOpen ? 'open' : 'closed');
-    } catch(e) {
-      statusEl.style.display = 'none';
-    }
   }
 };
 
@@ -1102,11 +1026,9 @@ const CalculatorWidget = {
   async copy() {
     if (this.currentVal === 'Error') return;
     try {
-      // Modern Clipboard API check
       if (navigator.clipboard && navigator.clipboard.writeText) {
         await navigator.clipboard.writeText(this.currentVal);
       } else {
-        // Fallback for strict iframe permissions
         const tempInput = document.createElement("input");
         tempInput.value = this.currentVal;
         document.body.appendChild(tempInput);
@@ -1114,8 +1036,6 @@ const CalculatorWidget = {
         document.execCommand("copy");
         document.body.removeChild(tempInput);
       }
-      
-      // Visual feedback
       if(this.displayEl) {
         this.displayEl.style.color = "var(--yellow)";
         setTimeout(() => { this.displayEl.style.color = ""; }, 300);
