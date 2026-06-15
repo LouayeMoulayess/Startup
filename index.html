@@ -1292,12 +1292,21 @@ window.initCloudStorage = async function() {
     const db = getFirestore(app);
 
     try {
-        if (typeof __initial_auth_token !== 'undefined') {
-            await signInWithCustomToken(auth, __initial_auth_token);
+        // Fix: Robust authentication fallback to prevent silent sync failures
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            try {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } catch(e) {
+                console.warn("Session token expired/invalid, falling back to anonymous auth.", e);
+                await signInAnonymously(auth);
+            }
         } else {
             await signInAnonymously(auth);
         }
-        const userId = auth.currentUser.uid;
+        
+        const user = auth.currentUser;
+        if (!user) return;
+        const userId = user.uid;
         
         // 1. Hook up Scratchpad Real-time Sync
         const scratchpadRef = doc(db, 'artifacts', appId, 'users', userId, 'dashboard_data', 'scratchpad');
@@ -1315,7 +1324,8 @@ window.initCloudStorage = async function() {
         }, (err) => console.error("Scratchpad sync issue:", err));
 
         window.saveScratchpadToCloud = (text) => {
-            setDoc(scratchpadRef, { text: text }, { merge: true });
+            // Added explicit error catching so we know if the database rejects the save
+            setDoc(scratchpadRef, { text: text }, { merge: true }).catch(err => console.error("Cloud save error:", err));
         };
 
         // 2. Hook up Dashboard Settings Sync
