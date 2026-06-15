@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#F5F5F7">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F5F7">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A0A0A">
 <meta name="description" content="A fast, beautifully designed personal dashboard and start page.">
 <title>Salut!</title>
 
@@ -17,10 +18,10 @@
 <style>
 :root {
   --bg: #F5F5F7;
-  --yellow: #FF9500; /* Vibrant, modern amber */
-  --text: #1C1C1E; /* Softer, richer black */
-  --muted: #8E8E93; /* Crisp, legible gray */
-  --card: rgba(255, 255, 255, 0.85); /* Slightly more opaque for better contrast */
+  --yellow: #FF9500;
+  --text: #1C1C1E;
+  --muted: #8E8E93;
+  --card: rgba(255, 255, 255, 0.85);
   --border: rgba(0, 0, 0, 0.06);
   --font-main: 'Plus Jakarta Sans', sans-serif;
   --radius-lg: 24px;
@@ -29,13 +30,12 @@
   --shadow-sm: 0 8px 32px rgba(0,0,0,0.04);
 }
 
-/* ── DARK MODE ── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0A0A0A; /* Deep zinc to reduce eye strain (halation) */
-    --text: #F5F5F7; /* Off-white for smooth reading */
-    --muted: #A1A1A6; /* Brighter gray so it doesn't get lost in the dark */
-    --card: rgba(28, 28, 30, 0.7); /* Solidified glass backing */
+    --bg: #0A0A0A;
+    --text: #F5F5F7;
+    --muted: #A1A1A6;
+    --card: rgba(28, 28, 30, 0.7);
     --border: rgba(255, 255, 255, 0.1);
     --shadow-sm: 0 8px 32px rgba(0,0,0,0.2);
   }
@@ -47,7 +47,6 @@
   padding: 0; 
 }
 
-/* ── ANIMATIONS ── */
 @keyframes fadeUp { 
   from { opacity: 0; transform: translateY(12px); } 
   to { opacity: 1; transform: translateY(0); } 
@@ -80,13 +79,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── UTILITIES ── */
 .flex-center { display: flex; align-items: center; }
 .flex-center-gap { display: flex; align-items: center; gap: 8px; }
 .color-picker { width: 48px; padding: 2px; height: 36px; cursor: pointer; }
 .mb-8 { margin-bottom: 8px; }
 
-/* ── GLASS PANEL COMPONENT ── */
 .glass-panel {
   background: var(--card);
   backdrop-filter: blur(20px);
@@ -95,7 +92,6 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
-/* ── SKELETON LOADERS ── */
 .skeleton {
   animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   border-radius: 4px;
@@ -110,7 +106,6 @@ body {
 .skeleton-desc { width: 90px; min-height: 17px; margin-top: 4px; }
 .skeleton-extra { width: 160px; min-height: 14px; margin-top: 4px; display: inline-block; }
 
-/* ── SETTINGS BTN ── */
 .settings-btn {
   position: absolute;
   top: 24px;
@@ -192,7 +187,6 @@ header {
   align-items: stretch; 
 }
 
-/* 3-Column Grid setup */
 .left-panel { display: flex; flex-direction: column; gap: 24px; flex: 0 0 280px; }
 .container { flex: 1; display: flex; flex-direction: column; gap: 24px; min-width: 0; }
 .side-panel { display: flex; flex-direction: column; gap: 24px; flex: 0 0 280px; }
@@ -219,14 +213,12 @@ form#search-form { width: 100%; }
 }
 #omnibar::placeholder { opacity: 0.3; font-style: italic; font-size: 14px; font-weight: 500; }
 
-/* General Widget Styles */
 .widget-card {
   border-radius: var(--radius-md);
   animation: fadeUp 0.4s 0.2s ease both;
   overflow: hidden;
 }
 
-/* ── WEATHER PANEL ── */
 .weather-widget {
   width: 100%;
   max-width: 1152px;
@@ -258,7 +250,7 @@ form#search-form { width: 100%; }
 .forecast-strip { display: flex; justify-content: space-between; align-items: center; height: 100%; }
 .forecast-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
 .f-time { font-size: 11px; font-weight: 700; color: var(--muted); }
-.f-icon { font-size: 28px; } /* Increased icon size */
+.f-icon { font-size: 28px; }
 .f-temp { font-size: 14px; font-weight: 800; }
 
 .daily-forecast-container { display: flex; flex-direction: column; justify-content: space-around; height: 100%; }
@@ -268,21 +260,19 @@ form#search-form { width: 100%; }
 .d-temp { width: 70px; text-align: right; color: var(--muted); font-size: 12px; }
 .d-temp-max { color: var(--text); font-size: 13px; margin-left: 6px; font-weight: 700; }
 
-/* TradingView */
 .voo-widget { height: 400px; padding: 16px; display: flex; flex-direction: column; }
 #tv-widget-container { flex: 1; width: 100%; }
 .tradingview-widget-container { flex: 1; width: 100%; height: 100%; }
 
-/* Calculator */
 #calc-widget { height: 400px; padding: 16px; flex: none; display: flex; flex-direction: column; gap: 8px; }
 .calc-display {
   font-family: var(--font-main);
   font-weight: 800;
-  font-size: 64px; /* Increased to fill the void */
+  font-size: 64px;
   line-height: 1;
   text-align: right;
   color: var(--text);
-  padding: 0 4px 8px; /* Removed top padding */
+  padding: 0 4px 8px;
   background: transparent;
   border: none;
   overflow-x: auto;
@@ -296,7 +286,7 @@ form#search-form { width: 100%; }
   border-radius: var(--radius-sm);
   font-family: var(--font-main);
   font-weight: 600;
-  font-size: 18px; /* Slightly larger text on buttons */
+  font-size: 18px;
   color: var(--text);
   cursor: pointer;
   display: flex;
@@ -308,7 +298,6 @@ form#search-form { width: 100%; }
 
 .calc-btn svg { width: 18px; height: 18px; opacity: 0.7; }
 .calc-btn:hover { background: var(--border); transform: translateY(-1px); }
-/* Improved tactile feeling on click */
 .calc-btn:active { transform: scale(0.96); background: rgba(0,0,0,0.08); }
 @media (prefers-color-scheme: dark) { .calc-btn:active { background: rgba(255,255,255,0.1); } }
 .calc-btn.span-2 { grid-column: span 2; }
@@ -317,13 +306,12 @@ form#search-form { width: 100%; }
 .calc-btn.btn-eq:hover { opacity: 0.9; }
 .calc-btn.btn-clear { color: var(--muted); }
 
-/* Scratchpad */
 .scratchpad-container {
   border-radius: var(--radius-md);
   animation: fadeUp 0.4s 0.25s ease both;
   display: flex;
   flex-direction: column;
-  height: 306px; /* Precisely aligns bottom with adjacent 400px widgets */
+  height: 306px;
   flex: none; 
 }
 .scratchpad-header {
@@ -374,9 +362,8 @@ form#search-form { width: 100%; }
   outline: none;
 }
 #scratchpad-input::placeholder { opacity: 0.3; font-weight: 400; }
-#scratchpad-input::-webkit-scrollbar { display: none; } /* Hide scrollbar for clean look */
+#scratchpad-input::-webkit-scrollbar { display: none; }
 
-/* ── QUOTE SECTION ── */
 .quote-container {
   width: 100%;
   max-width: 1152px;
@@ -387,7 +374,6 @@ form#search-form { width: 100%; }
 .quote-text { font-size: 14px; font-style: italic; font-weight: 400; color: var(--yellow); display: inline; transition: color 0.3s; }
 .quote-author { font-family: var(--font-main); font-weight: 500; font-size: 13px; color: var(--muted); display: inline; opacity: 0.7; margin-left: 6px; }
 
-/* ── SETTINGS MODAL ── */
 .modal-overlay {
   position: fixed; top:0; left:0; width:100%; height:100%;
   background: rgba(0,0,0,0.5);
@@ -449,7 +435,6 @@ form#search-form { width: 100%; }
 </head>
 <body>
 
-<!-- SVG Sprite Map for Cleaner Code -->
 <svg style="display: none;">
   <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></symbol>
   <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
@@ -458,7 +443,7 @@ form#search-form { width: 100%; }
   <symbol id="icon-location-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M14.39 8.56A5 5 0 0 0 9.4 5.37"></path><path d="M19.4 15.63A10 10 0 0 0 12 2a10 10 0 0 0-4.66 1.15"></path><path d="M2.54 8.52a10 10 0 0 0 14.92 12.92"></path></symbol>
 </svg>
 
-<button id="settings-open-btn" class="settings-btn" title="Settings" aria-label="Settings">
+<button id="settings-open-btn" class="settings-btn" title="Settings" aria-label="Open Settings">
   <svg><use href="#icon-settings"></use></svg>
 </button>
 
@@ -482,19 +467,16 @@ form#search-form { width: 100%; }
 
 <div class="main-layout">
   
-  <!-- LEFT PANEL (Market) -->
   <div class="left-panel">
     <div class="widget-card glass-panel voo-widget">
-      <!-- Header removed to maximize space -->
       <div id="tv-widget-container" class="skeleton skeleton-block"></div>
     </div>
   </div>
 
-  <!-- CENTER PANEL (Search & Scratchpad) -->
   <div class="container">
     <div class="omnibar-wrapper">
       <form id="search-form" onsubmit="SearchWidget.handle(event)">
-        <input type="text" id="omnibar" class="glass-panel" aria-label="Search" placeholder="Type to search or calculate..." autofocus autocomplete="off" spellcheck="false">
+        <input type="text" id="omnibar" class="glass-panel" aria-label="Search or calculate" placeholder="Type to search or calculate..." autofocus autocomplete="off" spellcheck="false">
       </form>
     </div>
     
@@ -517,49 +499,40 @@ form#search-form { width: 100%; }
     </div>
   </div>
 
-  <!-- RIGHT PANEL (Calculator) -->
   <div class="side-panel">
     <div class="widget-card glass-panel" id="calc-widget">
-      <!-- Header removed to maximize space -->
       <div class="calc-display" aria-label="Calculator display" id="calc-display">0</div>
       
       <div class="calc-grid">
-        <!-- Row 1 -->
-        <button type="button" class="calc-btn btn-clear" onclick="CalculatorWidget.clear()">C</button>
-        <button type="button" class="calc-btn" onclick="CalculatorWidget.paste()" title="Paste">
+        <button type="button" class="calc-btn btn-clear" aria-label="Clear" onclick="CalculatorWidget.clear()">C</button>
+        <button type="button" class="calc-btn" aria-label="Paste number" onclick="CalculatorWidget.paste()" title="Paste">
           <svg><use href="#icon-paste"></use></svg>
         </button>
-        <button type="button" class="calc-btn" onclick="CalculatorWidget.copy()" title="Copy">
+        <button type="button" class="calc-btn" aria-label="Copy number" onclick="CalculatorWidget.copy()" title="Copy">
           <svg><use href="#icon-copy"></use></svg>
         </button>
-        <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('/')">÷</button>
-        <!-- Row 2 -->
-        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('7')">7</button>
-        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('8')">8</button>
-        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('9')">9</button>
-        <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('*')">×</button>
-        <!-- Row 3 -->
-        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('4')">4</button>
-        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('5')">5</button>
-        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('6')">6</button>
-        <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('-')">-</button>
-        <!-- Row 4 -->
-        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('1')">1</button>
-        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('2')">2</button>
-        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('3')">3</button>
-        <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('+')">+</button>
-        <!-- Row 5 -->
-        <button type="button" class="calc-btn span-2" onclick="CalculatorWidget.num('0')">0</button>
-        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('.')">.</button>
-        <button type="button" class="calc-btn btn-eq" onclick="CalculatorWidget.eq()">=</button>
+        <button type="button" class="calc-btn btn-op" aria-label="Divide" onclick="CalculatorWidget.op('/')">÷</button>
+        <button type="button" class="calc-btn" aria-label="Seven" onclick="CalculatorWidget.num('7')">7</button>
+        <button type="button" class="calc-btn" aria-label="Eight" onclick="CalculatorWidget.num('8')">8</button>
+        <button type="button" class="calc-btn" aria-label="Nine" onclick="CalculatorWidget.num('9')">9</button>
+        <button type="button" class="calc-btn btn-op" aria-label="Multiply" onclick="CalculatorWidget.op('*')">×</button>
+        <button type="button" class="calc-btn" aria-label="Four" onclick="CalculatorWidget.num('4')">4</button>
+        <button type="button" class="calc-btn" aria-label="Five" onclick="CalculatorWidget.num('5')">5</button>
+        <button type="button" class="calc-btn" aria-label="Six" onclick="CalculatorWidget.num('6')">6</button>
+        <button type="button" class="calc-btn btn-op" aria-label="Subtract" onclick="CalculatorWidget.op('-')">-</button>
+        <button type="button" class="calc-btn" aria-label="One" onclick="CalculatorWidget.num('1')">1</button>
+        <button type="button" class="calc-btn" aria-label="Two" onclick="CalculatorWidget.num('2')">2</button>
+        <button type="button" class="calc-btn" aria-label="Three" onclick="CalculatorWidget.num('3')">3</button>
+        <button type="button" class="calc-btn btn-op" aria-label="Add" onclick="CalculatorWidget.op('+')">+</button>
+        <button type="button" class="calc-btn span-2" aria-label="Zero" onclick="CalculatorWidget.num('0')">0</button>
+        <button type="button" class="calc-btn" aria-label="Decimal" onclick="CalculatorWidget.num('.')">.</button>
+        <button type="button" class="calc-btn btn-eq" aria-label="Equals" onclick="CalculatorWidget.eq()">=</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- FULL WIDTH WEATHER PANEL -->
 <section class="weather-widget glass-panel" id="weather-widget">
-  <!-- Current -->
   <article class="weather-panel wp-current">
     <div class="weather-city skeleton skeleton-city" id="weather-city-front"></div>
     <div class="weather-main">
@@ -572,19 +545,16 @@ form#search-form { width: 100%; }
     <div class="weather-extra skeleton skeleton-extra" id="curr-extra"></div>
   </article>
   
-  <!-- Hourly -->
   <article class="weather-panel wp-hourly">
     <div class="forecast-strip" id="hourly-forecast-container"></div>
   </article>
 
-  <!-- Daily -->
   <article class="weather-panel wp-daily">
     <div class="daily-forecast-container" id="daily-forecast-container"></div>
   </article>
 </section>
 
-<!-- SETTINGS MODAL -->
-<div id="settings-modal" class="modal-overlay hidden">
+<div id="settings-modal" class="modal-overlay hidden" aria-hidden="true">
   <div class="modal-content">
     <h2>Dashboard Settings</h2>
     
@@ -601,7 +571,7 @@ form#search-form { width: 100%; }
     <div class="form-group">
       <label for="set-accent">Accent Color</label>
       <div class="flex-center-gap">
-        <input type="color" id="set-accent" value="#FF9500" class="color-picker">
+        <input type="color" id="set-accent" value="#FF9500" class="color-picker" aria-label="Accent Color Picker">
         <span style="font-size: 11px; color: var(--muted);">Pick your global theme color</span>
       </div>
     </div>
@@ -610,18 +580,10 @@ form#search-form { width: 100%; }
       <button id="settings-cancel" class="btn">Cancel</button>
       <button id="settings-save" class="btn primary">Save & Reload</button>
     </div>
-    
-    <!-- Deep Diagnostics Display -->
-    <div id="settings-uid-display" style="margin-top:20px; font-size:10px; color:var(--muted); text-align:center; user-select:all; font-family: monospace;">
-      Sync Status: Loading...
-    </div>
   </div>
 </div>
 
 <script>
-/* ==========================================
-   1. CORE UTILITIES & CONFIG
-========================================== */
 const CONSTANTS = {
   WEATHER_CACHE_MS: 900000,
   GEO_TIMEOUT_MS: 2000,
@@ -634,10 +596,9 @@ const CONSTANTS = {
 };
 
 const StorageUtils = {
-  get: k => { try { return localStorage.getItem(k); } catch(e) { return null; } },
-  set: (k, v) => { try { localStorage.setItem(k, v); } catch(e) { console.warn("Storage restricted"); } }
+  get: function(k) { try { return localStorage.getItem(k); } catch(e) { return null; } },
+  set: function(k, v) { try { localStorage.setItem(k, v); } catch(e) { console.warn("Storage restricted"); } }
 };
-window.StorageUtils = StorageUtils;
 
 const Config = {
   data: {
@@ -653,7 +614,6 @@ const Config = {
       try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch(e) {}
     }
 
-    // Auto-upgrade AMEX (15m delayed) to BATS (real-time)
     if (this.data.ticker === "AMEX:VOO") {
       this.data.ticker = "BATS:VOO";
       this.save();
@@ -661,15 +621,9 @@ const Config = {
   },
   save() { 
     StorageUtils.set('salut_config', JSON.stringify(this.data)); 
-    if (window.saveConfigToCloud) window.saveConfigToCloud(this.data);
   }
 };
 
-/* ==========================================
-   2. WIDGETS
-========================================== */
-
-/* ── SETTINGS MODAL ── */
 const SettingsWidget = {
   modal: null, btnOpen: null, btnCancel: null, btnSave: null,
   inputCity: null, inputTicker: null, inputAccent: null,
@@ -693,16 +647,19 @@ const SettingsWidget = {
     this.inputTicker.value = Config.data.ticker;
     this.inputAccent.value = Config.data.accent || "#FF9500";
     this.modal.classList.remove('hidden');
+    this.modal.setAttribute('aria-hidden', 'false');
   },
   close() {
-    if(this.modal) this.modal.classList.add('hidden');
+    if(this.modal) {
+      this.modal.classList.add('hidden');
+      this.modal.setAttribute('aria-hidden', 'true');
+    }
   },
   async save() {
     const newCity = this.inputCity.value.trim() || "Burbank, CA";
     Config.data.ticker = this.inputTicker.value.trim() || "BATS:VOO";
     Config.data.accent = this.inputAccent.value;
 
-    // Geocode new city if changed
     if (newCity !== Config.data.city) {
       if(this.btnSave) this.btnSave.textContent = "Locating...";
       try {
@@ -712,27 +669,23 @@ const SettingsWidget = {
           Config.data.city = geo.results[0].name + (geo.results[0].admin1 ? `, ${geo.results[0].admin1}` : '');
           Config.data.lat = geo.results[0].latitude;
           Config.data.lon = geo.results[0].longitude;
-          // Force weather refresh by clearing cache
           StorageUtils.set('weatherTime', 0); 
         } else {
-          Config.data.city = newCity; // Fallback to whatever they typed, though weather might fetch old coords
+          Config.data.city = newCity; 
         }
       } catch(e) { console.warn("Geocoding failed", e); }
     }
 
     Config.save();
-    window.location.reload(); // Simplest way to cleanly re-initialize everything
+    window.location.reload(); 
   }
 };
 
-/* ── SEARCH ── */
 const SearchWidget = {
   omnibar: null,
   init() {
     this.omnibar = document.getElementById('omnibar');
     if(this.omnibar) {
-      
-      // Setup Greeting Placeholder based on time
       const hour = new Date().getHours();
       let greeting = "Good evening";
       if (hour >= 5 && hour < 12) greeting = "Good morning";
@@ -741,7 +694,6 @@ const SearchWidget = {
       
       this.omnibar.addEventListener('keydown', e => { if(e.key === "Escape") { this.omnibar.value = ""; this.omnibar.blur(); } });
       
-      // Auto-capitalize the first letter seamlessly
       this.omnibar.addEventListener('input', (e) => {
         const val = this.omnibar.value;
         if (val.length === 1 && val !== val.toUpperCase() && e.inputType !== 'deleteContentBackward') {
@@ -756,10 +708,9 @@ const SearchWidget = {
     const val = this.omnibar.value.trim();
     if (!val) return;
 
-    // Smart Command: Quick Math (e.g. "120 * 0.20")
-    // Strictly matches only numbers, operators, parens, and spaces to prevent execution of arbitrary code vulnerabilities
-    const mathRegex = /^[\d\s\+\-\*\/\(\)\.]+$/;
-    if (mathRegex.test(val) && /[0-9]/.test(val) && /[\+\-\*\/]/.test(val)) {
+    // Strict, safe math evaluation regex
+    const mathRegex = /^[\d\s+*/().-]+$/;
+    if (mathRegex.test(val) && /[0-9]/.test(val) && /[+\-*/]/.test(val)) {
       try {
         const result = new Function(`return (${val})`)();
         if (!isNaN(result) && isFinite(result)) {
@@ -771,7 +722,7 @@ const SearchWidget = {
           return;
         }
       } catch (err) {
-        // Fall back to regular search if parsing fails (e.g., malformed equations)
+        // Silently catch evaluation errors, default to search
       }
     }
 
@@ -780,7 +731,6 @@ const SearchWidget = {
   }
 };
 
-/* ── CLOCK ── */
 const ClockWidget = {
   dom: {},
   init() { 
@@ -811,11 +761,11 @@ const ClockWidget = {
     const lbTime = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Beirut", hour: "numeric", minute: "2-digit" }).format(now);
     if(this.dom.leb) this.dom.leb.innerHTML = `Lebanon <span>${lbTime}</span>`;
     
+    // Precisely schedule the next UI update frame without visual stutter
     setTimeout(() => requestAnimationFrame(() => this.update()), 1000 - now.getMilliseconds());
   }
 };
 
-/* ── WEATHER ── */
 const WeatherWidget = {
   MAP: {
     0: ["Clear", "☀️"], 1: ["Clear", "🌤️"], 2: ["Partly Cloudy", "⛅"], 3: ["Cloudy", "☁️"],
@@ -823,7 +773,6 @@ const WeatherWidget = {
   },
   dom: {},
   init() {
-    // Cache DOM lookups for performance
     this.dom = {
       cityFront: document.getElementById('weather-city-front'),
       currTemp: document.getElementById('curr-temp'),
@@ -840,7 +789,6 @@ const WeatherWidget = {
     let cachedData = null;
     try { cachedData = JSON.parse(StorageUtils.get('weatherData')); } catch (e) {}
     
-    // Check if cache is valid AND contains the new required fields to prevent infinite loading skeletons
     if (cacheAge < CONSTANTS.WEATHER_CACHE_MS && cachedData && cachedData.current && cachedData.current.relative_humidity_2m !== undefined) {
       this.render(cachedData);
     } else {
@@ -858,7 +806,6 @@ const WeatherWidget = {
   async fetch(lat, lon, cityName, isFallback) {
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
-      // Performance Optimization: Limiting forecast request to exactly 3 days instead of 7
       const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=${encodeURIComponent(tz)}&forecast_days=3`;
       
       const response = await fetch(url);
@@ -905,11 +852,10 @@ const WeatherWidget = {
       if(data.current.relative_humidity_2m !== undefined) {
         this.dom.currExtra.textContent = `Humidity: ${data.current.relative_humidity_2m}% • Wind: ${Math.round(data.current.wind_speed_10m)} mph`;
       } else {
-        this.dom.currExtra.textContent = ''; // Failsafe if data is missing despite checks
+        this.dom.currExtra.textContent = ''; 
       }
     }
 
-    // Hourly
     const h = new Date().getHours();
     if(this.dom.hourlyContainer && data.hourly) {
       let hourlyHTML = '';
@@ -922,10 +868,8 @@ const WeatherWidget = {
       this.dom.hourlyContainer.innerHTML = hourlyHTML;
     }
 
-    // Daily
     if(this.dom.dailyContainer && data.daily) {
       let dailyHTML = '';
-      // Limit to max 2 available daily records safely if forecast days are limited to 3 (Index 1 & 2 is tomorrow & day after)
       const loops = Math.min(2, data.daily.time.length - 1); 
       for(let i=1; i<=loops; i++) {
         const dateObj = new Date(data.daily.time[i] + "T00:00:00");
@@ -952,7 +896,6 @@ const WeatherWidget = {
   }
 };
 
-/* ── TRADINGVIEW ── */
 const MarketWidget = {
   init() {
     const container = document.getElementById('tv-widget-container');
@@ -979,7 +922,6 @@ const MarketWidget = {
   }
 };
 
-/* ── CALCULATOR ── */
 const CalculatorWidget = {
   displayEl: null,
   currentVal: '0',
@@ -1011,7 +953,6 @@ const CalculatorWidget = {
       this.currentVal = n === '.' ? '0.' : n;
       this.shouldResetScreen = false;
     } else {
-      // Prevent numbers from getting absurdly long
       if (this.currentVal.length >= 15) return;
       
       if (this.currentVal === '0') this.currentVal = n === '.' ? '0.' : n;
@@ -1084,7 +1025,7 @@ const CalculatorWidget = {
         this.update();
       }
     } catch (err) {
-      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
       this.displayEl.textContent = `Press ${isMac ? 'Cmd+V' : 'Ctrl+V'}`;
       this.displayEl.style.fontSize = "22px";
       setTimeout(() => { this.displayEl.style.fontSize = ""; this.update(); }, CONSTANTS.PASTE_ERROR_MS);
@@ -1092,13 +1033,11 @@ const CalculatorWidget = {
   }
 };
 
-/* ── SCRATCHPAD ── */
 const ScratchpadWidget = {
   dom: {},
   timeout: null,
   
   init() {
-    // Centralized DOM caching for better performance
     this.dom = {
       input: document.getElementById('scratchpad-input'),
       indicator: document.getElementById('save-indicator'),
@@ -1112,7 +1051,6 @@ const ScratchpadWidget = {
     this.dom.input.value = StorageUtils.get('salut_scratchpad') || '';
 
     this.dom.input.addEventListener('input', (e) => {
-      // Auto-capitalize first letter seamlessly
       const val = this.dom.input.value;
       if (val.length === 1 && val !== val.toUpperCase() && e.inputType !== 'deleteContentBackward') {
         this.dom.input.value = val.toUpperCase();
@@ -1124,16 +1062,9 @@ const ScratchpadWidget = {
       this.timeout = setTimeout(() => {
         StorageUtils.set('salut_scratchpad', this.dom.input.value);
         
-        // Dynamic Save Indicator
-        let saveText = "Saved (Local)";
-        if (window.saveScratchpadToCloud && window.isCloudConnected) {
-            window.saveScratchpadToCloud(this.dom.input.value);
-            saveText = `Saved (${window.cloudAuthType})`;
-        }
-        
         if(this.dom.indicator) {
-          this.dom.indicator.textContent = saveText;
-          if (window.cloudUserId) this.dom.indicator.title = "User ID: " + window.cloudUserId;
+          this.dom.indicator.textContent = "Saved";
+          this.dom.indicator.removeAttribute('title');
           this.dom.indicator.classList.add('visible');
           setTimeout(() => { if(this.dom.indicator) this.dom.indicator.classList.remove('visible'); }, CONSTANTS.INDICATOR_DELAY_MS);
         }
@@ -1144,7 +1075,6 @@ const ScratchpadWidget = {
       this.dom.clearBtn.addEventListener('click', () => {
         this.dom.input.value = ''; 
         StorageUtils.set('salut_scratchpad', ''); 
-        if (window.saveScratchpadToCloud) window.saveScratchpadToCloud('');
         this.dom.input.focus();
       });
     }
@@ -1174,7 +1104,7 @@ const ScratchpadWidget = {
           this.dom.input.value += (this.dom.input.value ? '\n' : '') + await navigator.clipboard.readText();
           this.dom.input.dispatchEvent(new Event('input')); 
         } catch (err) {
-          const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+          const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
           const orig = this.dom.input.placeholder;
           this.dom.input.placeholder = `[Click here & press ${isMac ? 'Cmd+V' : 'Ctrl+V'}]`;
           this.dom.input.focus();
@@ -1185,7 +1115,6 @@ const ScratchpadWidget = {
   }
 };
 
-/* ── QUOTE ── */
 const QuoteWidget = {
   quotes: [
     { t: "The happiness of your life depends upon the quality of your thoughts.", a: "Marcus Aurelius" },
@@ -1194,7 +1123,7 @@ const QuoteWidget = {
     { t: "The only constant in life is change.", a: "Heraclitus" },
     { t: "Nature does not hurry, yet everything is accomplished.", a: "Lao Tzu" },
     { t: "I think, therefore I am.", a: "René Descartes" },
-    { t: "In the depth of winter, I finally learned that within me there lay an invincible summer.", a: "Albert Camus" },
+    { t: "In the depth of winter, I finally learned that within me lay an invincible summer.", a: "Albert Camus" },
     { t: "Knowing yourself is the beginning of all wisdom.", a: "Aristotle" },
     { t: "The only true wisdom is in knowing you know nothing.", a: "Socrates" },
     { t: "It does not matter how slowly you go as long as you do not stop.", a: "Confucius" }
@@ -1208,15 +1137,13 @@ const QuoteWidget = {
   }
 };
 
-/* ── GLOBAL EVENTS ── */
 document.addEventListener('keydown', e => {
   const isInput = document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
   
   if (!isInput) {
     const key = e.key;
-    const validCalcKeys = /^[0-9\.\+\-\*\/\=]$|^Enter$|^Backspace$|^Escape$|^c$|^C$/;
+    const validCalcKeys = /^[0-9.+\-*/=]$|^Enter$|^Backspace$|^Escape$|^c$|^C$/;
     
-    // Process Calculator bindings if applicable
     if (validCalcKeys.test(key)) {
       if (/^[0-9]$/.test(key)) CalculatorWidget.num(key);
       else if (key === '.') CalculatorWidget.num('.');
@@ -1227,7 +1154,6 @@ document.addEventListener('keydown', e => {
       e.preventDefault();
       return;
     } 
-    // Otherwise fallback to focusing the Search bar for fast queries
     else if (!e.metaKey && !e.ctrlKey && !e.altKey && key.length === 1 && SearchWidget.omnibar) {
       SearchWidget.omnibar.focus();
     }
@@ -1250,12 +1176,10 @@ document.addEventListener('paste', e => {
   }
 });
 
-/* ── BOOTSTRAP APP ── */
 function initializeApp() {
   Config.init();
   document.documentElement.style.setProperty('--yellow', Config.data.accent || "#FF9500");
   
-  // Centralized Global Storage Listener
   window.addEventListener('storage', (e) => {
     if (e.key === 'salut_config') {
       window.location.reload();
@@ -1278,131 +1202,10 @@ if (document.readyState === 'loading') {
   initializeApp();
 }
 
-// Lazy load the cloud connection to keep the initial page paint snappy
 if (window.requestIdleCallback) {
   requestIdleCallback(() => { MarketWidget.init(); WeatherWidget.init(); });
 } else {
   window.addEventListener('load', () => { MarketWidget.init(); WeatherWidget.init(); });
-}
-</script>
-
-<!-- ── CLOUD STORAGE SYNC ── -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-window.isCloudConnected = false; 
-window.cloudAuthType = "Local";
-window.cloudUserId = "";
-
-window.initCloudStorage = async function() {
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
-    const uidDisplay = document.getElementById('settings-uid-display');
-    
-    // If no config is injected (e.g., running as an exported local file), abort cloud sync.
-    if (!configStr) {
-        console.warn("Cloud Sync Offline: No Firebase configuration found in this environment.");
-        if (uidDisplay) uidDisplay.textContent = "Sync Status: Offline (Local Environment)";
-        return; 
-    }
-
-    try {
-        const firebaseConfig = JSON.parse(configStr);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // Robust authentication with credential extraction to prevent UID mismatch
-        let user;
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-            try {
-                const cred = await signInWithCustomToken(auth, __initial_auth_token);
-                user = cred.user;
-            } catch(e) {
-                console.warn("Session token invalid, falling back to anonymous auth.", e);
-                const cred = await signInAnonymously(auth);
-                user = cred.user;
-            }
-        } else {
-            const cred = await signInAnonymously(auth);
-            user = cred.user;
-        }
-        
-        if (!user) return;
-        const userId = user.uid;
-        
-        window.isCloudConnected = true; 
-        window.cloudAuthType = user.isAnonymous ? "Anon" : "Auth";
-        window.cloudUserId = userId;
-
-        if (uidDisplay) {
-            uidDisplay.textContent = `Sync ID: ${userId} (${window.cloudAuthType})`;
-        }
-
-        // 1. Hook up Scratchpad Real-time Sync
-        const scratchpadRef = doc(db, 'artifacts', appId, 'users', userId, 'dashboard_data', 'scratchpad');
-        onSnapshot(scratchpadRef, (docSnap) => {
-            if (docSnap.exists()) {
-                const cloudText = docSnap.data().text || '';
-                const inputEl = document.getElementById('scratchpad-input');
-                
-                // Only update if the cloud version differs from what we are actively looking at
-                if (inputEl && inputEl.value !== cloudText) {
-                    inputEl.value = cloudText;
-                    window.StorageUtils.set('salut_scratchpad', cloudText);
-                }
-            }
-        }, (err) => console.error("Scratchpad sync issue:", err));
-
-        window.saveScratchpadToCloud = (text) => {
-            setDoc(scratchpadRef, { text: text }, { merge: true }).catch(err => console.error("Cloud save error:", err));
-        };
-
-        // 2. Hook up Dashboard Settings Sync
-        const configRef = doc(db, 'artifacts', appId, 'users', userId, 'dashboard_data', 'config');
-        let isFirstLoad = true;
-        onSnapshot(configRef, (docSnap) => {
-            if (docSnap.exists()) {
-                const cloudConfig = docSnap.data();
-                const localConfigStr = window.StorageUtils.get('salut_config') || "{}";
-                
-                let needsReload = false;
-                try {
-                     const localObj = JSON.parse(localConfigStr);
-                     // Check specific fields to prevent infinite reloading due to JSON object ordering issues
-                     if (cloudConfig.city !== localObj.city || 
-                         cloudConfig.ticker !== localObj.ticker || 
-                         cloudConfig.accent !== localObj.accent) {
-                         needsReload = true;
-                     }
-                } catch(e) {}
-
-                if (!isFirstLoad && needsReload) {
-                    window.StorageUtils.set('salut_config', JSON.stringify(cloudConfig));
-                    window.location.reload(); 
-                } else if (isFirstLoad) {
-                     window.StorageUtils.set('salut_config', JSON.stringify(cloudConfig));
-                }
-            }
-            isFirstLoad = false;
-        }, (err) => console.error("Config sync issue:", err));
-
-        window.saveConfigToCloud = (configData) => {
-            setDoc(configRef, configData, { merge: true }).catch(err => console.error("Cloud config save error:", err));
-        };
-
-    } catch (error) {
-        console.error("Cloud sync could not be established:", error);
-    }
-};
-
-// Lazy load the cloud connection to keep the initial page paint snappy
-if (window.requestIdleCallback) {
-    requestIdleCallback(() => window.initCloudStorage());
-} else {
-    setTimeout(() => window.initCloudStorage(), 1000);
 }
 </script>
 </body>
