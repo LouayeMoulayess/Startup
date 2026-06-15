@@ -1,4 +1,1097 @@
-<!-- ... existing code ... -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#F5F5F7">
+<meta name="description" content="A fast, beautifully designed personal dashboard and start page.">
+<title>Salut!</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23fba31b' stroke='%23e37812' stroke-width='2'/%3E%3Cellipse cx='20' cy='18' rx='8' ry='4' fill='%23fff' opacity='0.5' transform='rotate(-30 20 18)'/%3E%3Cg fill='%23db2416'%3E%3Cpolygon points='32,15 34,21 40,21 35,25 37,31 32,27 27,31 29,25 24,21 30,21'/%3E%3Cpolygon points='20,30 22,36 28,36 23,40 25,46 20,42 15,46 17,40 12,36 18,36'/%3E%3Cpolygon points='44,30 46,36 52,36 47,40 49,46 44,42 39,46 41,40 36,36 42,36'/%3E%3Cpolygon points='32,44 34,50 40,50 35,54 37,60 32,56 27,60 29,54 24,50 30,50'/%3E%3C/g%3E%3C/svg%3E">
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #F5F5F7;
+  --yellow: #FF9500; /* Vibrant, modern amber */
+  --text: #1C1C1E; /* Softer, richer black */
+  --muted: #8E8E93; /* Crisp, legible gray */
+  --card: rgba(255, 255, 255, 0.85); /* Slightly more opaque for better contrast */
+  --border: rgba(0, 0, 0, 0.06);
+  --font-main: 'Plus Jakarta Sans', sans-serif;
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  --shadow-sm: 0 8px 32px rgba(0,0,0,0.04);
+}
+
+/* ── DARK MODE ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0A0A0A; /* Deep zinc to reduce eye strain (halation) */
+    --text: #F5F5F7; /* Off-white for smooth reading */
+    --muted: #A1A1A6; /* Brighter gray so it doesn't get lost in the dark */
+    --card: rgba(28, 28, 30, 0.7); /* Solidified glass backing */
+    --border: rgba(255, 255, 255, 0.1);
+    --shadow-sm: 0 8px 32px rgba(0,0,0,0.2);
+  }
+}
+
+*, *::before, *::after { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp { 
+  from { opacity: 0; transform: translateY(12px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+@keyframes digitOut { 
+  from { opacity: 1; transform: translateY(0); } 
+  to { opacity: 0; transform: translateY(-14px); } 
+}
+@keyframes digitIn { 
+  from { opacity: 0; transform: translateY(14px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+@keyframes pulse { 
+  50% { opacity: 0.5; } 
+}
+
+.digit-changing { animation: digitOut 0.15s ease forwards; }
+.digit-incoming { animation: digitIn  0.15s ease forwards; }
+
+body {
+  font-family: var(--font-main);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px 20px; 
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── UTILITIES ── */
+.flex-center { display: flex; align-items: center; }
+.flex-center-gap { display: flex; align-items: center; gap: 8px; }
+.color-picker { width: 48px; padding: 2px; height: 36px; cursor: pointer; }
+.mb-8 { margin-bottom: 8px; }
+
+/* ── GLASS PANEL COMPONENT ── */
+.glass-panel {
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── SKELETON LOADERS ── */
+.skeleton {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  border-radius: 4px;
+  color: transparent !important;
+  background: var(--border);
+  user-select: none;
+  pointer-events: none;
+}
+.skeleton-block { width: 100%; height: 100%; min-height: 100px; border-radius: var(--radius-sm); }
+.skeleton-city { width: 120px; min-height: 19px; display: inline-block; }
+.skeleton-temp { width: 60px; min-height: 36px; }
+.skeleton-desc { width: 90px; min-height: 17px; margin-top: 4px; }
+.skeleton-extra { width: 160px; min-height: 14px; margin-top: 4px; display: inline-block; }
+
+/* ── SETTINGS BTN ── */
+.settings-btn {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.settings-btn:hover { background: var(--border); color: var(--text); }
+.settings-btn svg { width: 20px; height: 20px; }
+
+header { 
+  width: 100%; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  padding-top: 10px; 
+}
+
+#clock {
+  font-family: var(--font-main);
+  font-weight: 800;
+  font-size: clamp(64px, 11vw, 88px); 
+  letter-spacing: -4px;
+  line-height: 0.85; 
+  display: flex;
+  align-items: flex-end;
+}
+
+.digit-wrap { display: inline-block; overflow: hidden; }
+.colon { margin: 0 1px 0.04em; color: var(--yellow); opacity: 0.5; vertical-align: 0.15em; }
+#ampm { font-size: 0.25em; font-weight: 800; letter-spacing: 2px; color: var(--yellow); margin-left: 10px; opacity: 0.6; }
+
+.sub-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+  animation: fadeUp 0.3s 0.1s ease both;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.sub-header-dot {
+  opacity: 0.3;
+  font-size: 10px;
+}
+
+#date { font-weight: 500; }
+
+#lebanon { font-weight: 500; }
+#lebanon span { color: #FF3B30; font-weight: 700; margin-left: 4px; }
+
+.divider {
+  width: 100%;
+  max-width: 1152px;
+  height: 1px;
+  background: var(--border);
+  margin: 16px 0;
+}
+
+.main-layout {
+  display: flex;
+  gap: 24px;
+  width: 100%;
+  max-width: 1152px;
+  margin: 0 auto;
+  align-items: stretch; 
+}
+
+/* 3-Column Grid setup */
+.left-panel { display: flex; flex-direction: column; gap: 24px; flex: 0 0 280px; }
+.container { flex: 1; display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.side-panel { display: flex; flex-direction: column; gap: 24px; flex: 0 0 280px; }
+.omnibar-wrapper { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+form#search-form { width: 100%; }
+
+#omnibar {
+  width: 100%;
+  padding: 22px 28px;
+  border-radius: var(--radius-lg);
+  font-family: var(--font-main);
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--text);
+  outline: none;
+  transition: all 0.3s ease;
+  animation: fadeUp 0.4s 0.15s ease both;
+}
+
+#omnibar:focus { 
+  border-color: var(--yellow); 
+  box-shadow: 0 0 0 4px rgba(255, 149, 0, 0.15);
+  background: var(--bg);
+}
+#omnibar::placeholder { opacity: 0.3; font-style: italic; font-size: 14px; font-weight: 500; }
+
+/* General Widget Styles */
+.widget-card {
+  border-radius: var(--radius-md);
+  animation: fadeUp 0.4s 0.2s ease both;
+  overflow: hidden;
+}
+
+/* ── WEATHER PANEL ── */
+.weather-widget {
+  width: 100%;
+  max-width: 1152px;
+  margin: 24px auto 0;
+  border-radius: var(--radius-lg);
+  padding: 24px 32px;
+  display: flex;
+  gap: 32px;
+  animation: fadeUp 0.4s 0.3s ease both;
+}
+.weather-panel { display: flex; flex-direction: column; }
+.wp-current { flex: 0 0 260px; }
+.wp-hourly { flex: 1; border-left: 1px solid var(--border); border-right: 1px solid var(--border); padding: 0 32px; }
+.wp-daily { flex: 0 0 220px; }
+
+.weather-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.weather-city { font-family: var(--font-main); font-weight: 800; font-size: 16px; color: var(--text); }
+.location-fallback { color: var(--yellow); display: inline-flex; align-items: center; gap: 4px; }
+.location-fallback svg { width: 14px; height: 14px; }
+
+.weather-main { display: flex; align-items: center; gap: 16px; margin-top: 12px; margin-bottom: 8px; }
+.weather-icon-large { font-size: 48px; line-height: 1; cursor: pointer; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+.weather-icon-large:hover { transform: scale(1.15) rotate(5deg); }
+.weather-icon-large:active { transform: scale(0.95); }
+.weather-temp { font-size: 36px; font-weight: 800; line-height: 1; }
+.weather-desc { font-size: 14px; font-weight: 600; color: var(--muted); text-transform: capitalize; margin-top: 4px; }
+.weather-extra { font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 4px; }
+
+.forecast-strip { display: flex; justify-content: space-between; align-items: center; height: 100%; }
+.forecast-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.f-time { font-size: 11px; font-weight: 700; color: var(--muted); }
+.f-icon { font-size: 28px; } /* Increased icon size */
+.f-temp { font-size: 14px; font-weight: 800; }
+
+.daily-forecast-container { display: flex; flex-direction: column; justify-content: space-around; height: 100%; }
+.daily-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
+.d-day { width: 50px; color: var(--text); }
+.d-icon { font-size: 16px; text-align: center; flex: 1; }
+.d-temp { width: 70px; text-align: right; color: var(--muted); font-size: 12px; }
+.d-temp-max { color: var(--text); font-size: 13px; margin-left: 6px; font-weight: 700; }
+
+/* TradingView */
+.voo-widget { height: 400px; padding: 16px; display: flex; flex-direction: column; }
+#tv-widget-container { flex: 1; width: 100%; }
+.tradingview-widget-container { flex: 1; width: 100%; height: 100%; }
+
+/* Calculator */
+#calc-widget { height: 400px; padding: 16px; flex: none; display: flex; flex-direction: column; gap: 8px; }
+.calc-display {
+  font-family: var(--font-main);
+  font-weight: 800;
+  font-size: 64px; /* Increased to fill the void */
+  line-height: 1;
+  text-align: right;
+  color: var(--text);
+  padding: 0 4px 8px; /* Removed top padding */
+  background: transparent;
+  border: none;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.calc-display::-webkit-scrollbar { display: none; }
+.calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 10px; flex: 1; }
+.calc-btn {
+  background: rgba(0,0,0,0.03);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-main);
+  font-weight: 600;
+  font-size: 18px; /* Slightly larger text on buttons */
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+@media (prefers-color-scheme: dark) { .calc-btn { background: rgba(255,255,255,0.04); } }
+
+.calc-btn svg { width: 18px; height: 18px; opacity: 0.7; }
+.calc-btn:hover { background: var(--border); transform: translateY(-1px); }
+/* Improved tactile feeling on click */
+.calc-btn:active { transform: scale(0.96); background: rgba(0,0,0,0.08); }
+@media (prefers-color-scheme: dark) { .calc-btn:active { background: rgba(255,255,255,0.1); } }
+.calc-btn.span-2 { grid-column: span 2; }
+.calc-btn.btn-op { color: var(--yellow); font-size: 20px; font-weight: 700; }
+.calc-btn.btn-eq { background: var(--yellow); color: #fff; font-weight: 700; }
+.calc-btn.btn-eq:hover { opacity: 0.9; }
+.calc-btn.btn-clear { color: var(--muted); }
+
+/* Scratchpad */
+.scratchpad-container {
+  border-radius: var(--radius-md);
+  animation: fadeUp 0.4s 0.25s ease both;
+  display: flex;
+  flex-direction: column;
+  height: 306px; /* Precisely aligns bottom with adjacent 400px widgets */
+  flex: none; 
+}
+.scratchpad-header {
+  display: flex;
+  justify-content: flex-end; 
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.scratchpad-actions { display: flex; align-items: center; gap: 12px; }
+.save-indicator { 
+  font-size: 10px; 
+  font-family: var(--font-main);
+  font-weight: 700; 
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  opacity: 0; 
+  transition: opacity 0.3s; 
+  pointer-events: none; 
+}
+.save-indicator.visible { opacity: 0.7; }
+
+.action-btn { 
+  cursor: pointer; 
+  opacity: 0.7; 
+  transition: opacity 0.2s; 
+  display: flex; 
+  align-items: center; 
+  background: none; 
+  border: none; 
+  padding: 0; 
+  color: var(--muted); 
+} 
+.action-btn:hover { opacity: 1; color: var(--text); }
+.action-btn svg { width: 15px; height: 15px; }
+
+#scratchpad-input {
+  flex: 1;
+  border: none;
+  resize: none;
+  padding: 20px;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-main);
+  font-size: 15px;
+  line-height: 1.6;
+  outline: none;
+}
+#scratchpad-input::placeholder { opacity: 0.3; font-weight: 400; }
+#scratchpad-input::-webkit-scrollbar { display: none; } /* Hide scrollbar for clean look */
+
+/* ── QUOTE SECTION ── */
+.quote-container {
+  width: 100%;
+  max-width: 1152px;
+  margin: 12px auto 8px;
+  text-align: center;
+  animation: fadeUp 0.4s 0.15s ease both;
+}
+.quote-text { font-size: 14px; font-style: italic; font-weight: 400; color: var(--yellow); display: inline; transition: color 0.3s; }
+.quote-author { font-family: var(--font-main); font-weight: 500; font-size: 13px; color: var(--muted); display: inline; opacity: 0.7; margin-left: 6px; }
+
+/* ── SETTINGS MODAL ── */
+.modal-overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+  opacity: 1; transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.hidden { opacity: 0; pointer-events: none; }
+.modal-content {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  width: 90%;
+  max-width: 480px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  transform: scale(1);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.modal-overlay.hidden .modal-content {
+  transform: scale(0.95);
+}
+.modal-content h2 { margin-bottom: 20px; font-weight: 800; font-size: 18px; color: var(--text); }
+.form-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+.form-group label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group textarea {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-main);
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+}
+.form-group input:focus, .form-group textarea:focus { border-color: var(--yellow); }
+.form-group textarea { resize: vertical; font-size: 13px; font-family: monospace; white-space: pre; overflow-x: auto; line-height: 1.4; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.btn {
+  padding: 10px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--card); color: var(--text); font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: var(--font-main);
+}
+.btn:hover { background: var(--bg); border-color: var(--muted); }
+.btn.primary { background: var(--yellow); border-color: var(--yellow); color: #fff; }
+.btn.primary:hover { opacity: 0.9; }
+
+@media (max-width: 1150px) {
+  .main-layout { flex-direction: column; align-items: center; }
+  .left-panel, .container, .side-panel, .divider { max-width: 560px; width: 100%; flex: none; }
+  .scratchpad-container { height: 320px; flex: none; }
+  .weather-widget { flex-direction: column; padding: 24px; }
+  .wp-hourly { border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 24px 0; margin: 0; min-height: 120px; overflow-x: auto; scrollbar-width: none; }
+  .wp-hourly::-webkit-scrollbar { display: none; }
+  .forecast-strip { gap: 24px; min-width: max-content; padding: 0 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SVG Sprite Map for Cleaner Code -->
+<svg style="display: none;">
+  <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></symbol>
+  <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
+  <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></symbol>
+  <symbol id="icon-paste" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></symbol>
+  <symbol id="icon-location-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M14.39 8.56A5 5 0 0 0 9.4 5.37"></path><path d="M19.4 15.63A10 10 0 0 0 12 2a10 10 0 0 0-4.66 1.15"></path><path d="M2.54 8.52a10 10 0 0 0 14.92 12.92"></path></symbol>
+</svg>
+
+<button id="settings-open-btn" class="settings-btn" title="Settings" aria-label="Settings">
+  <svg><use href="#icon-settings"></use></svg>
+</button>
+
+<header>
+  <div id="clock">
+    <span class="digit-wrap"><span id="h">00</span></span><span class="colon">:</span><span class="digit-wrap"><span id="m">00</span></span><span id="ampm"> AM</span>
+  </div>
+  <div class="sub-header">
+    <div id="date"></div>
+    <span class="sub-header-dot">●</span>
+    <div id="lebanon"></div>
+  </div>
+</header>
+
+<div class="quote-container">
+  <span id="quote-text" class="quote-text">"Loading wisdom..."</span>
+  <span id="quote-author" class="quote-author"></span>
+</div>
+
+<div class="divider"></div>
+
+<div class="main-layout">
+  
+  <!-- LEFT PANEL (Market) -->
+  <div class="left-panel">
+    <div class="widget-card glass-panel voo-widget">
+      <!-- Header removed to maximize space -->
+      <div id="tv-widget-container" class="skeleton skeleton-block"></div>
+    </div>
+  </div>
+
+  <!-- CENTER PANEL (Search & Scratchpad) -->
+  <div class="container">
+    <div class="omnibar-wrapper">
+      <form id="search-form" onsubmit="SearchWidget.handle(event)">
+        <input type="text" id="omnibar" class="glass-panel" aria-label="Search" placeholder="Type to search or calculate..." autofocus autocomplete="off" spellcheck="false">
+      </form>
+    </div>
+    
+    <div class="scratchpad-container glass-panel">
+      <div class="scratchpad-header">
+        <div class="scratchpad-actions">
+          <span class="save-indicator" id="save-indicator">Saved</span>
+          <button type="button" class="action-btn" id="clear-btn" aria-label="Clear scratchpad" title="Clear scratchpad">
+            <svg><use href="#icon-trash"></use></svg>
+          </button>
+          <button type="button" class="action-btn" id="copy-btn" aria-label="Copy to clipboard" title="Copy to clipboard">
+            <svg><use href="#icon-copy"></use></svg>
+          </button>
+          <button type="button" class="action-btn" id="paste-btn" aria-label="Paste from clipboard" title="Paste from clipboard">
+            <svg><use href="#icon-paste"></use></svg>
+          </button>
+        </div>
+      </div>
+      <textarea id="scratchpad-input" aria-label="Scratchpad text area" placeholder="Side quest log..."></textarea>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL (Calculator) -->
+  <div class="side-panel">
+    <div class="widget-card glass-panel" id="calc-widget">
+      <!-- Header removed to maximize space -->
+      <div class="calc-display" aria-label="Calculator display" id="calc-display">0</div>
+      
+      <div class="calc-grid">
+        <!-- Row 1 -->
+        <button type="button" class="calc-btn btn-clear" onclick="CalculatorWidget.clear()">C</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.paste()" title="Paste">
+          <svg><use href="#icon-paste"></use></svg>
+        </button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.copy()" title="Copy">
+          <svg><use href="#icon-copy"></use></svg>
+        </button>
+        <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('/')">÷</button>
+        <!-- Row 2 -->
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('7')">7</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('8')">8</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('9')">9</button>
+        <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('*')">×</button>
+        <!-- Row 3 -->
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('4')">4</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('5')">5</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('6')">6</button>
+        <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('-')">-</button>
+        <!-- Row 4 -->
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('1')">1</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('2')">2</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('3')">3</button>
+        <button type="button" class="calc-btn btn-op" onclick="CalculatorWidget.op('+')">+</button>
+        <!-- Row 5 -->
+        <button type="button" class="calc-btn span-2" onclick="CalculatorWidget.num('0')">0</button>
+        <button type="button" class="calc-btn" onclick="CalculatorWidget.num('.')">.</button>
+        <button type="button" class="calc-btn btn-eq" onclick="CalculatorWidget.eq()">=</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FULL WIDTH WEATHER PANEL -->
+<section class="weather-widget glass-panel" id="weather-widget">
+  <!-- Current -->
+  <article class="weather-panel wp-current">
+    <div class="weather-city skeleton skeleton-city" id="weather-city-front"></div>
+    <div class="weather-main">
+      <div class="weather-icon-large" id="curr-icon">☀️</div>
+      <div class="weather-info-block">
+        <div class="weather-temp skeleton skeleton-temp" id="curr-temp"></div>
+        <div class="weather-desc skeleton skeleton-desc" id="curr-desc"></div>
+      </div>
+    </div>
+    <div class="weather-extra skeleton skeleton-extra" id="curr-extra"></div>
+  </article>
+  
+  <!-- Hourly -->
+  <article class="weather-panel wp-hourly">
+    <div class="forecast-strip" id="hourly-forecast-container"></div>
+  </article>
+
+  <!-- Daily -->
+  <article class="weather-panel wp-daily">
+    <div class="daily-forecast-container" id="daily-forecast-container"></div>
+  </article>
+</section>
+
+<!-- SETTINGS MODAL -->
+<div id="settings-modal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <h2>Dashboard Settings</h2>
+    
+    <div class="form-group">
+      <label for="set-city">Default Weather City</label>
+      <input type="text" id="set-city" placeholder="e.g. Burbank, CA">
+    </div>
+    
+    <div class="form-group">
+      <label for="set-ticker">Stock Ticker</label>
+      <input type="text" id="set-ticker" placeholder="e.g. BATS:VOO or NASDAQ:AAPL">
+    </div>
+    
+    <div class="form-group">
+      <label for="set-accent">Accent Color</label>
+      <div class="flex-center-gap">
+        <input type="color" id="set-accent" value="#FF9500" class="color-picker">
+        <span style="font-size: 11px; color: var(--muted);">Pick your global theme color</span>
+      </div>
+    </div>
+    
+    <div class="modal-actions">
+      <button id="settings-cancel" class="btn">Cancel</button>
+      <button id="settings-save" class="btn primary">Save & Reload</button>
+    </div>
+    
+    <!-- Deep Diagnostics Display -->
+    <div id="settings-uid-display" style="margin-top:20px; font-size:10px; color:var(--muted); text-align:center; user-select:all; font-family: monospace;">
+      Sync Status: Loading...
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================
+   1. CORE UTILITIES & CONFIG
+========================================== */
+const CONSTANTS = {
+  WEATHER_CACHE_MS: 900000,
+  GEO_TIMEOUT_MS: 2000,
+  CLOCK_ANIM_MS: 150,
+  SCRATCHPAD_DEBOUNCE_MS: 500,
+  INDICATOR_DELAY_MS: 2000,
+  COPY_FEEDBACK_MS: 1500,
+  PASTE_ERROR_MS: 2500,
+  TICK_MS: 1000
+};
+
+const StorageUtils = {
+  get: k => { try { return localStorage.getItem(k); } catch(e) { return null; } },
+  set: (k, v) => { try { localStorage.setItem(k, v); } catch(e) { console.warn("Storage restricted"); } }
+};
+window.StorageUtils = StorageUtils;
+
+const Config = {
+  data: {
+    city: "Burbank, CA",
+    lat: 34.1808,
+    lon: -118.3090,
+    ticker: "BATS:VOO",
+    accent: "#FF9500"
+  },
+  init() {
+    const saved = StorageUtils.get('salut_config');
+    if (saved) {
+      try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch(e) {}
+    }
+
+    // Auto-upgrade AMEX (15m delayed) to BATS (real-time)
+    if (this.data.ticker === "AMEX:VOO") {
+      this.data.ticker = "BATS:VOO";
+      this.save();
+    }
+  },
+  save() { 
+    StorageUtils.set('salut_config', JSON.stringify(this.data)); 
+    if (window.saveConfigToCloud) window.saveConfigToCloud(this.data);
+  }
+};
+
+/* ==========================================
+   2. WIDGETS
+========================================== */
+
+/* ── SETTINGS MODAL ── */
+const SettingsWidget = {
+  modal: null, btnOpen: null, btnCancel: null, btnSave: null,
+  inputCity: null, inputTicker: null, inputAccent: null,
+
+  init() {
+    this.modal = document.getElementById('settings-modal');
+    this.btnOpen = document.getElementById('settings-open-btn');
+    this.btnCancel = document.getElementById('settings-cancel');
+    this.btnSave = document.getElementById('settings-save');
+    this.inputCity = document.getElementById('set-city');
+    this.inputTicker = document.getElementById('set-ticker');
+    this.inputAccent = document.getElementById('set-accent');
+
+    if(this.btnOpen) this.btnOpen.addEventListener('click', () => this.open());
+    if(this.btnCancel) this.btnCancel.addEventListener('click', () => this.close());
+    if(this.btnSave) this.btnSave.addEventListener('click', () => this.save());
+  },
+  open() {
+    if(!this.modal) return;
+    this.inputCity.value = Config.data.city;
+    this.inputTicker.value = Config.data.ticker;
+    this.inputAccent.value = Config.data.accent || "#FF9500";
+    this.modal.classList.remove('hidden');
+  },
+  close() {
+    if(this.modal) this.modal.classList.add('hidden');
+  },
+  async save() {
+    const newCity = this.inputCity.value.trim() || "Burbank, CA";
+    Config.data.ticker = this.inputTicker.value.trim() || "BATS:VOO";
+    Config.data.accent = this.inputAccent.value;
+
+    // Geocode new city if changed
+    if (newCity !== Config.data.city) {
+      if(this.btnSave) this.btnSave.textContent = "Locating...";
+      try {
+        const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(newCity)}&count=1`);
+        const geo = await res.json();
+        if (geo.results && geo.results.length > 0) {
+          Config.data.city = geo.results[0].name + (geo.results[0].admin1 ? `, ${geo.results[0].admin1}` : '');
+          Config.data.lat = geo.results[0].latitude;
+          Config.data.lon = geo.results[0].longitude;
+          // Force weather refresh by clearing cache
+          StorageUtils.set('weatherTime', 0); 
+        } else {
+          Config.data.city = newCity; // Fallback to whatever they typed, though weather might fetch old coords
+        }
+      } catch(e) { console.warn("Geocoding failed", e); }
+    }
+
+    Config.save();
+    window.location.reload(); // Simplest way to cleanly re-initialize everything
+  }
+};
+
+/* ── SEARCH ── */
+const SearchWidget = {
+  omnibar: null,
+  init() {
+    this.omnibar = document.getElementById('omnibar');
+    if(this.omnibar) {
+      
+      // Setup Greeting Placeholder based on time
+      const hour = new Date().getHours();
+      let greeting = "Good evening";
+      if (hour >= 5 && hour < 12) greeting = "Good morning";
+      else if (hour >= 12 && hour < 18) greeting = "Good afternoon";
+      this.omnibar.placeholder = `${greeting}! Type to search or calculate...`;
+      
+      this.omnibar.addEventListener('keydown', e => { if(e.key === "Escape") { this.omnibar.value = ""; this.omnibar.blur(); } });
+      
+      // Auto-capitalize the first letter seamlessly
+      this.omnibar.addEventListener('input', (e) => {
+        const val = this.omnibar.value;
+        if (val.length === 1 && val !== val.toUpperCase() && e.inputType !== 'deleteContentBackward') {
+          this.omnibar.value = val.toUpperCase();
+        }
+      });
+    }
+  },
+  handle(e) {
+    e.preventDefault();
+    if(!this.omnibar) return;
+    const val = this.omnibar.value.trim();
+    if (!val) return;
+
+    // Smart Command: Quick Math (e.g. "120 * 0.20")
+    // Strictly matches only numbers, operators, parens, and spaces to prevent execution of arbitrary code vulnerabilities
+    const mathRegex = /^[\d\s\+\-\*\/\(\)\.]+$/;
+    if (mathRegex.test(val) && /[0-9]/.test(val) && /[\+\-\*\/]/.test(val)) {
+      try {
+        const result = new Function(`return (${val})`)();
+        if (!isNaN(result) && isFinite(result)) {
+          CalculatorWidget.currentVal = CalculatorWidget.stripErr(result).toString();
+          CalculatorWidget.shouldResetScreen = true;
+          CalculatorWidget.update();
+          this.omnibar.value = '';
+          this.omnibar.blur();
+          return;
+        }
+      } catch (err) {
+        // Fall back to regular search if parsing fails (e.g., malformed equations)
+      }
+    }
+
+    window.open("https://www.google.com/search?q=" + encodeURIComponent(val), "_blank", "noopener noreferrer");
+    this.omnibar.value = '';
+  }
+};
+
+/* ── CLOCK ── */
+const ClockWidget = {
+  dom: {},
+  init() { 
+    this.dom = {
+      h: document.getElementById('h'), m: document.getElementById('m'),
+      ampm: document.getElementById('ampm'), date: document.getElementById('date'),
+      leb: document.getElementById('lebanon')
+    };
+    this.update(); 
+  },
+  update() {
+    const now = new Date(), rawH = now.getHours(), h12 = rawH % 12 || 12;
+    const hStr = h12.toString(), mStr = now.getMinutes().toString().padStart(2, '0');
+    
+    if(this.dom.h && this.dom.h.textContent !== hStr) {
+      this.dom.h.classList.add('digit-changing');
+      setTimeout(() => { this.dom.h.textContent = hStr; this.dom.h.classList.replace('digit-changing', 'digit-incoming'); }, CONSTANTS.CLOCK_ANIM_MS);
+    }
+    if(this.dom.m && this.dom.m.textContent !== mStr) {
+      this.dom.m.classList.add('digit-changing');
+      setTimeout(() => { this.dom.m.textContent = mStr; this.dom.m.classList.replace('digit-changing', 'digit-incoming'); }, CONSTANTS.CLOCK_ANIM_MS);
+    }
+    if(this.dom.ampm) this.dom.ampm.textContent = rawH >= 12 ? ' PM' : ' AM';
+    
+    const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    if(this.dom.date) this.dom.date.textContent = dateStr;
+    
+    const lbTime = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Beirut", hour: "numeric", minute: "2-digit" }).format(now);
+    if(this.dom.leb) this.dom.leb.innerHTML = `Lebanon <span>${lbTime}</span>`;
+    
+    setTimeout(() => requestAnimationFrame(() => this.update()), 1000 - now.getMilliseconds());
+  }
+};
+
+/* ── WEATHER ── */
+const WeatherWidget = {
+  MAP: {
+    0: ["Clear", "☀️"], 1: ["Clear", "🌤️"], 2: ["Partly Cloudy", "⛅"], 3: ["Cloudy", "☁️"],
+    45: ["Fog", "🌁"], 61: ["Rain", "🌧️"], 95: ["Storm", "⛈️"]
+  },
+  dom: {},
+  init() {
+    // Cache DOM lookups for performance
+    this.dom = {
+      cityFront: document.getElementById('weather-city-front'),
+      currTemp: document.getElementById('curr-temp'),
+      currDesc: document.getElementById('curr-desc'),
+      currIcon: document.getElementById('curr-icon'),
+      currExtra: document.getElementById('curr-extra'),
+      hourlyContainer: document.getElementById('hourly-forecast-container'),
+      dailyContainer: document.getElementById('daily-forecast-container')
+    };
+
+    const lastFetch = StorageUtils.get('weatherTime');
+    const cacheAge = lastFetch ? (Date.now() - parseInt(lastFetch)) : Infinity;
+    
+    let cachedData = null;
+    try { cachedData = JSON.parse(StorageUtils.get('weatherData')); } catch (e) {}
+    
+    // Check if cache is valid AND contains the new required fields to prevent infinite loading skeletons
+    if (cacheAge < CONSTANTS.WEATHER_CACHE_MS && cachedData && cachedData.current && cachedData.current.relative_humidity_2m !== undefined) {
+      this.render(cachedData);
+    } else {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          pos => this.fetch(pos.coords.latitude, pos.coords.longitude, "Local", false),
+          err => this.fetch(Config.data.lat, Config.data.lon, Config.data.city, true),
+          { timeout: CONSTANTS.GEO_TIMEOUT_MS, maximumAge: CONSTANTS.WEATHER_CACHE_MS }
+        );
+      } else {
+        this.fetch(Config.data.lat, Config.data.lon, Config.data.city, true);
+      }
+    }
+  },
+  async fetch(lat, lon, cityName, isFallback) {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
+      // Performance Optimization: Limiting forecast request to exactly 3 days instead of 7
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=${encodeURIComponent(tz)}&forecast_days=3`;
+      
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      const data = await response.json();
+      
+      data.cityName = cityName; 
+      data.isFallback = isFallback;
+      StorageUtils.set('weatherData', JSON.stringify(data));
+      StorageUtils.set('weatherTime', Date.now());
+      this.render(data);
+    } catch(e) {
+      console.warn("Weather fetch failed, utilizing mock data", e);
+      this.renderMock(cityName);
+    }
+  },
+  render(data) {
+    if(!data || !data.current) return;
+    const [currDesc, currIcon] = this.MAP[data.current.weather_code] || ["Cloudy", "☁️"];
+    
+    if(this.dom.cityFront) {
+      this.dom.cityFront.classList.remove('skeleton', 'skeleton-city');
+      if (data.isFallback) {
+        this.dom.cityFront.innerHTML = `<div class="location-fallback" title="Location access denied, showing default city."><svg><use href="#icon-location-off"/></svg> ${data.cityName || Config.data.city}</div>`;
+      } else {
+        this.dom.cityFront.textContent = data.cityName || Config.data.city;
+      }
+    }
+    
+    if(this.dom.currTemp) {
+      this.dom.currTemp.classList.remove('skeleton', 'skeleton-temp');
+      this.dom.currTemp.textContent = Math.round(data.current.temperature_2m) + "°";
+    }
+    
+    if(this.dom.currDesc) {
+      this.dom.currDesc.classList.remove('skeleton', 'skeleton-desc');
+      this.dom.currDesc.textContent = currDesc;
+    }
+    
+    if(this.dom.currIcon) this.dom.currIcon.textContent = currIcon;
+    
+    if(this.dom.currExtra) {
+      this.dom.currExtra.classList.remove('skeleton', 'skeleton-extra');
+      if(data.current.relative_humidity_2m !== undefined) {
+        this.dom.currExtra.textContent = `Humidity: ${data.current.relative_humidity_2m}% • Wind: ${Math.round(data.current.wind_speed_10m)} mph`;
+      } else {
+        this.dom.currExtra.textContent = ''; // Failsafe if data is missing despite checks
+      }
+    }
+
+    // Hourly
+    const h = new Date().getHours();
+    if(this.dom.hourlyContainer && data.hourly) {
+      let hourlyHTML = '';
+      for(let i=1; i<=8; i++) {
+        const idx = (h + i) % 24;
+        const [_, ic] = this.MAP[data.hourly.weather_code[idx]] || ["", "☁️"];
+        const t = new Date(); t.setHours(idx);
+        hourlyHTML += `<div class="forecast-item"><span class="f-time">${t.getHours()%12||12}${t.getHours()>=12?'p':'a'}</span><span class="f-icon">${ic}</span><span class="f-temp">${Math.round(data.hourly.temperature_2m[idx])}°</span></div>`;
+      }
+      this.dom.hourlyContainer.innerHTML = hourlyHTML;
+    }
+
+    // Daily
+    if(this.dom.dailyContainer && data.daily) {
+      let dailyHTML = '';
+      // Limit to max 2 available daily records safely if forecast days are limited to 3 (Index 1 & 2 is tomorrow & day after)
+      const loops = Math.min(2, data.daily.time.length - 1); 
+      for(let i=1; i<=loops; i++) {
+        const dateObj = new Date(data.daily.time[i] + "T00:00:00");
+        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+        const [desc, icon] = this.MAP[data.daily.weather_code[i]] || ["", "☁️"];
+        const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
+        const minTemp = Math.round(data.daily.temperature_2m_min[i]);
+        dailyHTML += `<div class="daily-item"><span class="d-day">${dayName}</span><span class="d-icon" title="${desc}">${icon}</span><span class="d-temp">${minTemp}° <span class="d-temp-max">${maxTemp}°</span></span></div>`;
+      }
+      this.dom.dailyContainer.innerHTML = dailyHTML;
+    }
+  },
+  renderMock(cityName) {
+    this.render({
+      cityName: cityName === "Local" ? "Local (Offline)" : `${Config.data.city} (Offline)`,
+      isFallback: true,
+      current: { temperature_2m: 72, relative_humidity_2m: 45, wind_speed_10m: 5, weather_code: 0 },
+      hourly: { temperature_2m: Array(24).fill(72).map((t,i) => t+Math.sin(i)*5), weather_code: Array(24).fill(0) },
+      daily: {
+        time: Array(3).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d.toISOString().split('T')[0]; }),
+        temperature_2m_max: Array(3).fill(78), temperature_2m_min: Array(3).fill(62), weather_code: Array(3).fill(0)
+      }
+    });
+  }
+};
+
+/* ── TRADINGVIEW ── */
+const MarketWidget = {
+  init() {
+    const container = document.getElementById('tv-widget-container');
+    if(!container) return;
+    
+    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    const s = document.createElement('script');
+    s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
+    s.async = true;
+    s.innerHTML = JSON.stringify({
+      "symbols": [["", `${Config.data.ticker}|1D`]],
+      "chartOnly": false, "width": "100%", "height": "100%", 
+      "colorTheme": isDark ? "dark" : "light", 
+      "backgroundColor": isDark ? "#1c1c1c" : "#ffffff", 
+      "fontFamily": "Plus Jakarta Sans, sans-serif", "fontSize": "11", "lineWidth": 2, "lineColor": "#FF9500", 
+      "topColor": "rgba(255,149,0,0.05)", "bottomColor": "rgba(255,255,255,0)", 
+      "hideDateRanges": false, "dateRanges": ["1d|1","5d|5","1m|30","6m|180"]
+    });
+    
+    s.onload = () => container.classList.remove('skeleton', 'skeleton-block');
+    container.innerHTML = '<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';
+    container.querySelector('.tradingview-widget-container').appendChild(s);
+  }
+};
+
+/* ── CALCULATOR ── */
+const CalculatorWidget = {
+  displayEl: null,
+  currentVal: '0',
+  previousVal: '',
+  operation: null,
+  shouldResetScreen: false,
+
+  init() {
+    this.displayEl = document.getElementById('calc-display');
+  },
+
+  update() {
+    if(!this.displayEl) return;
+    let displayText = this.currentVal;
+    if (this.operation !== null) {
+      let opSymbol = this.operation;
+      if (opSymbol === '*') opSymbol = '×';
+      if (opSymbol === '/') opSymbol = '÷';
+      displayText = this.shouldResetScreen 
+        ? `${this.previousVal} ${opSymbol}` 
+        : `${this.previousVal} ${opSymbol} ${this.currentVal}`;
+    }
+    this.displayEl.textContent = displayText;
+    this.displayEl.scrollLeft = this.displayEl.scrollWidth; 
+  },
+  stripErr(num) { return parseFloat(num.toPrecision(12)); },
+  num(n) {
+    if (this.shouldResetScreen) {
+      this.currentVal = n === '.' ? '0.' : n;
+      this.shouldResetScreen = false;
+    } else {
+      // Prevent numbers from getting absurdly long
+      if (this.currentVal.length >= 15) return;
+      
+      if (this.currentVal === '0') this.currentVal = n === '.' ? '0.' : n;
+      else {
+        if (n === '.' && this.currentVal.includes('.')) return;
+        this.currentVal += n;
+      }
+    }
+    this.update();
+  },
+  op(o) {
+    if (this.operation !== null) this.eq();
+    this.previousVal = this.currentVal;
+    this.operation = o;
+    this.shouldResetScreen = true;
+    this.update();
+  },
+  eq() {
+    if (this.operation === null || this.shouldResetScreen) return;
+    let result;
+    const prev = parseFloat(this.previousVal), current = parseFloat(this.currentVal);
+    switch (this.operation) {
+      case '+': result = prev + current; break;
+      case '-': result = prev - current; break;
+      case '*': result = prev * current; break;
+      case '/': result = current === 0 ? 'Error' : prev / current; break;
+    }
+    if (result !== 'Error') result = this.stripErr(result);
+    this.currentVal = result.toString();
+    this.operation = null;
+    this.shouldResetScreen = true;
+    this.update();
+  },
+  clear() {
+    this.currentVal = '0';
+    this.previousVal = '';
+    this.operation = null;
+    this.update();
+  },
+  async copy() {
+    if (this.currentVal === 'Error') return;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(this.currentVal);
+      } else {
+        const tempInput = document.createElement("input");
+        tempInput.value = this.currentVal;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+      }
+      if(this.displayEl) {
+        this.displayEl.style.color = "var(--yellow)";
+        setTimeout(() => { this.displayEl.style.color = ""; }, 300);
+      }
+    } catch(err) {
+      console.warn("Clipboard restricted", err);
+    }
+  },
+  async paste() {
+    if(!this.displayEl) return;
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.readText) throw new Error("Clipboard API not supported");
+      const text = await navigator.clipboard.readText();
+      const parsed = parseFloat(text.replace(/[^0-9.-]/g, ''));
+      if (!isNaN(parsed)) {
+        this.currentVal = this.stripErr(parsed).toString();
+        this.shouldResetScreen = true;
+        this.update();
+      }
+    } catch (err) {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      this.displayEl.textContent = `Press ${isMac ? 'Cmd+V' : 'Ctrl+V'}`;
+      this.displayEl.style.fontSize = "22px";
+      setTimeout(() => { this.displayEl.style.fontSize = ""; this.update(); }, CONSTANTS.PASTE_ERROR_MS);
+    }
+  }
+};
+
 /* ── SCRATCHPAD ── */
 const ScratchpadWidget = {
   dom: {},
@@ -35,11 +1128,12 @@ const ScratchpadWidget = {
         let saveText = "Saved (Local)";
         if (window.saveScratchpadToCloud && window.isCloudConnected) {
             window.saveScratchpadToCloud(this.dom.input.value);
-            saveText = "Saved (Cloud)";
+            saveText = `Saved (${window.cloudAuthType})`;
         }
         
         if(this.dom.indicator) {
           this.dom.indicator.textContent = saveText;
+          if (window.cloudUserId) this.dom.indicator.title = "User ID: " + window.cloudUserId;
           this.dom.indicator.classList.add('visible');
           setTimeout(() => { if(this.dom.indicator) this.dom.indicator.classList.remove('visible'); }, CONSTANTS.INDICATOR_DELAY_MS);
         }
@@ -47,7 +1141,143 @@ const ScratchpadWidget = {
     });
 
     if(this.dom.clearBtn) {
-<!-- ... existing code ... -->
+      this.dom.clearBtn.addEventListener('click', () => {
+        this.dom.input.value = ''; 
+        StorageUtils.set('salut_scratchpad', ''); 
+        if (window.saveScratchpadToCloud) window.saveScratchpadToCloud('');
+        this.dom.input.focus();
+      });
+    }
+
+    if(this.dom.copyBtn) {
+      this.dom.copyBtn.addEventListener('click', async () => {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(this.dom.input.value);
+          } else {
+            this.dom.input.select(); 
+            document.execCommand('copy');
+          }
+          const orig = this.dom.copyBtn.innerHTML;
+          this.dom.copyBtn.innerHTML = `<svg><use href="#icon-copy"></use></svg>`;
+          setTimeout(() => { if(this.dom.copyBtn) this.dom.copyBtn.innerHTML = orig; }, CONSTANTS.COPY_FEEDBACK_MS);
+        } catch(err) {
+          console.warn("Clipboard restricted", err);
+        }
+      });
+    }
+
+    if(this.dom.pasteBtn) {
+      this.dom.pasteBtn.addEventListener('click', async () => {
+        try {
+          if (!navigator.clipboard) throw new Error("Clipboard API not supported");
+          this.dom.input.value += (this.dom.input.value ? '\n' : '') + await navigator.clipboard.readText();
+          this.dom.input.dispatchEvent(new Event('input')); 
+        } catch (err) {
+          const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+          const orig = this.dom.input.placeholder;
+          this.dom.input.placeholder = `[Click here & press ${isMac ? 'Cmd+V' : 'Ctrl+V'}]`;
+          this.dom.input.focus();
+          setTimeout(() => { if(this.dom.input) this.dom.input.placeholder = orig; }, 3000);
+        }
+      });
+    }
+  }
+};
+
+/* ── QUOTE ── */
+const QuoteWidget = {
+  quotes: [
+    { t: "The happiness of your life depends upon the quality of your thoughts.", a: "Marcus Aurelius" },
+    { t: "We suffer more often in imagination than in reality.", a: "Seneca" },
+    { t: "He who has a why to live can bear almost any how.", a: "Friedrich Nietzsche" },
+    { t: "The only constant in life is change.", a: "Heraclitus" },
+    { t: "Nature does not hurry, yet everything is accomplished.", a: "Lao Tzu" },
+    { t: "I think, therefore I am.", a: "René Descartes" },
+    { t: "In the depth of winter, I finally learned that within me there lay an invincible summer.", a: "Albert Camus" },
+    { t: "Knowing yourself is the beginning of all wisdom.", a: "Aristotle" },
+    { t: "The only true wisdom is in knowing you know nothing.", a: "Socrates" },
+    { t: "It does not matter how slowly you go as long as you do not stop.", a: "Confucius" }
+  ],
+  init() {
+    const q = this.quotes[Math.floor(Math.random() * this.quotes.length)];
+    const quoteText = document.getElementById('quote-text');
+    const quoteAuthor = document.getElementById('quote-author');
+    if(quoteText) quoteText.textContent = `"${q.t}"`;
+    if(quoteAuthor) quoteAuthor.textContent = `— ${q.a}`;
+  }
+};
+
+/* ── GLOBAL EVENTS ── */
+document.addEventListener('keydown', e => {
+  const isInput = document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
+  
+  if (!isInput) {
+    const key = e.key;
+    const validCalcKeys = /^[0-9\.\+\-\*\/\=]$|^Enter$|^Backspace$|^Escape$|^c$|^C$/;
+    
+    // Process Calculator bindings if applicable
+    if (validCalcKeys.test(key)) {
+      if (/^[0-9]$/.test(key)) CalculatorWidget.num(key);
+      else if (key === '.') CalculatorWidget.num('.');
+      else if (key === '+' || key === '-' || key === '*' || key === '/') CalculatorWidget.op(key);
+      else if (key === 'Enter' || key === '=') CalculatorWidget.eq();
+      else if (key === 'Backspace' || key === 'Escape' || key.toLowerCase() === 'c') CalculatorWidget.clear();
+      
+      e.preventDefault();
+      return;
+    } 
+    // Otherwise fallback to focusing the Search bar for fast queries
+    else if (!e.metaKey && !e.ctrlKey && !e.altKey && key.length === 1 && SearchWidget.omnibar) {
+      SearchWidget.omnibar.focus();
+    }
+  }
+});
+
+document.addEventListener('paste', e => {
+  const isInput = document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
+  if (!isInput && e.clipboardData) {
+    const text = e.clipboardData.getData('text');
+    if (text) {
+      const parsed = parseFloat(text.replace(/[^0-9.-]/g, ''));
+      if (!isNaN(parsed)) {
+        e.preventDefault();
+        CalculatorWidget.currentVal = CalculatorWidget.stripErr(parsed).toString();
+        CalculatorWidget.shouldResetScreen = true;
+        CalculatorWidget.update();
+      }
+    }
+  }
+});
+
+/* ── BOOTSTRAP APP ── */
+function initializeApp() {
+  Config.init();
+  document.documentElement.style.setProperty('--yellow', Config.data.accent || "#FF9500");
+  
+  // Centralized Global Storage Listener
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'salut_config') {
+      window.location.reload();
+    } else if (e.key === 'salut_scratchpad' && ScratchpadWidget.dom.input && e.newValue !== ScratchpadWidget.dom.input.value) {
+      ScratchpadWidget.dom.input.value = e.newValue || '';
+    }
+  });
+
+  SettingsWidget.init();
+  ClockWidget.init();
+  SearchWidget.init();
+  CalculatorWidget.init();
+  ScratchpadWidget.init();
+  QuoteWidget.init();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
+}
+
 // Lazy load the cloud connection to keep the initial page paint snappy
 if (window.requestIdleCallback) {
   requestIdleCallback(() => { MarketWidget.init(); WeatherWidget.init(); });
@@ -62,15 +1292,19 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebas
 import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-window.isCloudConnected = false; // Add global flag for diagnostic UI
+window.isCloudConnected = false; 
+window.cloudAuthType = "Local";
+window.cloudUserId = "";
 
 window.initCloudStorage = async function() {
     const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
     const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+    const uidDisplay = document.getElementById('settings-uid-display');
     
-    // If no config is injected (e.g., running as a local file), abort cloud sync.
+    // If no config is injected (e.g., running as an exported local file), abort cloud sync.
     if (!configStr) {
         console.warn("Cloud Sync Offline: No Firebase configuration found in this environment.");
+        if (uidDisplay) uidDisplay.textContent = "Sync Status: Offline (Local Environment)";
         return; 
     }
 
@@ -80,23 +1314,32 @@ window.initCloudStorage = async function() {
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Robust authentication fallback
+        // Robust authentication with credential extraction to prevent UID mismatch
+        let user;
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
             try {
-                await signInWithCustomToken(auth, __initial_auth_token);
+                const cred = await signInWithCustomToken(auth, __initial_auth_token);
+                user = cred.user;
             } catch(e) {
                 console.warn("Session token invalid, falling back to anonymous auth.", e);
-                await signInAnonymously(auth);
+                const cred = await signInAnonymously(auth);
+                user = cred.user;
             }
         } else {
-            await signInAnonymously(auth);
+            const cred = await signInAnonymously(auth);
+            user = cred.user;
         }
         
-        const user = auth.currentUser;
         if (!user) return;
         const userId = user.uid;
         
-        window.isCloudConnected = true; // Connection successful!
+        window.isCloudConnected = true; 
+        window.cloudAuthType = user.isAnonymous ? "Anon" : "Auth";
+        window.cloudUserId = userId;
+
+        if (uidDisplay) {
+            uidDisplay.textContent = `Sync ID: ${userId} (${window.cloudAuthType})`;
+        }
 
         // 1. Hook up Scratchpad Real-time Sync
         const scratchpadRef = doc(db, 'artifacts', appId, 'users', userId, 'dashboard_data', 'scratchpad');
@@ -125,7 +1368,18 @@ window.initCloudStorage = async function() {
                 const cloudConfig = docSnap.data();
                 const localConfigStr = window.StorageUtils.get('salut_config') || "{}";
                 
-                if (!isFirstLoad && JSON.stringify(cloudConfig) !== localConfigStr) {
+                let needsReload = false;
+                try {
+                     const localObj = JSON.parse(localConfigStr);
+                     // Check specific fields to prevent infinite reloading due to JSON object ordering issues
+                     if (cloudConfig.city !== localObj.city || 
+                         cloudConfig.ticker !== localObj.ticker || 
+                         cloudConfig.accent !== localObj.accent) {
+                         needsReload = true;
+                     }
+                } catch(e) {}
+
+                if (!isFirstLoad && needsReload) {
                     window.StorageUtils.set('salut_config', JSON.stringify(cloudConfig));
                     window.location.reload(); 
                 } else if (isFirstLoad) {
@@ -136,7 +1390,7 @@ window.initCloudStorage = async function() {
         }, (err) => console.error("Config sync issue:", err));
 
         window.saveConfigToCloud = (configData) => {
-            setDoc(configRef, configData, { merge: true });
+            setDoc(configRef, configData, { merge: true }).catch(err => console.error("Cloud config save error:", err));
         };
 
     } catch (error) {
