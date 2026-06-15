@@ -628,6 +628,7 @@ const StorageUtils = {
   get: k => { try { return localStorage.getItem(k); } catch(e) { return null; } },
   set: (k, v) => { try { localStorage.setItem(k, v); } catch(e) { console.warn("Storage restricted"); } }
 };
+window.StorageUtils = StorageUtils;
 
 const Config = {
   data: {
@@ -649,7 +650,10 @@ const Config = {
       this.save();
     }
   },
-  save() { StorageUtils.set('salut_config', JSON.stringify(this.data)); }
+  save() { 
+    StorageUtils.set('salut_config', JSON.stringify(this.data)); 
+    if (window.saveConfigToCloud) window.saveConfigToCloud(this.data);
+  }
 };
 
 /* ==========================================
@@ -1101,6 +1105,8 @@ const ScratchpadWidget = {
       
       this.timeout = setTimeout(() => {
         StorageUtils.set('salut_scratchpad', this.input.value);
+        if (window.saveScratchpadToCloud) window.saveScratchpadToCloud(this.input.value);
+        
         if(this.indicator) {
           this.indicator.classList.add('visible');
           setTimeout(() => { if(this.indicator) this.indicator.classList.remove('visible'); }, CONSTANTS.INDICATOR_DELAY_MS);
@@ -1112,7 +1118,9 @@ const ScratchpadWidget = {
     if(clearBtn) {
       clearBtn.addEventListener('click', () => {
         if(!this.input) return;
-        this.input.value = ''; StorageUtils.set('salut_scratchpad', ''); this.input.focus();
+        this.input.value = ''; StorageUtils.set('salut_scratchpad', ''); 
+        if (window.saveScratchpadToCloud) window.saveScratchpadToCloud('');
+        this.input.focus();
       });
     }
 
@@ -1255,6 +1263,80 @@ if(window.requestIdleCallback) {
 } else {
   window.addEventListener('load', () => { MarketWidget.init(); WeatherWidget.init(); });
 }
+</script>
+
+<!-- ── CLOUD STORAGE SYNC ── -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+window.initCloudStorage = async function() {
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+    if (!configStr) return; 
+
+    const firebaseConfig = JSON.parse(configStr);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    try {
+        if (typeof __initial_auth_token !== 'undefined') {
+            await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+            await signInAnonymously(auth);
+        }
+        const userId = auth.currentUser.uid;
+        
+        // 1. Hook up Scratchpad Real-time Sync
+        const scratchpadRef = doc(db, 'artifacts', appId, 'users', userId, 'dashboard_data', 'scratchpad');
+        onSnapshot(scratchpadRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const cloudText = docSnap.data().text || '';
+                const inputEl = document.getElementById('scratchpad-input');
+                
+                // Only update if the cloud version differs from what we are actively looking at
+                if (inputEl && inputEl.value !== cloudText) {
+                    inputEl.value = cloudText;
+                    window.StorageUtils.set('salut_scratchpad', cloudText);
+                }
+            }
+        }, (err) => console.error("Scratchpad sync issue:", err));
+
+        window.saveScratchpadToCloud = (text) => {
+            setDoc(scratchpadRef, { text: text }, { merge: true });
+        };
+
+        // 2. Hook up Dashboard Settings Sync
+        const configRef = doc(db, 'artifacts', appId, 'users', userId, 'dashboard_data', 'config');
+        let isFirstLoad = true;
+        onSnapshot(configRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const cloudConfig = docSnap.data();
+                const localConfigStr = window.StorageUtils.get('salut_config') || "{}";
+                
+                // If a remote change occurs from another device, apply it and reload
+                if (!isFirstLoad && JSON.stringify(cloudConfig) !== localConfigStr) {
+                    window.StorageUtils.set('salut_config', JSON.stringify(cloudConfig));
+                    window.location.reload(); 
+                } else if (isFirstLoad) {
+                     window.StorageUtils.set('salut_config', JSON.stringify(cloudConfig));
+                }
+            }
+            isFirstLoad = false;
+        }, (err) => console.error("Config sync issue:", err));
+
+        window.saveConfigToCloud = (configData) => {
+            setDoc(configRef, configData, { merge: true });
+        };
+
+    } catch (error) {
+        console.error("Cloud sync could not be established:", error);
+    }
+};
+
+window.initCloudStorage();
 </script>
 </body>
 </html>
