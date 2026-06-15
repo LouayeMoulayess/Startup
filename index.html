@@ -107,6 +107,10 @@ body {
   pointer-events: none;
 }
 .skeleton-block { width: 100%; height: 100%; min-height: 100px; border-radius: var(--radius-sm); }
+.skeleton-city { width: 120px; min-height: 19px; display: inline-block; }
+.skeleton-temp { width: 60px; min-height: 36px; }
+.skeleton-desc { width: 90px; min-height: 17px; margin-top: 4px; }
+.skeleton-extra { width: 160px; min-height: 14px; margin-top: 4px; display: inline-block; }
 
 /* ── SETTINGS BTN ── */
 .settings-btn {
@@ -300,13 +304,15 @@ form#search-form { width: 100%; }
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 @media (prefers-color-scheme: dark) { .calc-btn { background: rgba(255,255,255,0.04); } }
 
 .calc-btn svg { width: 18px; height: 18px; opacity: 0.7; }
 .calc-btn:hover { background: var(--border); transform: translateY(-1px); }
-.calc-btn:active { transform: scale(0.96); }
+/* Improved tactile feeling on click */
+.calc-btn:active { transform: scale(0.96); background: rgba(0,0,0,0.08); }
+@media (prefers-color-scheme: dark) { .calc-btn:active { background: rgba(255,255,255,0.1); } }
 .calc-btn.span-2 { grid-column: span 2; }
 .calc-btn.btn-op { color: var(--yellow); font-size: 20px; font-weight: 700; }
 .calc-btn.btn-eq { background: var(--yellow); color: #fff; font-weight: 700; }
@@ -380,8 +386,8 @@ form#search-form { width: 100%; }
   text-align: center;
   animation: fadeUp 0.4s 0.15s ease both;
 }
-#quote-text { font-size: 14px; font-style: italic; font-weight: 400; color: var(--yellow); display: inline; transition: color 0.3s; }
-#quote-author { font-family: var(--font-main); font-weight: 500; font-size: 13px; color: var(--muted); display: inline; opacity: 0.7; margin-left: 6px; }
+.quote-text { font-size: 14px; font-style: italic; font-weight: 400; color: var(--yellow); display: inline; transition: color 0.3s; }
+.quote-author { font-family: var(--font-main); font-weight: 500; font-size: 13px; color: var(--muted); display: inline; opacity: 0.7; margin-left: 6px; }
 
 /* ── SETTINGS MODAL ── */
 .modal-overlay {
@@ -470,8 +476,8 @@ form#search-form { width: 100%; }
 </header>
 
 <div class="quote-container">
-  <span id="quote-text">"Loading wisdom..."</span>
-  <span id="quote-author"></span>
+  <span id="quote-text" class="quote-text">"Loading wisdom..."</span>
+  <span id="quote-author" class="quote-author"></span>
 </div>
 
 <div class="divider"></div>
@@ -557,15 +563,15 @@ form#search-form { width: 100%; }
 <section class="weather-widget glass-panel" id="weather-widget">
   <!-- Current -->
   <article class="weather-panel wp-current">
-    <div class="weather-city skeleton" id="weather-city-front">Location...</div>
+    <div class="weather-city skeleton skeleton-city" id="weather-city-front"></div>
     <div class="weather-main">
       <div class="weather-icon-large" id="curr-icon">☀️</div>
       <div class="weather-info-block">
-        <div class="weather-temp skeleton" id="curr-temp">00°</div>
-        <div class="weather-desc skeleton" id="curr-desc">Loading...</div>
+        <div class="weather-temp skeleton skeleton-temp" id="curr-temp"></div>
+        <div class="weather-desc skeleton skeleton-desc" id="curr-desc"></div>
       </div>
     </div>
-    <div class="weather-extra skeleton" id="curr-extra">Humidity: --% • Wind: -- mph</div>
+    <div class="weather-extra skeleton skeleton-extra" id="curr-extra"></div>
   </article>
   
   <!-- Hourly -->
@@ -748,6 +754,7 @@ const SearchWidget = {
     if (!val) return;
 
     // Smart Command: Quick Math (e.g. "120 * 0.20")
+    // Strictly matches only numbers, operators, parens, and spaces to prevent execution of arbitrary code vulnerabilities
     const mathRegex = /^[\d\s\+\-\*\/\(\)\.]+$/;
     if (mathRegex.test(val) && /[0-9]/.test(val) && /[\+\-\*\/]/.test(val)) {
       try {
@@ -761,7 +768,7 @@ const SearchWidget = {
           return;
         }
       } catch (err) {
-        // Fall back to regular search if parsing fails
+        // Fall back to regular search if parsing fails (e.g., malformed equations)
       }
     }
 
@@ -848,7 +855,8 @@ const WeatherWidget = {
   async fetch(lat, lon, cityName, isFallback) {
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=${encodeURIComponent(tz)}&forecast_days=7`;
+      // Performance Optimization: Limiting forecast request to exactly 3 days instead of 7
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=${encodeURIComponent(tz)}&forecast_days=3`;
       
       const response = await fetch(url);
       if (!response.ok) throw new Error("HTTP " + response.status);
@@ -869,7 +877,7 @@ const WeatherWidget = {
     const [currDesc, currIcon] = this.MAP[data.current.weather_code] || ["Cloudy", "☁️"];
     
     if(this.dom.cityFront) {
-      this.dom.cityFront.classList.remove('skeleton');
+      this.dom.cityFront.classList.remove('skeleton', 'skeleton-city');
       if (data.isFallback) {
         this.dom.cityFront.innerHTML = `<div class="location-fallback" title="Location access denied, showing default city."><svg><use href="#icon-location-off"/></svg> ${data.cityName || Config.data.city}</div>`;
       } else {
@@ -878,19 +886,19 @@ const WeatherWidget = {
     }
     
     if(this.dom.currTemp) {
-      this.dom.currTemp.classList.remove('skeleton');
+      this.dom.currTemp.classList.remove('skeleton', 'skeleton-temp');
       this.dom.currTemp.textContent = Math.round(data.current.temperature_2m) + "°";
     }
     
     if(this.dom.currDesc) {
-      this.dom.currDesc.classList.remove('skeleton');
+      this.dom.currDesc.classList.remove('skeleton', 'skeleton-desc');
       this.dom.currDesc.textContent = currDesc;
     }
     
     if(this.dom.currIcon) this.dom.currIcon.textContent = currIcon;
     
     if(this.dom.currExtra) {
-      this.dom.currExtra.classList.remove('skeleton');
+      this.dom.currExtra.classList.remove('skeleton', 'skeleton-extra');
       if(data.current.relative_humidity_2m !== undefined) {
         this.dom.currExtra.textContent = `Humidity: ${data.current.relative_humidity_2m}% • Wind: ${Math.round(data.current.wind_speed_10m)} mph`;
       } else {
@@ -914,7 +922,9 @@ const WeatherWidget = {
     // Daily
     if(this.dom.dailyContainer && data.daily) {
       let dailyHTML = '';
-      for(let i=1; i<=3; i++) {
+      // Limit to max 2 available daily records safely if forecast days are limited to 3 (Index 1 & 2 is tomorrow & day after)
+      const loops = Math.min(2, data.daily.time.length - 1); 
+      for(let i=1; i<=loops; i++) {
         const dateObj = new Date(data.daily.time[i] + "T00:00:00");
         const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
         const [desc, icon] = this.MAP[data.daily.weather_code[i]] || ["", "☁️"];
@@ -932,8 +942,8 @@ const WeatherWidget = {
       current: { temperature_2m: 72, relative_humidity_2m: 45, wind_speed_10m: 5, weather_code: 0 },
       hourly: { temperature_2m: Array(24).fill(72).map((t,i) => t+Math.sin(i)*5), weather_code: Array(24).fill(0) },
       daily: {
-        time: Array(7).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d.toISOString().split('T')[0]; }),
-        temperature_2m_max: Array(7).fill(78), temperature_2m_min: Array(7).fill(62), weather_code: Array(7).fill(0)
+        time: Array(3).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d.toISOString().split('T')[0]; }),
+        temperature_2m_max: Array(3).fill(78), temperature_2m_min: Array(3).fill(62), weather_code: Array(3).fill(0)
       }
     });
   }
@@ -1081,83 +1091,83 @@ const CalculatorWidget = {
 
 /* ── SCRATCHPAD ── */
 const ScratchpadWidget = {
-  input: null,
-  indicator: null,
+  dom: {},
   timeout: null,
   
   init() {
-    this.input = document.getElementById('scratchpad-input');
-    this.indicator = document.getElementById('save-indicator');
+    // Centralized DOM caching for better performance
+    this.dom = {
+      input: document.getElementById('scratchpad-input'),
+      indicator: document.getElementById('save-indicator'),
+      clearBtn: document.getElementById('clear-btn'),
+      copyBtn: document.getElementById('copy-btn'),
+      pasteBtn: document.getElementById('paste-btn')
+    };
 
-    if(!this.input) return;
+    if(!this.dom.input) return;
 
-    this.input.value = StorageUtils.get('salut_scratchpad') || '';
+    this.dom.input.value = StorageUtils.get('salut_scratchpad') || '';
 
-    this.input.addEventListener('input', (e) => {
+    this.dom.input.addEventListener('input', (e) => {
       // Auto-capitalize first letter seamlessly
-      const val = this.input.value;
+      const val = this.dom.input.value;
       if (val.length === 1 && val !== val.toUpperCase() && e.inputType !== 'deleteContentBackward') {
-        this.input.value = val.toUpperCase();
+        this.dom.input.value = val.toUpperCase();
       }
 
       clearTimeout(this.timeout);
-      if(this.indicator) this.indicator.classList.remove('visible');
+      if(this.dom.indicator) this.dom.indicator.classList.remove('visible');
       
       this.timeout = setTimeout(() => {
-        StorageUtils.set('salut_scratchpad', this.input.value);
-        if (window.saveScratchpadToCloud) window.saveScratchpadToCloud(this.input.value);
+        StorageUtils.set('salut_scratchpad', this.dom.input.value);
+        if (window.saveScratchpadToCloud) window.saveScratchpadToCloud(this.dom.input.value);
         
-        if(this.indicator) {
-          this.indicator.classList.add('visible');
-          setTimeout(() => { if(this.indicator) this.indicator.classList.remove('visible'); }, CONSTANTS.INDICATOR_DELAY_MS);
+        if(this.dom.indicator) {
+          this.dom.indicator.classList.add('visible');
+          setTimeout(() => { if(this.dom.indicator) this.dom.indicator.classList.remove('visible'); }, CONSTANTS.INDICATOR_DELAY_MS);
         }
       }, CONSTANTS.SCRATCHPAD_DEBOUNCE_MS);
     });
 
-    const clearBtn = document.getElementById('clear-btn');
-    if(clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        if(!this.input) return;
-        this.input.value = ''; StorageUtils.set('salut_scratchpad', ''); 
+    if(this.dom.clearBtn) {
+      this.dom.clearBtn.addEventListener('click', () => {
+        this.dom.input.value = ''; 
+        StorageUtils.set('salut_scratchpad', ''); 
         if (window.saveScratchpadToCloud) window.saveScratchpadToCloud('');
-        this.input.focus();
+        this.dom.input.focus();
       });
     }
 
-    const copyBtn = document.getElementById('copy-btn');
-    if(copyBtn) {
-      copyBtn.addEventListener('click', async () => {
-        if(!this.input) return;
+    if(this.dom.copyBtn) {
+      this.dom.copyBtn.addEventListener('click', async () => {
         try {
           if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(this.input.value);
+            await navigator.clipboard.writeText(this.dom.input.value);
           } else {
-            this.input.select(); 
+            this.dom.input.select(); 
             document.execCommand('copy');
           }
-          const orig = copyBtn.innerHTML;
-          copyBtn.innerHTML = `<svg><use href="#icon-copy"></use></svg>`;
-          setTimeout(() => { if(copyBtn) copyBtn.innerHTML = orig; }, CONSTANTS.COPY_FEEDBACK_MS);
+          const orig = this.dom.copyBtn.innerHTML;
+          this.dom.copyBtn.innerHTML = `<svg><use href="#icon-copy"></use></svg>`;
+          setTimeout(() => { if(this.dom.copyBtn) this.dom.copyBtn.innerHTML = orig; }, CONSTANTS.COPY_FEEDBACK_MS);
         } catch(err) {
           console.warn("Clipboard restricted", err);
         }
       });
     }
 
-    const pasteBtn = document.getElementById('paste-btn');
-    if(pasteBtn) {
-      pasteBtn.addEventListener('click', async () => {
-        if(!this.input) return;
+    if(this.dom.pasteBtn) {
+      this.dom.pasteBtn.addEventListener('click', async () => {
         try {
           if (!navigator.clipboard) throw new Error("Clipboard API not supported");
-          this.input.value += (this.input.value ? '\n' : '') + await navigator.clipboard.readText();
-          this.input.dispatchEvent(new Event('input')); 
+          this.dom.input.value += (this.dom.input.value ? '\n' : '') + await navigator.clipboard.readText();
+          this.dom.input.dispatchEvent(new Event('input')); 
         } catch (err) {
           const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-          const orig = this.input.placeholder;
-          this.input.placeholder = `[Click here & press ${isMac ? 'Cmd+V' : 'Ctrl+V'}]`;
-          this.input.focus();
-          setTimeout(() => { if(this.input) this.input.placeholder = orig; }, 3000);
+          const orig = this.dom.input.placeholder;
+          this.dom.input.placeholder = `[Click here & press ${isMac ? 'Cmd+V' : 'Ctrl+V'}]`;
+          this.dom.input.focus();
+          setTimeout(() => { if(this.dom.input) this.dom.input.placeholder = orig; }, 3000);
         }
       });
     }
@@ -1238,8 +1248,8 @@ function initializeApp() {
   window.addEventListener('storage', (e) => {
     if (e.key === 'salut_config') {
       window.location.reload();
-    } else if (e.key === 'salut_scratchpad' && ScratchpadWidget.input && e.newValue !== ScratchpadWidget.input.value) {
-      ScratchpadWidget.input.value = e.newValue || '';
+    } else if (e.key === 'salut_scratchpad' && ScratchpadWidget.dom.input && e.newValue !== ScratchpadWidget.dom.input.value) {
+      ScratchpadWidget.dom.input.value = e.newValue || '';
     }
   });
 
@@ -1336,7 +1346,12 @@ window.initCloudStorage = async function() {
     }
 };
 
-window.initCloudStorage();
+// Lazy load the cloud connection to keep the initial page paint snappy
+if (window.requestIdleCallback) {
+    requestIdleCallback(() => window.initCloudStorage());
+} else {
+    setTimeout(() => window.initCloudStorage(), 1000);
+}
 </script>
 </body>
 </html>
