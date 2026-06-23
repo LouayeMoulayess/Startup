@@ -792,15 +792,8 @@ const WeatherWidget = {
     if (cacheAge < CONSTANTS.WEATHER_CACHE_MS && cachedData && cachedData.current && cachedData.current.relative_humidity_2m !== undefined) {
       this.render(cachedData);
     } else {
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          pos => this.fetch(pos.coords.latitude, pos.coords.longitude, "Local", false),
-          err => this.fetch(Config.data.lat, Config.data.lon, Config.data.city, true),
-          { timeout: CONSTANTS.GEO_TIMEOUT_MS, maximumAge: CONSTANTS.WEATHER_CACHE_MS }
-        );
-      } else {
-        this.fetch(Config.data.lat, Config.data.lon, Config.data.city, true);
-      }
+      // Use the explicitly configured city from Settings, completely bypassing the browser's intrusive GPS prompt.
+      this.fetch(Config.data.lat, Config.data.lon, Config.data.city, false);
     }
   },
   async fetch(lat, lon, cityName, isFallback) {
