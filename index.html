@@ -34,21 +34,19 @@
   }
 </script>
 
-<style>
+<style type="text/tailwindcss">
 :root { --yellow: #FF9500; }
-body { background: theme('colors.bgLight'); color: theme('colors.textLight'); -webkit-font-smoothing: antialiased; }
-@media (prefers-color-scheme: dark) { body { background: theme('colors.bgDark'); color: theme('colors.textDark'); } }
+body { @apply bg-bgLight text-textLight antialiased; }
+@media (prefers-color-scheme: dark) { body { @apply bg-bgDark text-textDark; } }
 
 .glass-panel {
-  background: theme('colors.cardLight');
+  @apply bg-cardLight border border-borderLight;
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border: 1px solid theme('colors.borderLight');
   box-shadow: 0 8px 32px rgba(0,0,0,0.04);
 }
 @media (prefers-color-scheme: dark) {
   .glass-panel {
-    background: theme('colors.cardDark');
-    border: 1px solid theme('colors.borderDark');
+    @apply bg-cardDark border-borderDark;
     box-shadow: 0 8px 32px rgba(0,0,0,0.2);
   }
 }
@@ -63,15 +61,15 @@ body { background: theme('colors.bgLight'); color: theme('colors.textLight'); -w
 .digit-incoming { animation: digitIn  0.15s ease forwards; }
 
 .skeleton { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; color: transparent !important; user-select: none; pointer-events: none; }
-.skeleton-block { background: theme('colors.borderLight'); border-radius: 12px; }
-@media (prefers-color-scheme: dark) { .skeleton-block { background: theme('colors.borderDark'); } }
+.skeleton-block { @apply bg-borderLight rounded-xl; }
+@media (prefers-color-scheme: dark) { .skeleton-block { @apply bg-borderDark; } }
 
 /* Hover-only scrollbars */
 .hover-scrollbar { scrollbar-width: none; }
 .hover-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; display: none; }
 .hover-scrollbar:hover::-webkit-scrollbar { display: block; }
-.hover-scrollbar::-webkit-scrollbar-thumb { background: theme('colors.borderLight'); border-radius: 4px; }
-@media (prefers-color-scheme: dark) { .hover-scrollbar::-webkit-scrollbar-thumb { background: theme('colors.borderDark'); } }
+.hover-scrollbar::-webkit-scrollbar-thumb { @apply bg-borderLight rounded; }
+@media (prefers-color-scheme: dark) { .hover-scrollbar::-webkit-scrollbar-thumb { @apply bg-borderDark; } }
 
 /* Calculator Buttons */
 .calc-display::-webkit-scrollbar { display: none; }
@@ -470,24 +468,23 @@ const MarketWidget = {
   init() {
     this.initChart();
     this.initVOO();
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-      const c = document.getElementById('tv-widget-container');
-      if(c) { c.innerHTML = ''; c.classList.add('skeleton-block'); c.style.opacity = '0'; setTimeout(() => this.initChart(), 50); }
-    });
+    // Removed the problematic window.matchMedia event listener that was causing endless reloading and flashing.
   },
   initChart() {
     const container = document.getElementById('tv-widget-container');
-    if(!container) return;
+    // Added a strict global window flag to guarantee the script NEVER runs twice
+    if(!container || window.__tvLoaded) return;
+    window.__tvLoaded = true;
     
     container.innerHTML = ''; 
     const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     
-    // Completely safe inline DOM injection for TradingView to prevent detached iframe bugs in Sandboxes
-    container.innerHTML = `
-      <div class="tradingview-widget-container w-full h-full flex-1">
-        <div class="tradingview-widget-container__widget w-full h-full flex-1"></div>
-      </div>
-    `;
+    // Build DOM elements synchronously to avoid sandbox iframe race conditions
+    const wrap = document.createElement('div');
+    wrap.className = 'tradingview-widget-container w-full h-full flex-1';
+    const inner = document.createElement('div');
+    inner.className = 'tradingview-widget-container__widget w-full h-full flex-1';
+    wrap.appendChild(inner);
     
     const s = document.createElement('script');
     s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
@@ -503,21 +500,25 @@ const MarketWidget = {
         "hideDateRanges": false, "dateRanges": ["1d|1","5d|5","1m|30","6m|180"]
     });
     
-    container.querySelector('.tradingview-widget-container').appendChild(s);
+    inner.appendChild(s);
+    container.appendChild(wrap);
     
     setTimeout(() => {
       if (container) {
         container.classList.remove('skeleton-block'); 
         container.style.opacity = '1';
       }
-    }, 850);
+    }, 1000);
   },
   async initVOO() {
     const container = document.getElementById('voo-growth-container');
     const textEl = document.getElementById('voo-growth-text');
     const tooltipEl = document.getElementById('voo-price-tooltip');
     const dot = document.getElementById('voo-dot');
-    if(!container || !textEl || Config.data.ticker !== "BATS:VOO") return;
+    
+    // Strict global guard against double execution
+    if(!container || !textEl || Config.data.ticker !== "BATS:VOO" || window.__vooLoaded) return;
+    window.__vooLoaded = true;
 
     container.classList.remove('hidden');
     if(dot) dot.classList.remove('hidden');
@@ -956,6 +957,9 @@ else { initializeApp(); }
 
 // Bulletproof loader for sandboxes/iframes
 function loadExternalWidgets() {
+  // Final safeguard to ensure widgets only initialize once
+  if (window.__widgetsLoaded) return;
+  window.__widgetsLoaded = true;
   setTimeout(() => {
     MarketWidget.init();
     WeatherWidget.init();
