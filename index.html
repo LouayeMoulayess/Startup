@@ -24,8 +24,8 @@
         fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
         colors: {
           bgLight: '#F5F5F7', bgDark: '#0A0A0A',
-          cardLight: 'rgba(255, 255, 255, 0.75)', cardDark: 'rgba(28, 28, 30, 0.65)',
-          borderLight: 'rgba(255, 255, 255, 0.5)', borderDark: 'rgba(255, 255, 255, 0.08)',
+          cardLight: '#FFFFFF', cardDark: '#1C1C1E',
+          borderLight: 'rgba(0, 0, 0, 0.05)', borderDark: 'rgba(255, 255, 255, 0.05)',
           textLight: '#1C1C1E', textDark: '#F5F5F7',
           mutedLight: '#8E8E93', mutedDark: '#A1A1A6'
         }
@@ -40,7 +40,7 @@
 @layer components {
   .glass-panel {
     @apply bg-cardLight border border-borderLight;
-    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    /* backdrop-filter removed for performance optimizations */
     box-shadow: 0 8px 32px rgba(0,0,0,0.04), inset 0 1px 1px rgba(255,255,255,0.4);
   }
   @media (prefers-color-scheme: dark) {
@@ -92,15 +92,8 @@
 @keyframes digitOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-14px); } }
 @keyframes digitIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pulse { 50% { opacity: 0.5; } }
-@keyframes drift { 
-  0% { transform: translate(0, 0) scale(1); } 
-  33% { transform: translate(3vw, -4vh) scale(1.05); } 
-  66% { transform: translate(-2vw, 3vh) scale(0.95); } 
-  100% { transform: translate(0, 0) scale(1); } 
-}
 
 .animate-fade-up { animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.animate-drift { animation: drift 20s ease-in-out infinite alternate; }
 .digit-changing { animation: digitOut 0.15s ease forwards; }
 .digit-incoming { animation: digitIn  0.15s ease forwards; }
 
@@ -124,13 +117,10 @@
 
 <body class="min-h-screen flex flex-col items-center px-6 pb-6 overflow-x-hidden bg-bgLight text-textLight antialiased dark:bg-bgDark dark:text-textDark relative">
 
-<!-- Subtle Film Grain Overlay (The secret to high-end design) -->
-<div class="fixed inset-0 pointer-events-none z-50 opacity-[0.035] dark:opacity-[0.05] mix-blend-overlay" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');"></div>
-
-<!-- Ambient Mesh Gradient Orbs (Follows Accent Color) -->
+<!-- Ambient Mesh Gradient Orbs (Animations removed for Performance) -->
 <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-  <div class="absolute -top-[15%] -left-[10%] w-[45vw] h-[45vw] rounded-full bg-[var(--yellow)] opacity-[0.08] dark:opacity-[0.05] blur-[100px] lg:blur-[130px] animate-drift"></div>
-  <div class="absolute top-[40%] -right-[5%] w-[55vw] h-[55vw] rounded-full bg-[var(--yellow)] opacity-[0.06] dark:opacity-[0.04] blur-[120px] lg:blur-[160px] animate-drift" style="animation-delay: -7s; animation-direction: reverse;"></div>
+  <div class="absolute -top-[15%] -left-[10%] w-[45vw] h-[45vw] rounded-full bg-[var(--yellow)] opacity-[0.08] dark:opacity-[0.05] blur-[100px] lg:blur-[130px]"></div>
+  <div class="absolute top-[40%] -right-[5%] w-[55vw] h-[55vw] rounded-full bg-[var(--yellow)] opacity-[0.06] dark:opacity-[0.04] blur-[120px] lg:blur-[160px]"></div>
 </div>
 
 <svg class="hidden">
@@ -697,7 +687,7 @@ const WeatherWidget = {
 
     if(this.dom.dailyContainer && data.daily) {
       let dailyHTML = '';
-      const loops = Math.min(3, data.daily.time.length - 1); 
+      const loops = Math.min(4, data.daily.time.length - 1); 
       for(let i=1; i<=loops; i++) {
         const dateObj = new Date(data.daily.time[i] + "T00:00:00");
         const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
@@ -716,8 +706,8 @@ const WeatherWidget = {
       current: { temperature_2m: 72, relative_humidity_2m: 45, wind_speed_10m: 5, weather_code: 0 },
       hourly: { temperature_2m: Array(24).fill(72).map((t,i) => t+Math.sin(i)*5), weather_code: Array(24).fill(0) },
       daily: {
-        time: Array(4).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d.toISOString().split('T')[0]; }),
-        temperature_2m_max: Array(4).fill(78), temperature_2m_min: Array(4).fill(62), weather_code: Array(4).fill(0)
+        time: Array(5).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d.toISOString().split('T')[0]; }),
+        temperature_2m_max: Array(5).fill(78), temperature_2m_min: Array(5).fill(62), weather_code: Array(5).fill(0)
       }
     });
   }
