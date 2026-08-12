@@ -10,6 +10,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.tailwindcss.com">
 <link rel="dns-prefetch" href="https://api.open-meteo.com">
 <link rel="dns-prefetch" href="https://s3.tradingview.com">
 
@@ -119,8 +120,8 @@
 
 <!-- Ambient Mesh Gradient Orbs (Animations removed for Performance) -->
 <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-  <div class="absolute -top-[15%] -left-[10%] w-[45vw] h-[45vw] rounded-full bg-[var(--yellow)] opacity-[0.08] dark:opacity-[0.05] blur-[100px] lg:blur-[130px]"></div>
-  <div class="absolute top-[40%] -right-[5%] w-[55vw] h-[55vw] rounded-full bg-[var(--yellow)] opacity-[0.06] dark:opacity-[0.04] blur-[120px] lg:blur-[160px]"></div>
+  <div class="absolute -top-[15%] -left-[10%] w-[45vw] h-[45vw] rounded-full bg-[var(--yellow)] opacity-[0.08] dark:opacity-[0.05] blur-[100px] lg:blur-[130px] transform-gpu will-change-transform"></div>
+  <div class="absolute top-[40%] -right-[5%] w-[55vw] h-[55vw] rounded-full bg-[var(--yellow)] opacity-[0.06] dark:opacity-[0.04] blur-[120px] lg:blur-[160px] transform-gpu will-change-transform"></div>
 </div>
 
 <svg class="hidden">
@@ -235,7 +236,7 @@
   </div>
 </div>
 
-<section class="glass-panel w-full max-w-6xl mx-auto mt-6 rounded-[24px] flex flex-col lg:flex-row p-6 lg:p-8 lg:gap-8 animate-fade-up z-10 relative" style="animation-delay: 0.35s;" id="weather-widget">
+<section class="glass-panel w-full max-w-6xl mx-auto mt-6 rounded-[24px] flex flex-col lg:flex-row p-6 lg:p-8 lg:gap-8 animate-fade-up z-10 relative" style="animation-delay: 0.35s; content-visibility: auto; contain-intrinsic-size: auto 150px;" id="weather-widget">
   <article class="flex flex-col lg:w-[260px] shrink-0">
     <div class="font-extrabold text-base text-textLight dark:text-textDark skeleton skeleton-block w-[120px] min-h-[19px] inline-block" id="weather-city-front"></div>
     <div class="flex items-center gap-4 mt-3 mb-2">
@@ -1003,10 +1004,17 @@ else { initializeApp(); }
 function loadExternalWidgets() {
   if (window.__widgetsLoaded) return;
   window.__widgetsLoaded = true;
-  setTimeout(() => {
+  
+  const initWidgets = () => {
     MarketWidget.init();
     WeatherWidget.init();
-  }, 100);
+  };
+
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(initWidgets, { timeout: 2500 });
+  } else {
+    setTimeout(initWidgets, 150);
+  }
 }
 
 if (document.readyState === 'complete') {
