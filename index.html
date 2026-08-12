@@ -1,1205 +1,768 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F5F7">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A0A0A">
-<meta name="description" content="A fast, beautifully designed personal dashboard and start page.">
-<title>Salut!</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F5F7">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A0A0A">
+    <meta name="description" content="A fast, beautifully designed personal dashboard and start page.">
+    <title>Salut!</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://api.open-meteo.com">
+    <link rel="preconnect" href="https://query1.finance.yahoo.com">
+    <link rel="dns-prefetch" href="https://s3.tradingview.com">
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23fba31b' stroke='%23e37812' stroke-width='2'/%3E%3Cellipse cx='20' cy='18' rx='8' ry='4' fill='%23fff' opacity='0.5' transform='rotate(-30 20 18)'/%3E%3Cg fill='%23db2416'%3E%3Cpolygon points='32,15 34,21 40,21 35,25 37,31 32,27 27,31 29,25 24,21 30,21'/%3E%3Cpolygon points='20,30 22,36 28,36 23,40 25,46 20,42 15,46 17,40 12,36 18,36'/%3E%3Cpolygon points='44,30 46,36 52,36 47,40 49,46 44,42 39,46 41,40 36,36 42,36'/%3E%3Cpolygon points='32,44 34,50 40,50 35,54 37,60 32,56 27,60 29,54 24,50 30,50'/%3E%3C/g%3E%3C/svg%3E">
-
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-
-<style>
-:root {
-  --bg: #F5F5F7;
-  --yellow: #FF9500;
-  --text: #1C1C1E;
-  --muted: #8E8E93;
-  --card: rgba(255, 255, 255, 0.85);
-  --border: rgba(0, 0, 0, 0.06);
-  --font-main: 'Plus Jakarta Sans', sans-serif;
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 12px;
-  --shadow-sm: 0 8px 32px rgba(0,0,0,0.04);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0A0A0A;
-    --text: #F5F5F7;
-    --muted: #A1A1A6;
-    --card: rgba(28, 28, 30, 0.7);
-    --border: rgba(255, 255, 255, 0.1);
-    --shadow-sm: 0 8px 32px rgba(0,0,0,0.2);
-  }
-}
-
-*, *::before, *::after { 
-  box-sizing: border-box; 
-  margin: 0; 
-  padding: 0; 
-}
-
-@keyframes fadeUp { 
-  from { opacity: 0; transform: translateY(12px); } 
-  to { opacity: 1; transform: translateY(0); } 
-}
-@keyframes digitOut { 
-  from { opacity: 1; transform: translateY(0); } 
-  to { opacity: 0; transform: translateY(-14px); } 
-}
-@keyframes digitIn { 
-  from { opacity: 0; transform: translateY(14px); } 
-  to { opacity: 1; transform: translateY(0); } 
-}
-@keyframes pulse { 
-  50% { opacity: 0.5; } 
-}
-
-.digit-changing { animation: digitOut 0.15s ease forwards; }
-.digit-incoming { animation: digitIn  0.15s ease forwards; }
-
-body {
-  font-family: var(--font-main);
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 24px 20px; 
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-
-.flex-center { display: flex; align-items: center; }
-.flex-center-gap { display: flex; align-items: center; gap: 8px; }
-.color-picker { width: 48px; padding: 2px; height: 36px; cursor: pointer; }
-.mb-8 { margin-bottom: 8px; }
-
-.glass-panel {
-  background: var(--card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-}
-
-.skeleton {
-  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  border-radius: 4px;
-  color: transparent !important;
-  background: var(--border);
-  user-select: none;
-  pointer-events: none;
-}
-.skeleton-block { width: 100%; height: 100%; min-height: 100px; border-radius: var(--radius-sm); }
-.skeleton-city { width: 120px; min-height: 19px; display: inline-block; }
-.skeleton-temp { width: 60px; min-height: 36px; }
-.skeleton-desc { width: 90px; min-height: 17px; margin-top: 4px; }
-.skeleton-extra { width: 160px; min-height: 14px; margin-top: 4px; display: inline-block; }
-
-.settings-btn {
-  position: absolute;
-  top: 24px;
-  right: 28px;
-  background: transparent;
-  border: none;
-  color: var(--muted);
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.settings-btn:hover { background: var(--border); color: var(--text); }
-.settings-btn svg { width: 20px; height: 20px; }
-
-header { 
-  width: 100%; 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  padding-top: 10px; 
-}
-
-#clock {
-  font-family: var(--font-main);
-  font-weight: 800;
-  font-size: clamp(64px, 11vw, 88px); 
-  letter-spacing: -4px;
-  line-height: 0.85; 
-  display: flex;
-  align-items: flex-end;
-}
-
-.digit-wrap { display: inline-block; overflow: hidden; }
-.colon { margin: 0 1px 0.04em; color: var(--yellow); opacity: 0.5; vertical-align: 0.15em; }
-#ampm { font-size: 0.25em; font-weight: 800; letter-spacing: 2px; color: var(--yellow); margin-left: 10px; opacity: 0.6; }
-
-.sub-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 12px;
-  animation: fadeUp 0.3s 0.1s ease both;
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-.sub-header-dot {
-  opacity: 0.3;
-  font-size: 10px;
-}
-
-#date { font-weight: 500; }
-
-#lebanon { font-weight: 500; }
-#lebanon span { color: #FF3B30; font-weight: 700; margin-left: 4px; }
-
-.divider {
-  width: 100%;
-  max-width: 1152px;
-  height: 1px;
-  background: var(--border);
-  margin: 16px 0;
-}
-
-.main-layout {
-  display: flex;
-  gap: 24px;
-  width: 100%;
-  max-width: 1152px;
-  margin: 0 auto;
-  align-items: stretch; 
-}
-
-.left-panel { display: flex; flex-direction: column; gap: 24px; flex: 0 0 280px; }
-.container { flex: 1; display: flex; flex-direction: column; gap: 24px; min-width: 0; }
-.side-panel { display: flex; flex-direction: column; gap: 24px; flex: 0 0 280px; }
-.omnibar-wrapper { display: flex; flex-direction: column; gap: 16px; width: 100%; }
-form#search-form { width: 100%; }
-
-#omnibar {
-  width: 100%;
-  padding: 22px 28px;
-  border-radius: var(--radius-lg);
-  font-family: var(--font-main);
-  font-weight: 800;
-  font-size: 20px;
-  color: var(--text);
-  outline: none;
-  transition: all 0.3s ease;
-  animation: fadeUp 0.4s 0.15s ease both;
-}
-
-#omnibar:focus { 
-  border-color: var(--yellow); 
-  box-shadow: 0 0 0 4px rgba(255, 149, 0, 0.15);
-  background: var(--bg);
-}
-#omnibar::placeholder { opacity: 0.3; font-style: italic; font-size: 14px; font-weight: 500; }
-
-.widget-card {
-  border-radius: var(--radius-md);
-  animation: fadeUp 0.4s 0.2s ease both;
-  overflow: hidden;
-}
-
-.weather-widget {
-  width: 100%;
-  max-width: 1152px;
-  margin: 24px auto 0;
-  border-radius: var(--radius-lg);
-  padding: 24px 32px;
-  display: flex;
-  gap: 32px;
-  animation: fadeUp 0.4s 0.3s ease both;
-}
-.weather-panel { display: flex; flex-direction: column; }
-.wp-current { flex: 0 0 260px; }
-.wp-hourly { flex: 1; border-left: 1px solid var(--border); border-right: 1px solid var(--border); padding: 0 32px; }
-.wp-daily { flex: 0 0 220px; }
-
-.weather-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.weather-city { font-family: var(--font-main); font-weight: 800; font-size: 16px; color: var(--text); }
-.location-fallback { color: var(--yellow); display: inline-flex; align-items: center; gap: 4px; }
-.location-fallback svg { width: 14px; height: 14px; }
-
-.weather-main { display: flex; align-items: center; gap: 16px; margin-top: 12px; margin-bottom: 8px; }
-.weather-icon-large { font-size: 48px; line-height: 1; cursor: pointer; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-.weather-icon-large:hover { transform: scale(1.15) rotate(5deg); }
-.weather-icon-large:active { transform: scale(0.95); }
-.weather-temp { font-size: 36px; font-weight: 800; line-height: 1; }
-.weather-desc { font-size: 14px; font-weight: 600; color: var(--muted); text-transform: capitalize; margin-top: 4px; }
-.weather-extra { font-size: 12px; font-weight: 500; color: var(--muted); margin-top: 4px; }
-
-.forecast-strip { display: flex; justify-content: space-between; align-items: center; height: 100%; }
-.forecast-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
-.f-time { font-size: 11px; font-weight: 700; color: var(--muted); }
-.f-icon { font-size: 28px; }
-.f-temp { font-size: 14px; font-weight: 800; }
-
-.daily-forecast-container { display: flex; flex-direction: column; justify-content: space-around; height: 100%; }
-.daily-item { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
-.d-day { width: 50px; color: var(--text); }
-.d-icon { font-size: 16px; text-align: center; flex: 1; }
-.d-temp { width: 70px; text-align: right; color: var(--muted); font-size: 12px; }
-.d-temp-max { color: var(--text); font-size: 13px; margin-left: 6px; font-weight: 700; }
-
-.voo-widget { height: 400px; padding: 16px; display: flex; flex-direction: column; }
-#tv-widget-container { flex: 1; width: 100%; }
-.tradingview-widget-container { flex: 1; width: 100%; height: 100%; }
-
-#calc-widget { height: 400px; padding: 16px; flex: none; display: flex; flex-direction: column; gap: 8px; }
-.calc-display {
-  font-family: var(--font-main);
-  font-weight: 800;
-  font-size: 64px;
-  line-height: 1;
-  text-align: right;
-  color: var(--text);
-  padding: 0 4px 8px;
-  background: transparent;
-  border: none;
-  overflow-x: auto;
-  white-space: nowrap;
-}
-.calc-display::-webkit-scrollbar { display: none; }
-.calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 10px; flex: 1; }
-.calc-btn {
-  background: rgba(0,0,0,0.03);
-  border: none;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-main);
-  font-weight: 600;
-  font-size: 18px;
-  color: var(--text);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s ease;
-}
-@media (prefers-color-scheme: dark) { .calc-btn { background: rgba(255,255,255,0.04); } }
-
-.calc-btn svg { width: 18px; height: 18px; opacity: 0.7; }
-.calc-btn:hover { background: var(--border); transform: translateY(-1px); }
-.calc-btn:active { transform: scale(0.96); background: rgba(0,0,0,0.08); }
-@media (prefers-color-scheme: dark) { .calc-btn:active { background: rgba(255,255,255,0.1); } }
-.calc-btn.span-2 { grid-column: span 2; }
-.calc-btn.btn-op { color: var(--yellow); font-size: 20px; font-weight: 700; }
-.calc-btn.btn-eq { background: var(--yellow); color: #fff; font-weight: 700; }
-.calc-btn.btn-eq:hover { opacity: 0.9; }
-.calc-btn.btn-clear { color: var(--muted); }
-
-.scratchpad-container {
-  border-radius: var(--radius-md);
-  animation: fadeUp 0.4s 0.25s ease both;
-  display: flex;
-  flex-direction: column;
-  height: 306px;
-  flex: none; 
-}
-.scratchpad-header {
-  display: flex;
-  justify-content: flex-end; 
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-}
-.scratchpad-actions { display: flex; align-items: center; gap: 12px; }
-.save-indicator { 
-  font-size: 10px; 
-  font-family: var(--font-main);
-  font-weight: 700; 
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--muted);
-  opacity: 0; 
-  transition: opacity 0.3s; 
-  pointer-events: none; 
-}
-.save-indicator.visible { opacity: 0.7; }
-
-.action-btn { 
-  cursor: pointer; 
-  opacity: 0.7; 
-  transition: opacity 0.2s; 
-  display: flex; 
-  align-items: center; 
-  background: none; 
-  border: none; 
-  padding: 0; 
-  color: var(--muted); 
-} 
-.action-btn:hover { opacity: 1; color: var(--text); }
-.action-btn svg { width: 15px; height: 15px; }
-
-#scratchpad-input {
-  flex: 1;
-  border: none;
-  resize: none;
-  padding: 20px;
-  background: transparent;
-  color: var(--text);
-  font-family: var(--font-main);
-  font-size: 15px;
-  line-height: 1.6;
-  outline: none;
-}
-#scratchpad-input::placeholder { opacity: 0.3; font-weight: 400; }
-#scratchpad-input::-webkit-scrollbar { display: none; }
-
-.quote-container {
-  width: 100%;
-  max-width: 1152px;
-  margin: 12px auto 8px;
-  text-align: center;
-  animation: fadeUp 0.4s 0.15s ease both;
-}
-.quote-text { font-size: 14px; font-style: italic; font-weight: 400; color: var(--yellow); display: inline; transition: color 0.3s; }
-.quote-author { font-family: var(--font-main); font-weight: 500; font-size: 13px; color: var(--muted); display: inline; opacity: 0.7; margin-left: 6px; }
-
-.modal-overlay {
-  position: fixed; top:0; left:0; width:100%; height:100%;
-  background: rgba(0,0,0,0.5);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1000;
-  opacity: 1; transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(4px);
-}
-.modal-overlay.hidden { opacity: 0; pointer-events: none; }
-.modal-content {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 24px;
-  width: 90%;
-  max-width: 480px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  transform: scale(1);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.modal-overlay.hidden .modal-content {
-  transform: scale(0.95);
-}
-.modal-content h2 { margin-bottom: 20px; font-weight: 800; font-size: 18px; color: var(--text); }
-.form-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
-.form-group label { font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-.form-group input, .form-group textarea {
-  background: var(--card);
-  border: 1px solid var(--border);
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  color: var(--text);
-  font-family: var(--font-main);
-  outline: none;
-  transition: border-color 0.2s;
-  width: 100%;
-}
-.form-group input:focus, .form-group textarea:focus { border-color: var(--yellow); }
-.form-group textarea { resize: vertical; font-size: 13px; font-family: monospace; white-space: pre; overflow-x: auto; line-height: 1.4; }
-.modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
-.btn {
-  padding: 10px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);
-  background: var(--card); color: var(--text); font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: var(--font-main);
-}
-.btn:hover { background: var(--bg); border-color: var(--muted); }
-.btn.primary { background: var(--yellow); border-color: var(--yellow); color: #fff; }
-.btn.primary:hover { opacity: 0.9; }
-
-@media (max-width: 1150px) {
-  .main-layout { flex-direction: column; align-items: center; }
-  .left-panel, .container, .side-panel, .divider { max-width: 560px; width: 100%; flex: none; }
-  .scratchpad-container { height: 320px; flex: none; }
-  .weather-widget { flex-direction: column; padding: 24px; }
-  .wp-hourly { border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 24px 0; margin: 0; min-height: 120px; overflow-x: auto; scrollbar-width: none; }
-  .wp-hourly::-webkit-scrollbar { display: none; }
-  .forecast-strip { gap: 24px; min-width: max-content; padding: 0 16px; }
-}
-</style>
-</head>
-<body>
-
-<svg style="display: none;">
-  <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></symbol>
-  <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
-  <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></symbol>
-  <symbol id="icon-paste" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></symbol>
-  <symbol id="icon-location-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M14.39 8.56A5 5 0 0 0 9.4 5.37"></path><path d="M19.4 15.63A10 10 0 0 0 12 2a10 10 0 0 0-4.66 1.15"></path><path d="M2.54 8.52a10 10 0 0 0 14.92 12.92"></path></symbol>
-</svg>
-
-<button id="settings-open-btn" class="settings-btn" title="Settings" aria-label="Open Settings">
-  <svg><use href="#icon-settings"></use></svg>
-</button>
-
-<header>
-  <div id="clock">
-    <span class="digit-wrap"><span id="h">00</span></span><span class="colon">:</span><span class="digit-wrap"><span id="m">00</span></span><span id="ampm"> AM</span>
-  </div>
-  <div class="sub-header">
-    <div id="date"></div>
-    <span class="sub-header-dot">●</span>
-    <div id="lebanon"></div>
-  </div>
-</header>
-
-<div class="quote-container">
-  <span id="quote-text" class="quote-text">"Loading wisdom..."</span>
-  <span id="quote-author" class="quote-author"></span>
-</div>
-
-<div class="divider"></div>
-
-<div class="main-layout">
-  
-  <div class="left-panel">
-    <div class="widget-card glass-panel voo-widget">
-      <div id="tv-widget-container" class="skeleton skeleton-block"></div>
-    </div>
-  </div>
-
-  <div class="container">
-    <div class="omnibar-wrapper">
-      <form id="search-form" onsubmit="SearchWidget.handle(event)">
-        <input type="text" id="omnibar" class="glass-panel" aria-label="Search or calculate" placeholder="Type to search or calculate..." autofocus autocomplete="off" spellcheck="false">
-      </form>
-    </div>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23fba31b' stroke='%23e37812' stroke-width='2'/%3E%3Cg fill='%23db2416'%3E%3Cpolygon points='32,15 34,21 40,21 35,25 37,31 32,27 27,31 29,25 24,21 30,21'/%3E%3C/g%3E%3C/svg%3E">
     
-    <div class="scratchpad-container glass-panel">
-      <div class="scratchpad-header">
-        <div class="scratchpad-actions">
-          <span class="save-indicator" id="save-indicator">Saved</span>
-          <button type="button" class="action-btn" id="clear-btn" aria-label="Clear scratchpad" title="Clear scratchpad">
-            <svg><use href="#icon-trash"></use></svg>
-          </button>
-          <button type="button" class="action-btn" id="copy-btn" aria-label="Copy to clipboard" title="Copy to clipboard">
-            <svg><use href="#icon-copy"></use></svg>
-          </button>
-          <button type="button" class="action-btn" id="paste-btn" aria-label="Paste from clipboard" title="Paste from clipboard">
-            <svg><use href="#icon-paste"></use></svg>
-          </button>
-        </div>
-      </div>
-      <textarea id="scratchpad-input" aria-label="Scratchpad text area" placeholder="Side quest log..."></textarea>
-    </div>
-  </div>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
 
-  <div class="side-panel">
-    <div class="widget-card glass-panel" id="calc-widget">
-      <div class="calc-display" aria-label="Calculator display" id="calc-display">0</div>
-      
-      <div class="calc-grid">
-        <button type="button" class="calc-btn btn-clear" aria-label="Clear" onclick="CalculatorWidget.clear()">C</button>
-        <button type="button" class="calc-btn" aria-label="Paste number" onclick="CalculatorWidget.paste()" title="Paste">
-          <svg><use href="#icon-paste"></use></svg>
-        </button>
-        <button type="button" class="calc-btn" aria-label="Copy number" onclick="CalculatorWidget.copy()" title="Copy">
-          <svg><use href="#icon-copy"></use></svg>
-        </button>
-        <button type="button" class="calc-btn btn-op" aria-label="Divide" onclick="CalculatorWidget.op('/')">÷</button>
-        <button type="button" class="calc-btn" aria-label="Seven" onclick="CalculatorWidget.num('7')">7</button>
-        <button type="button" class="calc-btn" aria-label="Eight" onclick="CalculatorWidget.num('8')">8</button>
-        <button type="button" class="calc-btn" aria-label="Nine" onclick="CalculatorWidget.num('9')">9</button>
-        <button type="button" class="calc-btn btn-op" aria-label="Multiply" onclick="CalculatorWidget.op('*')">×</button>
-        <button type="button" class="calc-btn" aria-label="Four" onclick="CalculatorWidget.num('4')">4</button>
-        <button type="button" class="calc-btn" aria-label="Five" onclick="CalculatorWidget.num('5')">5</button>
-        <button type="button" class="calc-btn" aria-label="Six" onclick="CalculatorWidget.num('6')">6</button>
-        <button type="button" class="calc-btn btn-op" aria-label="Subtract" onclick="CalculatorWidget.op('-')">-</button>
-        <button type="button" class="calc-btn" aria-label="One" onclick="CalculatorWidget.num('1')">1</button>
-        <button type="button" class="calc-btn" aria-label="Two" onclick="CalculatorWidget.num('2')">2</button>
-        <button type="button" class="calc-btn" aria-label="Three" onclick="CalculatorWidget.num('3')">3</button>
-        <button type="button" class="calc-btn btn-op" aria-label="Add" onclick="CalculatorWidget.op('+')">+</button>
-        <button type="button" class="calc-btn span-2" aria-label="Zero" onclick="CalculatorWidget.num('0')">0</button>
-        <button type="button" class="calc-btn" aria-label="Decimal" onclick="CalculatorWidget.num('.')">.</button>
-        <button type="button" class="calc-btn btn-eq" aria-label="Equals" onclick="CalculatorWidget.eq()">=</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<section class="weather-widget glass-panel" id="weather-widget">
-  <article class="weather-panel wp-current">
-    <div class="weather-city skeleton skeleton-city" id="weather-city-front"></div>
-    <div class="weather-main">
-      <div class="weather-icon-large" id="curr-icon">☀️</div>
-      <div class="weather-info-block">
-        <div class="weather-temp skeleton skeleton-temp" id="curr-temp"></div>
-        <div class="weather-desc skeleton skeleton-desc" id="curr-desc"></div>
-      </div>
-    </div>
-    <div class="weather-extra skeleton skeleton-extra" id="curr-extra"></div>
-  </article>
-  
-  <article class="weather-panel wp-hourly">
-    <div class="forecast-strip" id="hourly-forecast-container"></div>
-  </article>
-
-  <article class="weather-panel wp-daily">
-    <div class="daily-forecast-container" id="daily-forecast-container"></div>
-  </article>
-</section>
-
-<div id="settings-modal" class="modal-overlay hidden" aria-hidden="true">
-  <div class="modal-content">
-    <h2>Dashboard Settings</h2>
-    
-    <div class="form-group">
-      <label for="set-city">Default Weather City</label>
-      <input type="text" id="set-city" placeholder="e.g. Burbank, CA">
-    </div>
-    
-    <div class="form-group">
-      <label for="set-ticker">Stock Ticker</label>
-      <input type="text" id="set-ticker" placeholder="e.g. BATS:VOO or NASDAQ:AAPL">
-    </div>
-    
-    <div class="form-group">
-      <label for="set-accent">Accent Color</label>
-      <div class="flex-center-gap">
-        <input type="color" id="set-accent" value="#FF9500" class="color-picker" aria-label="Accent Color Picker">
-        <span style="font-size: 11px; color: var(--muted);">Pick your global theme color</span>
-      </div>
-    </div>
-    
-    <div class="modal-actions">
-      <button id="settings-cancel" class="btn">Cancel</button>
-      <button id="settings-save" class="btn primary">Save & Reload</button>
-    </div>
-  </div>
-</div>
-
-<script>
-const CONSTANTS = {
-  WEATHER_CACHE_MS: 900000,
-  GEO_TIMEOUT_MS: 2000,
-  CLOCK_ANIM_MS: 150,
-  SCRATCHPAD_DEBOUNCE_MS: 500,
-  INDICATOR_DELAY_MS: 2000,
-  COPY_FEEDBACK_MS: 1500,
-  PASTE_ERROR_MS: 2500,
-  TICK_MS: 1000
-};
-
-const StorageUtils = {
-  get: function(k) { try { return localStorage.getItem(k); } catch(e) { return null; } },
-  set: function(k, v) { try { localStorage.setItem(k, v); } catch(e) { console.warn("Storage restricted"); } }
-};
-
-const Config = {
-  data: {
-    city: "Burbank, CA",
-    lat: 34.1808,
-    lon: -118.3090,
-    ticker: "BATS:VOO",
-    accent: "#FF9500"
-  },
-  init() {
-    const saved = StorageUtils.get('salut_config');
-    if (saved) {
-      try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch(e) {}
-    }
-
-    if (this.data.ticker === "AMEX:VOO") {
-      this.data.ticker = "BATS:VOO";
-      this.save();
-    }
-  },
-  save() { 
-    StorageUtils.set('salut_config', JSON.stringify(this.data)); 
-  }
-};
-
-const SettingsWidget = {
-  modal: null, btnOpen: null, btnCancel: null, btnSave: null,
-  inputCity: null, inputTicker: null, inputAccent: null,
-
-  init() {
-    this.modal = document.getElementById('settings-modal');
-    this.btnOpen = document.getElementById('settings-open-btn');
-    this.btnCancel = document.getElementById('settings-cancel');
-    this.btnSave = document.getElementById('settings-save');
-    this.inputCity = document.getElementById('set-city');
-    this.inputTicker = document.getElementById('set-ticker');
-    this.inputAccent = document.getElementById('set-accent');
-
-    if(this.btnOpen) this.btnOpen.addEventListener('click', () => this.open());
-    if(this.btnCancel) this.btnCancel.addEventListener('click', () => this.close());
-    if(this.btnSave) this.btnSave.addEventListener('click', () => this.save());
-  },
-  open() {
-    if(!this.modal) return;
-    this.inputCity.value = Config.data.city;
-    this.inputTicker.value = Config.data.ticker;
-    this.inputAccent.value = Config.data.accent || "#FF9500";
-    this.modal.classList.remove('hidden');
-    this.modal.setAttribute('aria-hidden', 'false');
-  },
-  close() {
-    if(this.modal) {
-      this.modal.classList.add('hidden');
-      this.modal.setAttribute('aria-hidden', 'true');
-    }
-  },
-  async save() {
-    const newCity = this.inputCity.value.trim() || "Burbank, CA";
-    Config.data.ticker = this.inputTicker.value.trim() || "BATS:VOO";
-    Config.data.accent = this.inputAccent.value;
-
-    if (newCity !== Config.data.city) {
-      if(this.btnSave) this.btnSave.textContent = "Locating...";
-      try {
-        const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(newCity)}&count=1`);
-        const geo = await res.json();
-        if (geo.results && geo.results.length > 0) {
-          Config.data.city = geo.results[0].name + (geo.results[0].admin1 ? `, ${geo.results[0].admin1}` : '');
-          Config.data.lat = geo.results[0].latitude;
-          Config.data.lon = geo.results[0].longitude;
-          StorageUtils.set('weatherTime', 0); 
-        } else {
-          Config.data.city = newCity; 
+    <script>
+        tailwind.config = {
+            darkMode: 'media',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+                    colors: {
+                        appBg: 'var(--bg)', appText: 'var(--text)', appMuted: 'var(--muted)',
+                        appCard: 'var(--card)', appBorder: 'var(--border)', accent: 'var(--yellow)'
+                    },
+                    animation: {
+                        'fade-up': 'fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'skeleton': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    },
+                    keyframes: {
+                        fadeUp: { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                    }
+                }
+            }
         }
-      } catch(e) { console.warn("Geocoding failed", e); }
-    }
+    </script>
 
-    Config.save();
-    window.location.reload(); 
-  }
-};
-
-const SearchWidget = {
-  omnibar: null,
-  init() {
-    this.omnibar = document.getElementById('omnibar');
-    if(this.omnibar) {
-      const hour = new Date().getHours();
-      let greeting = "Good evening";
-      if (hour >= 5 && hour < 12) greeting = "Good morning";
-      else if (hour >= 12 && hour < 18) greeting = "Good afternoon";
-      this.omnibar.placeholder = `${greeting}! Type to search or calculate...`;
-      
-      this.omnibar.addEventListener('keydown', e => { if(e.key === "Escape") { this.omnibar.value = ""; this.omnibar.blur(); } });
-      
-      this.omnibar.addEventListener('input', (e) => {
-        const val = this.omnibar.value;
-        if (val.length === 1 && val !== val.toUpperCase() && e.inputType !== 'deleteContentBackward') {
-          this.omnibar.value = val.toUpperCase();
+    <style>
+        :root {
+            --bg: #F5F5F7; --text: #1C1C1E; --muted: #8E8E93; --card: rgba(255, 255, 255, 0.6);
+            --border: rgba(0, 0, 0, 0.08); --yellow: #FF9500; --shadow-sm: 0 8px 32px rgba(0,0,0,0.04);
         }
-      });
-    }
-  },
-  handle(e) {
-    e.preventDefault();
-    if(!this.omnibar) return;
-    const val = this.omnibar.value.trim();
-    if (!val) return;
-
-    // Strict, safe math evaluation regex
-    const mathRegex = /^[\d\s+*/().-]+$/;
-    if (mathRegex.test(val) && /[0-9]/.test(val) && /[+\-*/]/.test(val)) {
-      try {
-        const result = new Function(`return (${val})`)();
-        if (!isNaN(result) && isFinite(result)) {
-          CalculatorWidget.currentVal = CalculatorWidget.stripErr(result).toString();
-          CalculatorWidget.shouldResetScreen = true;
-          CalculatorWidget.update();
-          this.omnibar.value = '';
-          this.omnibar.blur();
-          return;
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0A0A0A; --text: #F5F5F7; --muted: #A1A1A6; --card: rgba(28, 28, 30, 0.4);
+                --border: rgba(255, 255, 255, 0.1); --shadow-sm: 0 8px 32px rgba(0,0,0,0.2);
+            }
         }
-      } catch (err) {
-        // Silently catch evaluation errors, default to search
-      }
-    }
-
-    window.open("https://www.google.com/search?q=" + encodeURIComponent(val), "_blank", "noopener noreferrer");
-    this.omnibar.value = '';
-  }
-};
-
-const ClockWidget = {
-  dom: {},
-  init() { 
-    this.dom = {
-      h: document.getElementById('h'), m: document.getElementById('m'),
-      ampm: document.getElementById('ampm'), date: document.getElementById('date'),
-      leb: document.getElementById('lebanon')
-    };
-    this.update(); 
-  },
-  update() {
-    const now = new Date(), rawH = now.getHours(), h12 = rawH % 12 || 12;
-    const hStr = h12.toString(), mStr = now.getMinutes().toString().padStart(2, '0');
-    
-    if(this.dom.h && this.dom.h.textContent !== hStr) {
-      this.dom.h.classList.add('digit-changing');
-      setTimeout(() => { this.dom.h.textContent = hStr; this.dom.h.classList.replace('digit-changing', 'digit-incoming'); }, CONSTANTS.CLOCK_ANIM_MS);
-    }
-    if(this.dom.m && this.dom.m.textContent !== mStr) {
-      this.dom.m.classList.add('digit-changing');
-      setTimeout(() => { this.dom.m.textContent = mStr; this.dom.m.classList.replace('digit-changing', 'digit-incoming'); }, CONSTANTS.CLOCK_ANIM_MS);
-    }
-    if(this.dom.ampm) this.dom.ampm.textContent = rawH >= 12 ? ' PM' : ' AM';
-    
-    const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    if(this.dom.date) this.dom.date.textContent = dateStr;
-    
-    const lbTime = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Beirut", hour: "numeric", minute: "2-digit" }).format(now);
-    if(this.dom.leb) this.dom.leb.innerHTML = `Lebanon <span>${lbTime}</span>`;
-    
-    // Precisely schedule the next UI update frame without visual stutter
-    setTimeout(() => requestAnimationFrame(() => this.update()), 1000 - now.getMilliseconds());
-  }
-};
-
-const WeatherWidget = {
-  MAP: {
-    0: ["Clear", "☀️"], 1: ["Clear", "🌤️"], 2: ["Partly Cloudy", "⛅"], 3: ["Cloudy", "☁️"],
-    45: ["Fog", "🌁"], 61: ["Rain", "🌧️"], 95: ["Storm", "⛈️"]
-  },
-  dom: {},
-  init() {
-    this.dom = {
-      cityFront: document.getElementById('weather-city-front'),
-      currTemp: document.getElementById('curr-temp'),
-      currDesc: document.getElementById('curr-desc'),
-      currIcon: document.getElementById('curr-icon'),
-      currExtra: document.getElementById('curr-extra'),
-      hourlyContainer: document.getElementById('hourly-forecast-container'),
-      dailyContainer: document.getElementById('daily-forecast-container')
-    };
-
-    const lastFetch = StorageUtils.get('weatherTime');
-    const cacheAge = lastFetch ? (Date.now() - parseInt(lastFetch)) : Infinity;
-    
-    let cachedData = null;
-    try { cachedData = JSON.parse(StorageUtils.get('weatherData')); } catch (e) {}
-    
-    if (cacheAge < CONSTANTS.WEATHER_CACHE_MS && cachedData && cachedData.current && cachedData.current.relative_humidity_2m !== undefined) {
-      this.render(cachedData);
-    } else {
-      // Use the explicitly configured city from Settings, completely bypassing the browser's intrusive GPS prompt.
-      this.fetch(Config.data.lat, Config.data.lon, Config.data.city, false);
-    }
-  },
-  async fetch(lat, lon, cityName, isFallback) {
-    try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=${encodeURIComponent(tz)}&forecast_days=3`;
-      
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      const data = await response.json();
-      
-      data.cityName = cityName; 
-      data.isFallback = isFallback;
-      StorageUtils.set('weatherData', JSON.stringify(data));
-      StorageUtils.set('weatherTime', Date.now());
-      this.render(data);
-    } catch(e) {
-      console.warn("Weather fetch failed, utilizing mock data", e);
-      this.renderMock(cityName);
-    }
-  },
-  render(data) {
-    if(!data || !data.current) return;
-    const [currDesc, currIcon] = this.MAP[data.current.weather_code] || ["Cloudy", "☁️"];
-    
-    if(this.dom.cityFront) {
-      this.dom.cityFront.classList.remove('skeleton', 'skeleton-city');
-      if (data.isFallback) {
-        this.dom.cityFront.innerHTML = `<div class="location-fallback" title="Location access denied, showing default city."><svg><use href="#icon-location-off"/></svg> ${data.cityName || Config.data.city}</div>`;
-      } else {
-        this.dom.cityFront.textContent = data.cityName || Config.data.city;
-      }
-    }
-    
-    if(this.dom.currTemp) {
-      this.dom.currTemp.classList.remove('skeleton', 'skeleton-temp');
-      this.dom.currTemp.textContent = Math.round(data.current.temperature_2m) + "°";
-    }
-    
-    if(this.dom.currDesc) {
-      this.dom.currDesc.classList.remove('skeleton', 'skeleton-desc');
-      this.dom.currDesc.textContent = currDesc;
-    }
-    
-    if(this.dom.currIcon) this.dom.currIcon.textContent = currIcon;
-    
-    if(this.dom.currExtra) {
-      this.dom.currExtra.classList.remove('skeleton', 'skeleton-extra');
-      if(data.current.relative_humidity_2m !== undefined) {
-        this.dom.currExtra.textContent = `Humidity: ${data.current.relative_humidity_2m}% • Wind: ${Math.round(data.current.wind_speed_10m)} mph`;
-      } else {
-        this.dom.currExtra.textContent = ''; 
-      }
-    }
-
-    const h = new Date().getHours();
-    if(this.dom.hourlyContainer && data.hourly) {
-      let hourlyHTML = '';
-      for(let i=1; i<=8; i++) {
-        const idx = (h + i) % 24;
-        const [_, ic] = this.MAP[data.hourly.weather_code[idx]] || ["", "☁️"];
-        const t = new Date(); t.setHours(idx);
-        hourlyHTML += `<div class="forecast-item"><span class="f-time">${t.getHours()%12||12}${t.getHours()>=12?'p':'a'}</span><span class="f-icon">${ic}</span><span class="f-temp">${Math.round(data.hourly.temperature_2m[idx])}°</span></div>`;
-      }
-      this.dom.hourlyContainer.innerHTML = hourlyHTML;
-    }
-
-    if(this.dom.dailyContainer && data.daily) {
-      let dailyHTML = '';
-      const loops = Math.min(2, data.daily.time.length - 1); 
-      for(let i=1; i<=loops; i++) {
-        const dateObj = new Date(data.daily.time[i] + "T00:00:00");
-        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-        const [desc, icon] = this.MAP[data.daily.weather_code[i]] || ["", "☁️"];
-        const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
-        const minTemp = Math.round(data.daily.temperature_2m_min[i]);
-        dailyHTML += `<div class="daily-item"><span class="d-day">${dayName}</span><span class="d-icon" title="${desc}">${icon}</span><span class="d-temp">${minTemp}° <span class="d-temp-max">${maxTemp}°</span></span></div>`;
-      }
-      this.dom.dailyContainer.innerHTML = dailyHTML;
-    }
-  },
-  renderMock(cityName) {
-    this.render({
-      cityName: cityName === "Local" ? "Local (Offline)" : `${Config.data.city} (Offline)`,
-      isFallback: true,
-      current: { temperature_2m: 72, relative_humidity_2m: 45, wind_speed_10m: 5, weather_code: 0 },
-      hourly: { temperature_2m: Array(24).fill(72).map((t,i) => t+Math.sin(i)*5), weather_code: Array(24).fill(0) },
-      daily: {
-        time: Array(3).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d.toISOString().split('T')[0]; }),
-        temperature_2m_max: Array(3).fill(78), temperature_2m_min: Array(3).fill(62), weather_code: Array(3).fill(0)
-      }
-    });
-  }
-};
-
-const MarketWidget = {
-  init() {
-    const container = document.getElementById('tv-widget-container');
-    if(!container) return;
-    
-    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    const s = document.createElement('script');
-    s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
-    s.async = true;
-    s.innerHTML = JSON.stringify({
-      "symbols": [["", `${Config.data.ticker}|1D`]],
-      "chartOnly": false, "width": "100%", "height": "100%", 
-      "colorTheme": isDark ? "dark" : "light", 
-      "backgroundColor": isDark ? "#1c1c1c" : "#ffffff", 
-      "fontFamily": "Plus Jakarta Sans, sans-serif", "fontSize": "11", "lineWidth": 2, "lineColor": "#FF9500", 
-      "topColor": "rgba(255,149,0,0.05)", "bottomColor": "rgba(255,255,255,0)", 
-      "hideDateRanges": false, "dateRanges": ["1d|1","5d|5","1m|30","6m|180"]
-    });
-    
-    s.onload = () => container.classList.remove('skeleton', 'skeleton-block');
-    container.innerHTML = '<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';
-    container.querySelector('.tradingview-widget-container').appendChild(s);
-  }
-};
-
-const CalculatorWidget = {
-  displayEl: null,
-  currentVal: '0',
-  previousVal: '',
-  operation: null,
-  shouldResetScreen: false,
-
-  init() {
-    this.displayEl = document.getElementById('calc-display');
-  },
-
-  update() {
-    if(!this.displayEl) return;
-    let displayText = this.currentVal;
-    if (this.operation !== null) {
-      let opSymbol = this.operation;
-      if (opSymbol === '*') opSymbol = '×';
-      if (opSymbol === '/') opSymbol = '÷';
-      displayText = this.shouldResetScreen 
-        ? `${this.previousVal} ${opSymbol}` 
-        : `${this.previousVal} ${opSymbol} ${this.currentVal}`;
-    }
-    this.displayEl.textContent = displayText;
-    this.displayEl.scrollLeft = this.displayEl.scrollWidth; 
-  },
-  stripErr(num) { return parseFloat(num.toPrecision(12)); },
-  num(n) {
-    if (this.shouldResetScreen) {
-      this.currentVal = n === '.' ? '0.' : n;
-      this.shouldResetScreen = false;
-    } else {
-      if (this.currentVal.length >= 15) return;
-      
-      if (this.currentVal === '0') this.currentVal = n === '.' ? '0.' : n;
-      else {
-        if (n === '.' && this.currentVal.includes('.')) return;
-        this.currentVal += n;
-      }
-    }
-    this.update();
-  },
-  op(o) {
-    if (this.operation !== null) this.eq();
-    this.previousVal = this.currentVal;
-    this.operation = o;
-    this.shouldResetScreen = true;
-    this.update();
-  },
-  eq() {
-    if (this.operation === null || this.shouldResetScreen) return;
-    let result;
-    const prev = parseFloat(this.previousVal), current = parseFloat(this.currentVal);
-    switch (this.operation) {
-      case '+': result = prev + current; break;
-      case '-': result = prev - current; break;
-      case '*': result = prev * current; break;
-      case '/': result = current === 0 ? 'Error' : prev / current; break;
-    }
-    if (result !== 'Error') result = this.stripErr(result);
-    this.currentVal = result.toString();
-    this.operation = null;
-    this.shouldResetScreen = true;
-    this.update();
-  },
-  clear() {
-    this.currentVal = '0';
-    this.previousVal = '';
-    this.operation = null;
-    this.update();
-  },
-  async copy() {
-    if (this.currentVal === 'Error') return;
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(this.currentVal);
-      } else {
-        const tempInput = document.createElement("input");
-        tempInput.value = this.currentVal;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand("copy");
-        document.body.removeChild(tempInput);
-      }
-      if(this.displayEl) {
-        this.displayEl.style.color = "var(--yellow)";
-        setTimeout(() => { this.displayEl.style.color = ""; }, 300);
-      }
-    } catch(err) {
-      console.warn("Clipboard restricted", err);
-    }
-  },
-  async paste() {
-    if(!this.displayEl) return;
-    try {
-      if (!navigator.clipboard || !navigator.clipboard.readText) throw new Error("Clipboard API not supported");
-      const text = await navigator.clipboard.readText();
-      const parsed = parseFloat(text.replace(/[^0-9.-]/g, ''));
-      if (!isNaN(parsed)) {
-        this.currentVal = this.stripErr(parsed).toString();
-        this.shouldResetScreen = true;
-        this.update();
-      }
-    } catch (err) {
-      const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
-      this.displayEl.textContent = `Press ${isMac ? 'Cmd+V' : 'Ctrl+V'}`;
-      this.displayEl.style.fontSize = "22px";
-      setTimeout(() => { this.displayEl.style.fontSize = ""; this.update(); }, CONSTANTS.PASTE_ERROR_MS);
-    }
-  }
-};
-
-const ScratchpadWidget = {
-  dom: {},
-  timeout: null,
-  
-  init() {
-    this.dom = {
-      input: document.getElementById('scratchpad-input'),
-      indicator: document.getElementById('save-indicator'),
-      clearBtn: document.getElementById('clear-btn'),
-      copyBtn: document.getElementById('copy-btn'),
-      pasteBtn: document.getElementById('paste-btn')
-    };
-
-    if(!this.dom.input) return;
-
-    this.dom.input.value = StorageUtils.get('salut_scratchpad') || '';
-
-    this.dom.input.addEventListener('input', (e) => {
-      const val = this.dom.input.value;
-      if (val.length === 1 && val !== val.toUpperCase() && e.inputType !== 'deleteContentBackward') {
-        this.dom.input.value = val.toUpperCase();
-      }
-
-      clearTimeout(this.timeout);
-      if(this.dom.indicator) this.dom.indicator.classList.remove('visible');
-      
-      this.timeout = setTimeout(() => {
-        StorageUtils.set('salut_scratchpad', this.dom.input.value);
+        body { background-color: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
         
-        if(this.dom.indicator) {
-          this.dom.indicator.textContent = "Saved";
-          this.dom.indicator.removeAttribute('title');
-          this.dom.indicator.classList.add('visible');
-          setTimeout(() => { if(this.dom.indicator) this.dom.indicator.classList.remove('visible'); }, CONSTANTS.INDICATOR_DELAY_MS);
+        /* Glassmorphism utility */
+        .glass-panel {
+            background: var(--card); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm);
         }
-      }, CONSTANTS.SCRATCHPAD_DEBOUNCE_MS);
-    });
 
-    if(this.dom.clearBtn) {
-      this.dom.clearBtn.addEventListener('click', () => {
-        this.dom.input.value = ''; 
-        StorageUtils.set('salut_scratchpad', ''); 
-        this.dom.input.focus();
-      });
-    }
+        /* Hover-only Scrollbars */
+        .hover-scroll::-webkit-scrollbar { width: 6px; height: 6px; opacity: 0; transition: opacity 0.3s; }
+        .hover-scroll::-webkit-scrollbar-track { background: transparent; }
+        .hover-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; opacity: 0; }
+        .hover-scroll:hover::-webkit-scrollbar-thumb { opacity: 1; background: var(--muted); }
+        .hover-scroll { scrollbar-width: thin; scrollbar-color: transparent transparent; transition: scrollbar-color 0.3s; }
+        .hover-scroll:hover { scrollbar-color: var(--muted) transparent; }
 
-    if(this.dom.copyBtn) {
-      this.dom.copyBtn.addEventListener('click', async () => {
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(this.dom.input.value);
-          } else {
-            this.dom.input.select(); 
-            document.execCommand('copy');
-          }
-          const orig = this.dom.copyBtn.innerHTML;
-          this.dom.copyBtn.innerHTML = `<svg><use href="#icon-copy"></use></svg>`;
-          setTimeout(() => { if(this.dom.copyBtn) this.dom.copyBtn.innerHTML = orig; }, CONSTANTS.COPY_FEEDBACK_MS);
-        } catch(err) {
-          console.warn("Clipboard restricted", err);
+        .skeleton-block { border-radius: 16px; background: var(--border); color: transparent !important; user-select: none; pointer-events: none; }
+        
+        /* Chart Skeleton Fade */
+        #tv-widget-container { transition: opacity 0.35s ease-out; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center px-4 sm:px-6 pb-6 overflow-x-hidden selection:bg-accent selection:text-white">
+
+    <svg style="display: none;">
+        <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></symbol>
+        <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
+        <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></symbol>
+        <symbol id="icon-paste" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></symbol>
+        <symbol id="icon-location-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M14.39 8.56A5 5 0 0 0 9.4 5.37"></path><path d="M19.4 15.63A10 10 0 0 0 12 2a10 10 0 0 0-4.66 1.15"></path><path d="M2.54 8.52a10 10 0 0 0 14.92 12.92"></path></symbol>
+        <symbol id="icon-trend-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></symbol>
+    </svg>
+
+    <!-- Settings Button -->
+    <button id="settings-open-btn" class="absolute top-6 right-6 p-2 rounded-full text-appMuted hover:bg-black/5 dark:hover:bg-white/10 hover:text-appText transition-colors outline-none focus:ring-2 focus:ring-accent" title="Settings" aria-label="Open Settings">
+        <svg class="w-5 h-5"><use href="#icon-settings"></use></svg>
+    </button>
+
+    <header class="w-full flex flex-col items-center pt-8 pb-4">
+        <div id="clock" class="font-extrabold text-[clamp(64px,11vw,100px)] tracking-tighter leading-[0.85] flex items-baseline">
+            <span class="overflow-hidden inline-block"><span id="h" class="inline-block transition-transform duration-150">00</span></span>
+            <span class="text-accent opacity-50 mx-1 mb-2 animate-pulse">:</span>
+            <span class="overflow-hidden inline-block"><span id="m" class="inline-block transition-transform duration-150">00</span></span>
+            <span id="ampm" class="text-2xl font-bold tracking-widest text-accent opacity-80 ml-3">AM</span>
+        </div>
+        
+        <div class="flex items-center justify-center gap-3 mt-4 text-appMuted text-sm font-semibold tracking-wide animate-fade-up delay-100">
+            <div id="date"></div>
+            
+            <span class="opacity-30 text-[10px]">●</span>
+            
+            <!-- VOO Mini Widget -->
+            <div class="group relative cursor-default">
+                <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#34C759]/10 text-[#34C759] border border-[#34C759]/20 font-bold text-xs transition-colors hover:bg-[#34C759]/20">
+                    <svg class="w-3 h-3"><use href="#icon-trend-up"></use></svg>
+                    <span id="voo-growth">--%</span>
+                </div>
+                <!-- Tooltip -->
+                <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/80 dark:bg-white/90 text-white dark:text-black text-[10px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 backdrop-blur-sm shadow-lg">
+                    <span id="voo-tooltip">Loading...</span>
+                </div>
+            </div>
+
+            <span class="opacity-30 text-[10px]">●</span>
+            <div>Lebanon <span id="leb-time" class="text-[#FF3B30] font-bold ml-1">--:--</span></div>
+        </div>
+    </header>
+
+    <!-- Quote -->
+    <div class="w-full max-w-6xl text-center mb-6 animate-fade-up delay-150 px-4">
+        <span id="quote-text" class="text-sm italic text-accent">"Loading wisdom..."</span>
+        <span id="quote-author" class="text-xs font-medium text-appMuted opacity-70 ml-1.5"></span>
+    </div>
+
+    <div class="w-full max-w-6xl h-px bg-appBorder my-2"></div>
+
+    <main class="w-full max-w-6xl mx-auto flex flex-col lg:grid lg:grid-cols-12 gap-6 items-stretch mt-6">
+        
+        <!-- Left: Stock Chart -->
+        <section class="lg:col-span-3 h-[300px] lg:h-auto min-h-[350px]">
+            <div class="glass-panel rounded-2xl sm:rounded-3xl w-full h-full p-4 animate-fade-up delay-200 flex flex-col">
+                <div id="tv-widget-container" class="flex-1 w-full h-full animate-skeleton skeleton-block opacity-100"></div>
+            </div>
+        </section>
+
+        <!-- Center: Search & Scratchpad -->
+        <section class="lg:col-span-6 flex flex-col gap-6 w-full min-w-0">
+            <form id="search-form" onsubmit="SearchWidget.handle(event)" class="w-full flex items-center gap-3">
+                <input type="text" id="omnibar" class="flex-1 min-w-0 w-full p-5 sm:px-7 sm:py-6 rounded-2xl sm:rounded-3xl font-extrabold text-lg sm:text-xl text-appText outline-none transition-all duration-300 glass-panel bg-transparent placeholder-appMuted placeholder-opacity-50 placeholder-italic animate-fade-up delay-200 focus:ring-2 focus:ring-accent" aria-label="Search or calculate" placeholder="Type to search or calculate..." autocomplete="off" spellcheck="false">
+                
+                <!-- Minimalist Search Toggle -->
+                <button type="button" id="engine-toggle" onclick="SearchWidget.toggleEngine()" class="relative shrink-0 w-8 h-4 rounded-full border border-gray-300 dark:border-gray-600 bg-gray-200 dark:bg-gray-700 transition-colors duration-300 animate-fade-up delay-200 cursor-pointer outline-none focus:ring-2 focus:ring-accent" aria-label="Toggle search engine" title="Search Engine: Google">
+                    <div id="engine-thumb" class="absolute top-[1px] left-[1px] w-3 h-3 rounded-full bg-white dark:bg-black shadow-sm transition-transform duration-300"></div>
+                </button>
+            </form>
+            
+            <div class="glass-panel rounded-2xl sm:rounded-3xl flex flex-col h-64 lg:h-[306px] animate-fade-up delay-300 flex-none shrink-0">
+                <div class="flex justify-end items-center p-4 sm:px-5 border-b border-appBorder">
+                    <div class="flex items-center gap-3">
+                        <span id="save-indicator" class="text-[10px] font-bold uppercase tracking-widest text-appMuted opacity-0 transition-opacity duration-300 pointer-events-none">Saved</span>
+                        <button type="button" class="text-appMuted opacity-70 hover:opacity-100 hover:text-appText transition-colors outline-none focus:text-accent" id="clear-btn" aria-label="Clear scratchpad" title="Clear scratchpad"><svg class="w-4 h-4"><use href="#icon-trash"></use></svg></button>
+                        <button type="button" class="text-appMuted opacity-70 hover:opacity-100 hover:text-appText transition-colors outline-none focus:text-accent" id="copy-btn" aria-label="Copy" title="Copy to clipboard"><svg class="w-4 h-4"><use href="#icon-copy"></use></svg></button>
+                        <button type="button" class="text-appMuted opacity-70 hover:opacity-100 hover:text-appText transition-colors outline-none focus:text-accent" id="paste-btn" aria-label="Paste" title="Paste from clipboard"><svg class="w-4 h-4"><use href="#icon-paste"></use></svg></button>
+                    </div>
+                </div>
+                <textarea id="scratchpad-input" class="flex-1 w-full bg-transparent border-none resize-none p-5 text-appText text-sm sm:text-base leading-relaxed outline-none hover-scroll placeholder-appMuted placeholder-opacity-30" aria-label="Scratchpad text area" placeholder="Side quest log..."></textarea>
+            </div>
+        </section>
+
+        <!-- Right: Calculator -->
+        <section class="lg:col-span-3">
+            <div class="glass-panel rounded-2xl sm:rounded-3xl p-4 flex flex-col h-[350px] lg:h-[406px] animate-fade-up delay-400">
+                <div class="text-right font-extrabold text-5xl sm:text-6xl tracking-tighter leading-none text-appText px-1 pb-3 mb-2 overflow-x-auto hover-scroll whitespace-nowrap" id="calc-display">0</div>
+                <div class="grid grid-cols-4 grid-rows-5 gap-2 flex-1">
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appMuted font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" id="calc-btn-clear" onclick="CalculatorWidget.clear()">AC</button>
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appText font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.paste()" title="Paste"><svg class="w-4 h-4 opacity-70"><use href="#icon-paste"></use></svg></button>
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appText font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.copy()" title="Copy"><svg class="w-4 h-4 opacity-70"><use href="#icon-copy"></use></svg></button>
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-accent font-extrabold text-xl rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.op('/')">÷</button>
+                    
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appText font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.num('7')">7</button>
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appText font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.num('8')">8</button>
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appText font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.num('9')">9</button>
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-accent font-extrabold text-xl rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.op('*')">×</button>
+                    
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appText font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.num('4')">4</button>
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appText font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.num('5')">5</button>
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appText font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.num('6')">6</button>
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-accent font-extrabold text-xl rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.op('-')">-</button>
+                    
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appText font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.num('1')">1</button>
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appText font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.num('2')">2</button>
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appText font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.num('3')">3</button>
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-accent font-extrabold text-xl rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.op('+')">+</button>
+                    
+                    <button type="button" class="col-span-2 bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appText font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.num('0')">0</button>
+                    <button type="button" class="bg-black/5 dark:bg-white/5 hover:bg-appBorder active:scale-95 text-appText font-bold text-lg rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-accent" onclick="CalculatorWidget.num('.')">.</button>
+                    <button type="button" class="bg-accent hover:opacity-90 text-white active:scale-95 font-extrabold text-xl rounded-xl flex items-center justify-center transition-all outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent dark:focus:ring-offset-black" onclick="CalculatorWidget.eq()">=</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <section class="w-full max-w-6xl mt-6 animate-fade-up delay-500">
+        <div class="glass-panel rounded-2xl sm:rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row gap-8 items-stretch">
+            
+            <!-- Current Weather -->
+            <article class="flex-none md:w-64 flex flex-col justify-center">
+                <div class="font-extrabold text-base text-appText mb-3 skeleton-block w-32 h-5" id="weather-city-front"></div>
+                <div class="flex items-center gap-4 mb-2">
+                    <div class="text-5xl leading-none cursor-pointer hover:scale-110 hover:rotate-6 active:scale-95 transition-transform" id="curr-icon">☀️</div>
+                    <div>
+                        <div class="text-4xl font-extrabold leading-none skeleton-block w-16 h-9" id="curr-temp"></div>
+                        <div class="text-sm font-semibold text-appMuted capitalize mt-1 skeleton-block w-24 h-4" id="curr-desc"></div>
+                    </div>
+                </div>
+                <div class="text-xs font-medium text-appMuted mt-1 skeleton-block w-40 h-3" id="curr-extra"></div>
+            </article>
+            
+            <!-- Hourly Forecast -->
+            <article class="flex-1 md:border-x border-y md:border-y-0 border-appBorder py-6 md:py-0 md:px-8 flex items-center overflow-x-auto hover-scroll">
+                <div class="flex justify-between items-center w-full min-w-max md:min-w-0 gap-6 md:gap-2" id="hourly-forecast-container">
+                    <!-- Hourly items injected here -->
+                </div>
+            </article>
+
+            <!-- Daily Forecast -->
+            <article class="flex-none md:w-56 flex flex-col justify-around gap-3" id="daily-forecast-container">
+                <!-- Daily items injected here -->
+            </article>
+        </div>
+    </section>
+
+    <div id="settings-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300" aria-hidden="true">
+        <div class="bg-appBg border border-appBorder rounded-2xl sm:rounded-3xl p-6 sm:p-8 w-[90%] max-w-md shadow-2xl scale-95 transition-transform duration-300">
+            <h2 class="text-xl font-extrabold text-appText mb-6">Dashboard Settings</h2>
+            
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label for="set-city" class="text-[10px] font-bold text-appMuted uppercase tracking-widest">Default Weather City</label>
+                    <input type="text" id="set-city" class="w-full bg-appCard border border-appBorder rounded-xl px-4 py-2.5 text-sm font-medium text-appText outline-none focus:border-accent transition-colors" placeholder="e.g. Burbank, CA">
+                </div>
+                
+                <div class="flex flex-col gap-1.5">
+                    <label for="set-ticker" class="text-[10px] font-bold text-appMuted uppercase tracking-widest">Stock Ticker</label>
+                    <input type="text" id="set-ticker" class="w-full bg-appCard border border-appBorder rounded-xl px-4 py-2.5 text-sm font-medium text-appText outline-none focus:border-accent transition-colors" placeholder="e.g. BATS:VOO">
+                </div>
+                
+                <div class="flex flex-col gap-1.5">
+                    <label for="set-accent" class="text-[10px] font-bold text-appMuted uppercase tracking-widest">Accent Color</label>
+                    <div class="flex items-center gap-3">
+                        <input type="color" id="set-accent" class="w-12 h-9 p-0.5 rounded cursor-pointer bg-transparent border-none" aria-label="Accent Color Picker">
+                        <span class="text-xs text-appMuted font-medium">Pick your global theme color</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-8">
+                <button id="settings-cancel" class="px-5 py-2 rounded-xl text-sm font-bold text-appText bg-appCard border border-appBorder hover:bg-appBg transition-colors outline-none focus:ring-2 focus:ring-accent">Cancel</button>
+                <button id="settings-save" class="px-5 py-2 rounded-xl text-sm font-bold text-white bg-accent hover:opacity-90 transition-opacity outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent dark:focus:ring-offset-black">Save & Reload</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONSTANTS = {
+            WEATHER_CACHE_MS: 900000, // 15 mins
+            VOO_CACHE_MS: 3600000,    // 1 hr
+            CLOCK_ANIM_MS: 150,
+            SCRATCHPAD_DEBOUNCE_MS: 500
+        };
+
+        const StorageUtils = {
+            get: k => { try { return localStorage.getItem(k); } catch(e) { return null; } },
+            set: (k, v) => { try { localStorage.setItem(k, v); } catch(e) {} }
+        };
+
+        const Config = {
+            data: { city: "Burbank, CA", lat: 34.1808, lon: -118.3090, ticker: "BATS:VOO", accent: "#FF9500", searchEngine: "google" },
+            init() {
+                const saved = StorageUtils.get('salut_config');
+                if (saved) { try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch(e) {} }
+                if (this.data.ticker === "AMEX:VOO") { this.data.ticker = "BATS:VOO"; this.save(); }
+                document.documentElement.style.setProperty('--yellow', this.data.accent || "#FF9500");
+            },
+            save() { StorageUtils.set('salut_config', JSON.stringify(this.data)); }
+        };
+
+        const SettingsWidget = {
+            init() {
+                const modal = document.getElementById('settings-modal');
+                const content = modal.querySelector('div');
+                const iCity = document.getElementById('set-city'), iTicker = document.getElementById('set-ticker'), iAccent = document.getElementById('set-accent');
+                
+                const open = () => {
+                    iCity.value = Config.data.city; iTicker.value = Config.data.ticker; iAccent.value = Config.data.accent || "#FF9500";
+                    modal.classList.remove('opacity-0', 'pointer-events-none');
+                    content.classList.remove('scale-95');
+                };
+                const close = () => {
+                    modal.classList.add('opacity-0', 'pointer-events-none');
+                    content.classList.add('scale-95');
+                };
+                const save = async () => {
+                    const btn = document.getElementById('settings-save');
+                    const newCity = iCity.value.trim() || "Burbank, CA";
+                    Config.data.ticker = iTicker.value.trim() || "BATS:VOO";
+                    Config.data.accent = iAccent.value;
+
+                    if (newCity !== Config.data.city) {
+                        btn.textContent = "Locating...";
+                        try {
+                            const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(newCity)}&count=1`);
+                            const geo = await res.json();
+                            if (geo.results?.length > 0) {
+                                Config.data.city = geo.results[0].name + (geo.results[0].admin1 ? `, ${geo.results[0].admin1}` : '');
+                                Config.data.lat = geo.results[0].latitude; Config.data.lon = geo.results[0].longitude;
+                                StorageUtils.set('weatherTime', 0); 
+                            } else { Config.data.city = newCity; }
+                        } catch(e) {}
+                    }
+                    Config.save(); window.location.reload(); 
+                };
+
+                document.getElementById('settings-open-btn').addEventListener('click', open);
+                document.getElementById('settings-cancel').addEventListener('click', close);
+                document.getElementById('settings-save').addEventListener('click', save);
+                
+                // Allow "Enter" key to save settings
+                modal.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') save();
+                    if (e.key === 'Escape') close();
+                });
+            }
+        };
+
+        const SearchWidget = {
+            omnibar: null,
+            init() {
+                this.omnibar = document.getElementById('omnibar');
+                if(!this.omnibar) return;
+                
+                // Smart autofocus: Only focus if on a desktop/laptop pointing device to avoid mobile keyboards
+                if (window.matchMedia("(pointer: fine) and (min-width: 768px)").matches) {
+                    this.omnibar.focus();
+                }
+
+                this.updatePlaceholder();
+                this.updateToggleUI();
+                
+                this.omnibar.addEventListener('keydown', e => { if(e.key === "Escape") { this.omnibar.value = ""; this.omnibar.blur(); } });
+                this.omnibar.addEventListener('input', e => {
+                    const val = this.omnibar.value;
+                    if (val.length === 1 && val !== val.toUpperCase() && e.inputType !== 'deleteContentBackward') this.omnibar.value = val.toUpperCase();
+                });
+            },
+            updatePlaceholder() {
+                const hour = new Date().getHours();
+                let greeting = "Good evening";
+                if (hour >= 5 && hour < 12) greeting = "Good morning";
+                else if (hour >= 12 && hour < 18) greeting = "Good afternoon";
+                
+                const action = Config.data.searchEngine === 'google' ? 'Search Google' : 'Ask ChatGPT';
+                this.omnibar.placeholder = `${greeting}! ${action} or calculate...`;
+            },
+            updateToggleUI() {
+                const thumb = document.getElementById('engine-thumb');
+                const toggle = document.getElementById('engine-toggle');
+                if (Config.data.searchEngine === 'google') {
+                    thumb.style.transform = 'translateX(0)';
+                    toggle.title = 'Search Engine: Google';
+                } else {
+                    thumb.style.transform = 'translateX(16px)';
+                    toggle.title = 'Search Engine: ChatGPT';
+                }
+            },
+            toggleEngine() {
+                Config.data.searchEngine = Config.data.searchEngine === 'google' ? 'gpt' : 'google';
+                Config.save();
+                this.updatePlaceholder();
+                this.updateToggleUI();
+                
+                // Keep cursor at the end when clicking toggle
+                this.omnibar.focus();
+                const len = this.omnibar.value.length;
+                this.omnibar.setSelectionRange(len, len);
+            },
+            handle(e) {
+                e.preventDefault();
+                const val = this.omnibar.value.trim();
+                if (!val) return;
+
+                const mathRegex = /^[\d\s+*/().-]+$/;
+                if (mathRegex.test(val) && /[0-9]/.test(val) && /[+\-*/]/.test(val)) {
+                    try {
+                        const result = new Function(`return (${val})`)();
+                        if (!isNaN(result) && isFinite(result)) {
+                            CalculatorWidget.currentVal = CalculatorWidget.stripErr(result).toString();
+                            CalculatorWidget.shouldResetScreen = true;
+                            CalculatorWidget.update();
+                            this.omnibar.value = ''; this.omnibar.blur();
+                            return;
+                        }
+                    } catch (err) {}
+                }
+
+                const url = Config.data.searchEngine === 'google' 
+                    ? "https://www.google.com/search?q=" + encodeURIComponent(val)
+                    : "https://chatgpt.com/?q=" + encodeURIComponent(val);
+                
+                window.open(url, "_blank", "noopener noreferrer");
+                this.omnibar.value = '';
+            }
+        };
+
+        const ClockWidget = {
+            dom: {},
+            lebanonFormatter: null,
+            isFirstLoad: true,
+            init() { 
+                this.dom = {
+                    h: document.getElementById('h'), m: document.getElementById('m'),
+                    ampm: document.getElementById('ampm'), date: document.getElementById('date'),
+                    lebTime: document.getElementById('leb-time')
+                };
+                this.lebanonFormatter = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Beirut", hour: "numeric", minute: "2-digit" });
+                this.update(); 
+            },
+            update() {
+                const now = new Date(), rawH = now.getHours(), h12 = rawH % 12 || 12;
+                const hStr = h12.toString(), mStr = now.getMinutes().toString().padStart(2, '0');
+                
+                if(this.dom.h && this.dom.h.textContent !== hStr) {
+                    if (this.isFirstLoad) { this.dom.h.textContent = hStr; } 
+                    else {
+                        this.dom.h.style.transform = 'translateY(-14px)'; this.dom.h.style.opacity = '0';
+                        setTimeout(() => { this.dom.h.textContent = hStr; this.dom.h.style.transform = 'translateY(14px)'; 
+                            requestAnimationFrame(() => { this.dom.h.style.transform = 'translateY(0)'; this.dom.h.style.opacity = '1'; });
+                        }, CONSTANTS.CLOCK_ANIM_MS);
+                    }
+                }
+                if(this.dom.m && this.dom.m.textContent !== mStr) {
+                    if (this.isFirstLoad) { this.dom.m.textContent = mStr; } 
+                    else {
+                        this.dom.m.style.transform = 'translateY(-14px)'; this.dom.m.style.opacity = '0';
+                        setTimeout(() => { this.dom.m.textContent = mStr; this.dom.m.style.transform = 'translateY(14px)'; 
+                            requestAnimationFrame(() => { this.dom.m.style.transform = 'translateY(0)'; this.dom.m.style.opacity = '1'; });
+                        }, CONSTANTS.CLOCK_ANIM_MS);
+                    }
+                }
+                
+                if(this.dom.ampm) this.dom.ampm.textContent = rawH >= 12 ? 'PM' : 'AM';
+                if(this.dom.date) this.dom.date.textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                
+                if(this.dom.lebTime && this.lebanonFormatter) {
+                    const lbTime = this.lebanonFormatter.format(now);
+                    if (this.dom.lebTime.textContent !== lbTime) this.dom.lebTime.textContent = lbTime;
+                }
+                
+                this.isFirstLoad = false;
+                setTimeout(() => requestAnimationFrame(() => this.update()), 1000 - now.getMilliseconds());
+            }
+        };
+
+        const WeatherWidget = {
+            MAP: { 0: ["Clear", "☀️"], 1: ["Clear", "🌤️"], 2: ["Partly Cloudy", "⛅"], 3: ["Cloudy", "☁️"], 45: ["Fog", "🌁"], 61: ["Rain", "🌧️"], 95: ["Storm", "⛈️"] },
+            init() {
+                const lastFetch = StorageUtils.get('weatherTime');
+                const cacheAge = lastFetch ? (Date.now() - parseInt(lastFetch)) : Infinity;
+                let cachedData = null;
+                try { cachedData = JSON.parse(StorageUtils.get('weatherData')); } catch (e) {}
+                
+                if (cacheAge < CONSTANTS.WEATHER_CACHE_MS && cachedData?.current) {
+                    this.render(cachedData);
+                } else {
+                    this.fetch(Config.data.lat, Config.data.lon, Config.data.city, false);
+                }
+            },
+            async fetch(lat, lon, cityName, isFallback) {
+                try {
+                    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
+                    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=${encodeURIComponent(tz)}&forecast_days=3`;
+                    const res = await fetch(url);
+                    if (!res.ok) throw new Error("HTTP " + res.status);
+                    const data = await res.json();
+                    data.cityName = cityName; data.isFallback = isFallback;
+                    StorageUtils.set('weatherData', JSON.stringify(data)); StorageUtils.set('weatherTime', Date.now());
+                    this.render(data);
+                } catch(e) { this.renderMock(cityName); }
+            },
+            render(data) {
+                if(!data?.current) return;
+                const [currDesc, currIcon] = this.MAP[data.current.weather_code] || ["Cloudy", "☁️"];
+                
+                const cityEl = document.getElementById('weather-city-front');
+                if(cityEl) {
+                    cityEl.classList.remove('skeleton-block', 'w-32', 'h-5');
+                    cityEl.innerHTML = data.isFallback ? `<div title="Offline/Error fallback" class="text-accent flex items-center gap-1"><svg class="w-3 h-3"><use href="#icon-location-off"/></svg> ${data.cityName}</div>` : data.cityName;
+                }
+                
+                const tEl = document.getElementById('curr-temp');
+                if(tEl) { tEl.classList.remove('skeleton-block', 'w-16', 'h-9'); tEl.textContent = Math.round(data.current.temperature_2m) + "°"; }
+                
+                const dEl = document.getElementById('curr-desc');
+                if(dEl) { dEl.classList.remove('skeleton-block', 'w-24', 'h-4'); dEl.textContent = currDesc; }
+                
+                const eEl = document.getElementById('curr-extra');
+                if(eEl) { eEl.classList.remove('skeleton-block', 'w-40', 'h-3'); eEl.textContent = `Humidity: ${data.current.relative_humidity_2m}% • Wind: ${Math.round(data.current.wind_speed_10m)} mph`; }
+                
+                const iEl = document.getElementById('curr-icon');
+                if(iEl) iEl.textContent = currIcon;
+
+                const hc = document.getElementById('hourly-forecast-container');
+                if(hc && data.hourly) {
+                    let hHTML = ''; const h = new Date().getHours();
+                    for(let i=1; i<=8; i++) {
+                        const idx = (h + i) % 24; const [_, ic] = this.MAP[data.hourly.weather_code[idx]] || ["", "☁️"];
+                        const t = new Date(); t.setHours(idx);
+                        hHTML += `<div class="flex flex-col items-center gap-2"><span class="text-[11px] font-bold text-appMuted">${t.getHours()%12||12}${t.getHours()>=12?'p':'a'}</span><span class="text-2xl">${ic}</span><span class="text-sm font-extrabold">${Math.round(data.hourly.temperature_2m[idx])}°</span></div>`;
+                    }
+                    hc.innerHTML = hHTML;
+                }
+
+                const dc = document.getElementById('daily-forecast-container');
+                if(dc && data.daily) {
+                    let dHTML = ''; const loops = Math.min(2, data.daily.time.length - 1);
+                    for(let i=1; i<=loops; i++) {
+                        const dayName = new Date(data.daily.time[i] + "T00:00:00").toLocaleDateString('en-US', { weekday: 'long' });
+                        const [desc, icon] = this.MAP[data.daily.weather_code[i]] || ["", "☁️"];
+                        dHTML += `<div class="flex justify-between items-center text-sm font-semibold"><span class="w-12 text-appText">${dayName.slice(0,3)}</span><span class="flex-1 text-center text-base" title="${desc}">${icon}</span><span class="w-16 text-right text-appMuted text-xs">${Math.round(data.daily.temperature_2m_min[i])}° <span class="text-appText text-sm ml-1.5 font-bold">${Math.round(data.daily.temperature_2m_max[i])}°</span></span></div>`;
+                    }
+                    dc.innerHTML = dHTML;
+                }
+            },
+            renderMock(cityName) {
+                this.render({
+                    cityName: `${Config.data.city} (Offline)`, isFallback: true,
+                    current: { temperature_2m: 72, relative_humidity_2m: 45, wind_speed_10m: 5, weather_code: 0 },
+                    hourly: { temperature_2m: Array(24).fill(72), weather_code: Array(24).fill(0) },
+                    daily: { time: Array(3).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d.toISOString().split('T')[0]; }), temperature_2m_max: Array(3).fill(78), temperature_2m_min: Array(3).fill(62), weather_code: Array(3).fill(0) }
+                });
+            }
+        };
+
+        const MarketWidget = {
+            init() {
+                this.initChart();
+                this.initVOO();
+                
+                // Watch for system theme changes and reload chart seamlessly
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                    const c = document.getElementById('tv-widget-container');
+                    if(c) { c.innerHTML = ''; c.classList.add('skeleton-block'); this.initChart(); }
+                });
+            },
+            initChart() {
+                const container = document.getElementById('tv-widget-container');
+                if(!container) return;
+                
+                const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                const s = document.createElement('script');
+                s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
+                s.async = true;
+                s.innerHTML = JSON.stringify({
+                    "symbols": [["", `${Config.data.ticker}|1D`]],
+                    "chartOnly": true, "width": "100%", "height": "100%", 
+                    "colorTheme": isDark ? "dark" : "light", 
+                    "backgroundColor": "rgba(0,0,0,0)", 
+                    "fontFamily": "Plus Jakarta Sans, sans-serif", "fontSize": "11", "lineWidth": 2, "lineColor": "#FF9500", 
+                    "topColor": "rgba(255,149,0,0.1)", "bottomColor": "rgba(255,255,255,0)", 
+                    "hideDateRanges": true, "scalePosition": "none"
+                });
+                
+                // Add tiny delay before removing skeleton to mask iframe paint flash
+                s.onload = () => { setTimeout(() => {
+                    container.classList.remove('skeleton-block', 'animate-skeleton');
+                    container.style.opacity = '1';
+                }, 350); };
+                
+                container.style.opacity = '0.5';
+                container.appendChild(s);
+            },
+            async initVOO() {
+                const pill = document.getElementById('voo-growth');
+                const tooltip = document.getElementById('voo-tooltip');
+                if(!pill || !tooltip) return;
+
+                const baseline = 631.02; // Close on Feb 27, 2026
+                const fallbackPrice = 708.42;
+
+                const calcAndRender = (price) => {
+                    const growth = (((price - baseline) / baseline) * 100).toFixed(2);
+                    pill.textContent = `${growth > 0 ? '+' : ''}${growth}%`;
+                    tooltip.textContent = `Current Price: $${price.toFixed(2)}`;
+                };
+
+                const lastFetch = StorageUtils.get('salut_voo_time');
+                if (lastFetch && (Date.now() - parseInt(lastFetch) < CONSTANTS.VOO_CACHE_MS)) {
+                    const cachedPrice = parseFloat(StorageUtils.get('salut_voo_price'));
+                    if (cachedPrice) { calcAndRender(cachedPrice); return; }
+                }
+
+                try {
+                    // Use a public CORS proxy for Yahoo Finance query
+                    const res = await fetch(`https://corsproxy.io/?https://query1.finance.yahoo.com/v8/finance/chart/VOO`);
+                    if(!res.ok) throw new Error('API blocked');
+                    const data = await res.json();
+                    
+                    const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+                    if (price) {
+                        StorageUtils.set('salut_voo_price', price);
+                        StorageUtils.set('salut_voo_time', Date.now());
+                        calcAndRender(price);
+                    } else throw new Error("Invalid structure");
+                } catch (err) {
+                    calcAndRender(fallbackPrice); // Fail silently with fallback
+                }
+            }
+        };
+
+        const CalculatorWidget = {
+            displayEl: null, clearBtn: null,
+            currentVal: '0', previousVal: '', operation: null, shouldResetScreen: false,
+
+            init() { 
+                this.displayEl = document.getElementById('calc-display'); 
+                this.clearBtn = document.getElementById('calc-btn-clear');
+            },
+            update() {
+                if(!this.displayEl) return;
+                let text = this.currentVal;
+                if (this.operation !== null) {
+                    let op = this.operation === '*' ? '×' : (this.operation === '/' ? '÷' : this.operation);
+                    text = this.shouldResetScreen ? `${this.previousVal} ${op}` : `${this.previousVal} ${op} ${this.currentVal}`;
+                }
+                this.displayEl.textContent = text;
+                this.displayEl.scrollLeft = this.displayEl.scrollWidth;
+                
+                // Update Clear button C vs AC
+                if (this.clearBtn) {
+                    this.clearBtn.textContent = (this.currentVal !== '0' || this.operation !== null) ? 'C' : 'AC';
+                }
+            },
+            stripErr(num) { return parseFloat(num.toPrecision(12)); },
+            num(n) {
+                if(this.currentVal === 'Error') this.clear();
+                if (this.shouldResetScreen) { this.currentVal = n === '.' ? '0.' : n; this.shouldResetScreen = false; } 
+                else {
+                    if (this.currentVal.length >= 15) return;
+                    if (this.currentVal === '0') this.currentVal = n === '.' ? '0.' : n;
+                    else { if (n === '.' && this.currentVal.includes('.')) return; this.currentVal += n; }
+                }
+                this.update();
+            },
+            op(o) {
+                if(this.currentVal === 'Error') return;
+                if (this.operation !== null && !this.shouldResetScreen) this.eq();
+                this.previousVal = this.currentVal; this.operation = o; this.shouldResetScreen = true; this.update();
+            },
+            eq() {
+                if (this.operation === null || this.shouldResetScreen || this.currentVal === 'Error') return;
+                let res; const p = parseFloat(this.previousVal), c = parseFloat(this.currentVal);
+                switch (this.operation) { case '+': res=p+c; break; case '-': res=p-c; break; case '*': res=p*c; break; case '/': res = c===0?'Error':p/c; break; }
+                if (res !== 'Error') res = this.stripErr(res);
+                this.currentVal = res.toString(); this.operation = null; this.shouldResetScreen = true; this.update();
+            },
+            clear() {
+                if (this.clearBtn && this.clearBtn.textContent === 'C' && this.currentVal !== '0' && this.currentVal !== 'Error') {
+                    // Clear Entry only
+                    this.currentVal = '0';
+                    if (this.operation === null) this.previousVal = '';
+                } else {
+                    // All Clear
+                    this.currentVal = '0'; this.previousVal = ''; this.operation = null;
+                }
+                this.update();
+            },
+            async copy() {
+                if (this.currentVal === 'Error') return;
+                try {
+                    await navigator.clipboard.writeText(this.currentVal);
+                    if(this.displayEl) { this.displayEl.style.color = "var(--yellow)"; setTimeout(() => { this.displayEl.style.color = ""; }, 300); }
+                } catch(err) { document.execCommand("copy"); }
+            },
+            async paste() {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    const p = parseFloat(text.replace(/[^0-9.-]/g, ''));
+                    if (!isNaN(p)) { this.currentVal = this.stripErr(p).toString(); this.shouldResetScreen = true; this.update(); }
+                } catch (err) {}
+            }
+        };
+
+        const ScratchpadWidget = {
+            timeout: null,
+            init() {
+                const input = document.getElementById('scratchpad-input'), ind = document.getElementById('save-indicator');
+                if(!input) return;
+
+                input.value = StorageUtils.get('salut_scratchpad') || '';
+
+                input.addEventListener('input', (e) => {
+                    const val = input.value;
+                    if (val.length === 1 && val !== val.toUpperCase() && e.inputType !== 'deleteContentBackward') input.value = val.toUpperCase();
+
+                    clearTimeout(this.timeout);
+                    if(ind) ind.classList.remove('opacity-100');
+                    
+                    this.timeout = setTimeout(() => {
+                        StorageUtils.set('salut_scratchpad', input.value);
+                        if(ind) { ind.classList.add('opacity-100'); setTimeout(() => { ind.classList.remove('opacity-100'); }, 2000); }
+                    }, CONSTANTS.SCRATCHPAD_DEBOUNCE_MS);
+                });
+                
+                // Zero Data-Loss: Flush on tab close
+                window.addEventListener('beforeunload', () => { StorageUtils.set('salut_scratchpad', input.value); });
+
+                document.getElementById('clear-btn')?.addEventListener('click', () => { input.value = ''; StorageUtils.set('salut_scratchpad', ''); input.focus(); });
+                document.getElementById('copy-btn')?.addEventListener('click', () => { navigator.clipboard.writeText(input.value).catch(()=>{}); });
+                document.getElementById('paste-btn')?.addEventListener('click', async () => { 
+                    try { input.value += (input.value ? '\n' : '') + await navigator.clipboard.readText(); input.dispatchEvent(new Event('input')); } catch(e){} 
+                });
+            }
+        };
+
+        const QuoteWidget = {
+            quotes: [{ t: "The happiness of your life depends upon the quality of your thoughts.", a: "Marcus Aurelius" }, { t: "We suffer more often in imagination than in reality.", a: "Seneca" }, { t: "He who has a why to live can bear almost any how.", a: "Friedrich Nietzsche" }, { t: "Nature does not hurry, yet everything is accomplished.", a: "Lao Tzu" }, { t: "In the depth of winter, I finally learned that within me lay an invincible summer.", a: "Albert Camus" }],
+            init() {
+                const q = this.quotes[Math.floor(Math.random() * this.quotes.length)];
+                const qt = document.getElementById('quote-text'), qa = document.getElementById('quote-author');
+                if(qt) qt.textContent = `"${q.t}"`; if(qa) qa.textContent = `— ${q.a}`;
+            }
+        };
+
+        document.addEventListener('keydown', e => {
+            const isInput = document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
+            if (!isInput) {
+                const key = e.key;
+                const calcKeys = /^[0-9.+\-*/=]$|^Enter$|^Backspace$|^Escape$|^c$|^C$/;
+                
+                if (calcKeys.test(key) && document.getElementById('calc-display')) {
+                    if (/^[0-9]$/.test(key)) CalculatorWidget.num(key);
+                    else if (key === '.') CalculatorWidget.num('.');
+                    else if (['+','-','*','/'].includes(key)) CalculatorWidget.op(key);
+                    else if (key === 'Enter' || key === '=') CalculatorWidget.eq();
+                    else if (key === 'Backspace' || key === 'Escape' || key.toLowerCase() === 'c') CalculatorWidget.clear();
+                    e.preventDefault(); return;
+                } 
+                else if (!e.metaKey && !e.ctrlKey && !e.altKey && key.length === 1 && SearchWidget.omnibar && document.getElementById('settings-modal')?.classList.contains('opacity-0')) {
+                    // Lost keystroke capture logic
+                    SearchWidget.omnibar.focus();
+                    SearchWidget.omnibar.value = key.toUpperCase();
+                    e.preventDefault();
+                }
+            }
+        });
+
+        function initializeApp() {
+            Config.init();
+            
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'salut_config') window.location.reload();
+                else if (e.key === 'salut_scratchpad') { const input = document.getElementById('scratchpad-input'); if(input && e.newValue !== input.value) input.value = e.newValue || ''; }
+            });
+
+            SettingsWidget.init(); ClockWidget.init(); SearchWidget.init();
+            CalculatorWidget.init(); ScratchpadWidget.init(); QuoteWidget.init();
         }
-      });
-    }
 
-    if(this.dom.pasteBtn) {
-      this.dom.pasteBtn.addEventListener('click', async () => {
-        try {
-          if (!navigator.clipboard) throw new Error("Clipboard API not supported");
-          this.dom.input.value += (this.dom.input.value ? '\n' : '') + await navigator.clipboard.readText();
-          this.dom.input.dispatchEvent(new Event('input')); 
-        } catch (err) {
-          const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
-          const orig = this.dom.input.placeholder;
-          this.dom.input.placeholder = `[Click here & press ${isMac ? 'Cmd+V' : 'Ctrl+V'}]`;
-          this.dom.input.focus();
-          setTimeout(() => { if(this.dom.input) this.dom.input.placeholder = orig; }, 3000);
-        }
-      });
-    }
-  }
-};
-
-const QuoteWidget = {
-  quotes: [
-    { t: "The happiness of your life depends upon the quality of your thoughts.", a: "Marcus Aurelius" },
-    { t: "We suffer more often in imagination than in reality.", a: "Seneca" },
-    { t: "He who has a why to live can bear almost any how.", a: "Friedrich Nietzsche" },
-    { t: "The only constant in life is change.", a: "Heraclitus" },
-    { t: "Nature does not hurry, yet everything is accomplished.", a: "Lao Tzu" },
-    { t: "I think, therefore I am.", a: "René Descartes" },
-    { t: "In the depth of winter, I finally learned that within me lay an invincible summer.", a: "Albert Camus" },
-    { t: "Knowing yourself is the beginning of all wisdom.", a: "Aristotle" },
-    { t: "The only true wisdom is in knowing you know nothing.", a: "Socrates" },
-    { t: "It does not matter how slowly you go as long as you do not stop.", a: "Confucius" }
-  ],
-  init() {
-    const q = this.quotes[Math.floor(Math.random() * this.quotes.length)];
-    const quoteText = document.getElementById('quote-text');
-    const quoteAuthor = document.getElementById('quote-author');
-    if(quoteText) quoteText.textContent = `"${q.t}"`;
-    if(quoteAuthor) quoteAuthor.textContent = `— ${q.a}`;
-  }
-};
-
-document.addEventListener('keydown', e => {
-  const isInput = document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
-  
-  if (!isInput) {
-    const key = e.key;
-    const validCalcKeys = /^[0-9.+\-*/=]$|^Enter$|^Backspace$|^Escape$|^c$|^C$/;
-    
-    if (validCalcKeys.test(key)) {
-      if (/^[0-9]$/.test(key)) CalculatorWidget.num(key);
-      else if (key === '.') CalculatorWidget.num('.');
-      else if (key === '+' || key === '-' || key === '*' || key === '/') CalculatorWidget.op(key);
-      else if (key === 'Enter' || key === '=') CalculatorWidget.eq();
-      else if (key === 'Backspace' || key === 'Escape' || key.toLowerCase() === 'c') CalculatorWidget.clear();
-      
-      e.preventDefault();
-      return;
-    } 
-    else if (!e.metaKey && !e.ctrlKey && !e.altKey && key.length === 1 && SearchWidget.omnibar) {
-      SearchWidget.omnibar.focus();
-    }
-  }
-});
-
-document.addEventListener('paste', e => {
-  const isInput = document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA");
-  if (!isInput && e.clipboardData) {
-    const text = e.clipboardData.getData('text');
-    if (text) {
-      const parsed = parseFloat(text.replace(/[^0-9.-]/g, ''));
-      if (!isNaN(parsed)) {
-        e.preventDefault();
-        CalculatorWidget.currentVal = CalculatorWidget.stripErr(parsed).toString();
-        CalculatorWidget.shouldResetScreen = true;
-        CalculatorWidget.update();
-      }
-    }
-  }
-});
-
-function initializeApp() {
-  Config.init();
-  document.documentElement.style.setProperty('--yellow', Config.data.accent || "#FF9500");
-  
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'salut_config') {
-      window.location.reload();
-    } else if (e.key === 'salut_scratchpad' && ScratchpadWidget.dom.input && e.newValue !== ScratchpadWidget.dom.input.value) {
-      ScratchpadWidget.dom.input.value = e.newValue || '';
-    }
-  });
-
-  SettingsWidget.init();
-  ClockWidget.init();
-  SearchWidget.init();
-  CalculatorWidget.init();
-  ScratchpadWidget.init();
-  QuoteWidget.init();
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeApp);
-} else {
-  initializeApp();
-}
-
-if (window.requestIdleCallback) {
-  requestIdleCallback(() => { MarketWidget.init(); WeatherWidget.init(); });
-} else {
-  window.addEventListener('load', () => { MarketWidget.init(); WeatherWidget.init(); });
-}
-</script>
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initializeApp); else initializeApp();
+        if (window.requestIdleCallback) requestIdleCallback(() => { MarketWidget.init(); WeatherWidget.init(); });
+        else window.addEventListener('load', () => { MarketWidget.init(); WeatherWidget.init(); });
+    </script>
 </body>
 </html>
