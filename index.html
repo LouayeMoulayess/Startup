@@ -636,7 +636,7 @@ const WeatherWidget = {
   async fetch(lat, lon, cityName, isFallback) {
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=${encodeURIComponent(tz)}&forecast_days=3`;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=${encodeURIComponent(tz)}&forecast_days=4`;
       
       const response = await fetch(url);
       if (!response.ok) throw new Error("HTTP " + response.status);
@@ -697,7 +697,7 @@ const WeatherWidget = {
 
     if(this.dom.dailyContainer && data.daily) {
       let dailyHTML = '';
-      const loops = Math.min(2, data.daily.time.length - 1); 
+      const loops = Math.min(3, data.daily.time.length - 1); 
       for(let i=1; i<=loops; i++) {
         const dateObj = new Date(data.daily.time[i] + "T00:00:00");
         const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
@@ -716,8 +716,8 @@ const WeatherWidget = {
       current: { temperature_2m: 72, relative_humidity_2m: 45, wind_speed_10m: 5, weather_code: 0 },
       hourly: { temperature_2m: Array(24).fill(72).map((t,i) => t+Math.sin(i)*5), weather_code: Array(24).fill(0) },
       daily: {
-        time: Array(3).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d.toISOString().split('T')[0]; }),
-        temperature_2m_max: Array(3).fill(78), temperature_2m_min: Array(3).fill(62), weather_code: Array(3).fill(0)
+        time: Array(4).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d.toISOString().split('T')[0]; }),
+        temperature_2m_max: Array(4).fill(78), temperature_2m_min: Array(4).fill(62), weather_code: Array(4).fill(0)
       }
     });
   }
