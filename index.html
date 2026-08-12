@@ -484,38 +484,51 @@ const MarketWidget = {
     this.initVOO();
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
       const c = document.getElementById('tv-widget-container');
-      if(c) { c.innerHTML = ''; c.classList.add('skeleton-block'); c.style.opacity = '0'; this.initChart(); }
+      if(c) { c.innerHTML = ''; c.classList.add('skeleton-block'); c.style.opacity = '0'; setTimeout(() => this.initChart(), 50); }
     });
   },
   initChart() {
     const container = document.getElementById('tv-widget-container');
     if(!container) return;
     
-    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const s = document.createElement('script');
-    s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
-    s.async = true;
+    // Ensure container is empty before starting to prevent iframe zombie listeners
+    container.innerHTML = ''; 
     
-    // EXACT ORIGINAL TRADINGVIEW SETTINGS RESTORED
-    s.innerHTML = JSON.stringify({
-        "symbols": [["", `${Config.data.ticker}|1D`]],
-        "chartOnly": false, "width": "100%", "height": "100%", 
-        "colorTheme": isDark ? "dark" : "light", 
-        "backgroundColor": isDark ? "#1c1c1c" : "#ffffff", 
-        "fontFamily": "Plus Jakarta Sans, sans-serif", "fontSize": "11", "lineWidth": 2, "lineColor": "#FF9500", 
-        "topColor": "rgba(255,149,0,0.05)", "bottomColor": "rgba(255,255,255,0)", 
-        "hideDateRanges": false, "dateRanges": ["1d|1","5d|5","1m|30","6m|180"]
-    });
-    
-    s.onload = () => {
+    requestAnimationFrame(() => {
+      const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const s = document.createElement('script');
+      s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
+      s.type = "text/javascript";
+      s.async = true;
+      
+      // EXACT ORIGINAL TRADINGVIEW SETTINGS RESTORED
+      s.innerHTML = JSON.stringify({
+          "symbols": [["", `${Config.data.ticker}|1D`]],
+          "chartOnly": false, "width": "100%", "height": "100%", 
+          "colorTheme": isDark ? "dark" : "light", 
+          "backgroundColor": isDark ? "#1c1c1c" : "#ffffff", 
+          "fontFamily": "Plus Jakarta Sans, sans-serif", "fontSize": "11", "lineWidth": 2, "lineColor": "#FF9500", 
+          "topColor": "rgba(255,149,0,0.05)", "bottomColor": "rgba(255,255,255,0)", 
+          "hideDateRanges": false, "dateRanges": ["1d|1","5d|5","1m|30","6m|180"]
+      });
+      
+      const outerDiv = document.createElement('div');
+      outerDiv.className = 'tradingview-widget-container w-full h-full flex-1';
+      const innerDiv = document.createElement('div');
+      innerDiv.className = 'tradingview-widget-container__widget w-full h-full flex-1';
+      
+      outerDiv.appendChild(innerDiv);
+      outerDiv.appendChild(s);
+      container.appendChild(outerDiv);
+      
+      // Reveal the chart smoothly after a guaranteed timeframe
       setTimeout(() => {
-        container.classList.remove('skeleton-block'); 
-        container.style.opacity = '1';
-      }, 350);
-    };
-    
-    container.innerHTML = '<div class="tradingview-widget-container w-full h-full flex-1"><div class="tradingview-widget-container__widget w-full h-full flex-1"></div></div>';
-    container.querySelector('.tradingview-widget-container').appendChild(s);
+        if (container) {
+          container.classList.remove('skeleton-block'); 
+          container.style.opacity = '1';
+        }
+      }, 850);
+    });
   },
   async initVOO() {
     const container = document.getElementById('voo-growth-container');
@@ -962,8 +975,13 @@ function initializeApp() {
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initializeApp); } 
 else { initializeApp(); }
 
-if (window.requestIdleCallback) { requestIdleCallback(() => { MarketWidget.init(); WeatherWidget.init(); }); } 
-else { window.addEventListener('load', () => { MarketWidget.init(); WeatherWidget.init(); }); }
+window.addEventListener('load', () => {
+  // A small delay ensures the browser has fully painted the DOM before injecting heavy third-party iframes
+  setTimeout(() => {
+    MarketWidget.init();
+    WeatherWidget.init();
+  }, 100);
+});
 </script>
 </body>
 </html>
