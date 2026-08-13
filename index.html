@@ -503,8 +503,13 @@ const ClockWidget = {
 };
 
 const MarketWidget = {
-  baselinePrice: 631.02, 
-  fallbackPrice: 708.42, 
+  // Portfolio Constants mirroring spreadsheet methodology
+  portfolio: {
+    shares: 1533.42,       
+    totalInvested: 966986, 
+    adjCostBase: 891366    
+  },
+  fallbackPrice: 714.43,
 
   init() {
     this.initChart();
@@ -564,16 +569,22 @@ const MarketWidget = {
     if(cachedStr) {
       try {
         const cached = JSON.parse(cachedStr);
-        if(Date.now() - cached.time < 3600000) { this.renderVOO(cached.price, textEl, tooltipEl); return; }
+        if(Date.now() - cached.time < 3600000) { 
+          this.renderVOO(cached.price, textEl, tooltipEl); 
+          return; 
+        }
       } catch(e){}
     }
 
     let livePrice = this.fallbackPrice;
+    
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), CONSTANTS.VOO_TIMEOUT_MS);
       
-      const url = `https://corsproxy.io/?url=https://query1.finance.yahoo.com/v8/finance/chart/VOO?interval=1d&range=1d`;
+      const targetUrl = encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/VOO?interval=1d&range=1d&_=${Date.now()}`);
+      const url = `https://corsproxy.io/?url=${targetUrl}`;
+      
       const res = await fetch(url, { signal: controller.signal });
       clearTimeout(timeoutId);
       
@@ -582,16 +593,45 @@ const MarketWidget = {
         const meta = data?.chart?.result?.[0]?.meta;
         if(meta?.regularMarketPrice) {
           livePrice = meta.regularMarketPrice;
-          StorageUtils.set('salut_voo_data', JSON.stringify({ price: livePrice, time: Date.now() }));
+          StorageUtils.set('salut_voo_data', JSON.stringify({ 
+            price: livePrice,
+            time: Date.now() 
+          }));
         }
       }
     } catch(e) {}
     this.renderVOO(livePrice, textEl, tooltipEl);
   },
   renderVOO(price, textEl, tooltipEl) {
-    const growthStr = "+" + (((price - this.baselinePrice) / this.baselinePrice) * 100).toFixed(2) + "%";
+    const liveBalance = price * this.portfolio.shares;
+    const growthToDate = liveBalance - this.portfolio.totalInvested;
+    const cumulativeReturnPercent = (growthToDate / this.portfolio.adjCostBase) * 100;
+    
+    const sign = cumulativeReturnPercent >= 0 ? "+" : "";
+    const growthStr = sign + cumulativeReturnPercent.toFixed(2) + "%";
+    
     textEl.textContent = growthStr;
-    if(tooltipEl) tooltipEl.textContent = "$" + price.toFixed(2);
+    
+    if (cumulativeReturnPercent < 0) {
+      textEl.classList.add('text-red-500');
+      textEl.classList.remove('text-textLight', 'dark:text-textDark');
+      
+      const dotEl = textEl.previousElementSibling;
+      if(dotEl) {
+          dotEl.classList.remove('bg-[var(--yellow)]');
+          dotEl.classList.add('bg-red-500');
+      }
+    } else {
+      textEl.classList.remove('text-red-500');
+      textEl.classList.add('text-textLight', 'dark:text-textDark');
+      const dotEl = textEl.previousElementSibling;
+      if(dotEl) {
+          dotEl.classList.add('bg-[var(--yellow)]');
+          dotEl.classList.remove('bg-red-500');
+      }
+    }
+    
+    if(tooltipEl) tooltipEl.textContent = "Bal: $" + liveBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
   }
 };
 
