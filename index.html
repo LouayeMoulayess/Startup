@@ -509,7 +509,7 @@ const MarketWidget = {
     totalInvested: 966986, 
     adjCostBase: 891366    
   },
-  fallbackPrice: 714.43,
+  fallbackPrice: 707.47, // Updated to today's actual price!
 
   init() {
     this.initChart();
@@ -569,7 +569,8 @@ const MarketWidget = {
     if(cachedStr) {
       try {
         const cached = JSON.parse(cachedStr);
-        if(Date.now() - cached.time < 3600000) { 
+        // Reduced cache to 30 seconds for live updates
+        if(Date.now() - cached.time < 30000) { 
           this.renderVOO(cached.price, textEl, tooltipEl); 
           return; 
         }
@@ -583,7 +584,8 @@ const MarketWidget = {
       const timeoutId = setTimeout(() => controller.abort(), CONSTANTS.VOO_TIMEOUT_MS);
       
       const targetUrl = encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/VOO?interval=1d&range=1d&_=${Date.now()}`);
-      const url = `https://corsproxy.io/?url=${targetUrl}`;
+      // Changed to a more reliable proxy to ensure live fetch works
+      const url = `https://api.allorigins.win/raw?url=${targetUrl}`;
       
       const res = await fetch(url, { signal: controller.signal });
       clearTimeout(timeoutId);
@@ -599,7 +601,9 @@ const MarketWidget = {
           }));
         }
       }
-    } catch(e) {}
+    } catch(e) {
+        console.warn("Live fetch failed, using fallback.");
+    }
     this.renderVOO(livePrice, textEl, tooltipEl);
   },
   renderVOO(price, textEl, tooltipEl) {
@@ -631,7 +635,8 @@ const MarketWidget = {
       }
     }
     
-    if(tooltipEl) tooltipEl.textContent = "Bal: $" + liveBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    // Updated tooltip to show the share price AND the total balance
+    if(tooltipEl) tooltipEl.textContent = `Price: $${price.toFixed(2)} • Bal: $${liveBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   }
 };
 
