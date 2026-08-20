@@ -110,9 +110,6 @@
 @media (prefers-color-scheme: dark) { .hover-scrollbar::-webkit-scrollbar-thumb { @apply bg-white/10; } }
 
 .calc-display::-webkit-scrollbar { display: none; }
-.toggle-checkbox:checked { right: 0; border-color: #68D391; }
-.toggle-checkbox:checked + .toggle-label { background-color: #68D391; }
-.peer:checked ~ .peer-checked\:translate-x-full { --tw-translate-x: 100%; transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
 </style>
 </head>
 
@@ -124,7 +121,7 @@
   <div class="absolute top-[40%] -right-[5%] w-[55vw] h-[55vw] rounded-full bg-[var(--yellow)] opacity-[0.06] dark:opacity-[0.04] blur-[120px] lg:blur-[160px] transform-gpu will-change-transform"></div>
 </div>
 
-<svg class="hidden">
+<svg class="hidden" aria-hidden="true">
   <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></symbol>
   <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
   <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></symbol>
@@ -155,7 +152,7 @@
     </div>
     
     <span class="opacity-30 text-[10px] hidden" id="voo-dot">●</span>
-    <div>Lebanon <span class="text-[#FF3B30] font-bold ml-1" id="lb-time">--:--</span></div>
+    <div title="Local time in Lebanon">Lebanon <span class="text-[#FF3B30] font-bold ml-1" id="lb-time">--:--</span></div>
   </div>
 </header>
 
@@ -509,7 +506,7 @@ const MarketWidget = {
     totalInvested: 966986, 
     adjCostBase: 891366    
   },
-  fallbackPrice: 707.47, // Updated to today's actual price!
+  fallbackPrice: 701.01, // Updated to a more recent current market value
 
   init() {
     this.initChart();
@@ -584,7 +581,6 @@ const MarketWidget = {
       const timeoutId = setTimeout(() => controller.abort(), CONSTANTS.VOO_TIMEOUT_MS);
       
       const targetUrl = encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/VOO?interval=1d&range=1d&_=${Date.now()}`);
-      // Changed to a more reliable proxy to ensure live fetch works
       const url = `https://api.allorigins.win/raw?url=${targetUrl}`;
       
       const res = await fetch(url, { signal: controller.signal });
@@ -635,7 +631,6 @@ const MarketWidget = {
       }
     }
     
-    // Updated tooltip to show the share price AND the total balance
     if(tooltipEl) tooltipEl.textContent = `Price: $${price.toFixed(2)} • Bal: $${liveBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   }
 };
