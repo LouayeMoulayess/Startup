@@ -273,7 +273,7 @@
 
     <div class="mb-4 flex flex-col gap-2">
       <label for="set-manual-price" class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Manual Stock Price Override (Optional)</label>
-      <input type="number" step="0.01" id="set-manual-price" placeholder="Leave blank for live auto-fetch (e.g. 705.50)" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-full">
+      <input type="number" step="0.01" id="set-manual-price" placeholder="Leave blank for live auto-fetch (e.g. 704.25)" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-full">
     </div>
     
     <div class="mb-4 flex flex-col gap-2">
@@ -319,7 +319,7 @@ const Config = {
 
 const SettingsWidget = {
   modal: null, content: null, btnOpen: null, btnCancel: null, btnSave: null,
-  inputCity: null, inputTicker: null, inputAccent: null, inputManualPrice: null,
+  inputCity: null, inputTicker: null, inputManualPrice: null, inputAccent: null,
 
   init() {
     this.modal = document.getElementById('settings-modal');
@@ -329,8 +329,8 @@ const SettingsWidget = {
     this.btnSave = document.getElementById('settings-save');
     this.inputCity = document.getElementById('set-city');
     this.inputTicker = document.getElementById('set-ticker');
-    this.inputAccent = document.getElementById('set-accent');
     this.inputManualPrice = document.getElementById('set-manual-price');
+    this.inputAccent = document.getElementById('set-accent');
 
     if(this.btnOpen) this.btnOpen.addEventListener('click', () => this.open());
     if(this.btnCancel) this.btnCancel.addEventListener('click', () => this.close());
@@ -347,10 +347,10 @@ const SettingsWidget = {
   },
   open() {
     if(!this.modal) return;
-    this.inputCity.value = Config.data.city;
-    this.inputTicker.value = Config.data.ticker;
+    this.inputCity.value = Config.data.city || '';
+    this.inputTicker.value = Config.data.ticker || '';
+    if(this.inputManualPrice) this.inputManualPrice.value = Config.data.manualPrice || '';
     this.inputAccent.value = Config.data.accent || "#FF9500";
-    this.inputManualPrice.value = Config.data.manualPrice || '';
     this.modal.classList.remove('opacity-0', 'pointer-events-none');
     this.content.classList.remove('scale-95');
     this.modal.setAttribute('aria-hidden', 'false');
@@ -366,8 +366,8 @@ const SettingsWidget = {
   async save() {
     const newCity = this.inputCity.value.trim() || "Burbank, CA";
     Config.data.ticker = this.inputTicker.value.trim() || "BATS:VOO";
+    if(this.inputManualPrice) Config.data.manualPrice = this.inputManualPrice.value.trim();
     Config.data.accent = this.inputAccent.value;
-    Config.data.manualPrice = this.inputManualPrice.value.trim();
 
     if (newCity !== Config.data.city) {
       if(this.btnSave) this.btnSave.textContent = "Locating...";
@@ -516,19 +516,12 @@ const MarketWidget = {
     totalInvested: 966986, 
     adjCostBase: 891366    
   },
-  fallbackPrice: 705.50, // Updated baseline to current real market value
-
-  isFetching: false,
 
   init() {
     this.initChart();
-    this.initVOO(true);
-    // Auto-refresh price every 60 seconds
-    if (!this._interval) {
-      this._interval = setInterval(() => this.initVOO(true), 60000);
-    }
+    this.initVOO();
   },
-
+  
   initChart() {
     const container = document.getElementById('tv-widget-container');
     if(!container || window.__tvLoaded) return;
@@ -568,179 +561,80 @@ const MarketWidget = {
     }, 350);
   },
 
-  async fetchLivePrice(tickerStr) {
-    // Check manual override setting
-    if (Config.data.manualPrice && !isNaN(parseFloat(Config.data.manualPrice))) {
-      return { price: parseFloat(Config.data.manualPrice), source: "Manual Override", success: true };
-    }
-
-    const rawTicker = tickerStr.includes(":") ? tickerStr.split(":")[1] : tickerStr;
-    const tickerUpper = (rawTicker || "VOO").toUpperCase();
-
-    // 1. Direct TradingView Scanner API (Primary - Native Browser CORS, No Proxy Needed!)
-    try {
-      const tvPayload = {
-        symbols: {
-          tickers: [
-            `AMEX:${tickerUpper}`,
-            `BATS:${tickerUpper}`,
-            `NYSEARCA:${tickerUpper}`,
-            `NASDAQ:${tickerUpper}`
-          ]
-        },
-        columns: ["close"]
-      };
-      const tvRes = await fetch("https://scanner.tradingview.com/america/scan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(tvPayload)
-      });
-      if (tvRes.ok) {
-        const tvData = await tvRes.json();
-        if (tvData && tvData.data && tvData.data.length > 0) {
-          for (const item of tvData.data) {
-            if (item && item.d && typeof item.d[0] === 'number' && item.d[0] > 0) {
-              return { price: item.d[0], source: "TradingView", success: true };
-            }
-          }
-        }
-      }
-    } catch (e) {
-      console.warn("TradingView Direct API request failed, falling back to proxies...", e);
-    }
-
-    // 2. Yahoo Finance via Multiple CORS Proxies (Secondary)
-    const yUrl1 = `https://query1.finance.yahoo.com/v8/finance/chart/${tickerUpper}?interval=1d&range=1d&_=${Date.now()}`;
-    const yUrl2 = `https://query2.finance.yahoo.com/v8/finance/chart/${tickerUpper}?interval=1d&range=1d&_=${Date.now()}`;
-    
-    const proxies = [
-      `https://corsproxy.io/?${encodeURIComponent(yUrl1)}`,
-      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(yUrl1)}`,
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(yUrl2)}`,
-      `https://corsproxy.io/?${encodeURIComponent(yUrl2)}`
-    ];
-
-    for (const proxyUrl of proxies) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
-        const res = await fetch(proxyUrl, { signal: controller.signal });
-        clearTimeout(timeoutId);
-
-        if (!res.ok) continue;
-        const data = await res.json();
-        const meta = data?.chart?.result?.[0]?.meta;
-        const quotes = data?.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
-
-        let price = meta?.regularMarketPrice;
-        if (!price && quotes && quotes.length > 0) {
-          const validQuotes = quotes.filter(q => q !== null && q !== undefined);
-          if (validQuotes.length > 0) price = validQuotes[validQuotes.length - 1];
-        }
-
-        if (price && typeof price === 'number' && price > 0) {
-          return { price, source: "Yahoo", success: true };
-        }
-      } catch (e) {
-        // continue to next proxy
-      }
-    }
-
-    // 3. Stooq JSON via Proxy (Tertiary)
-    try {
-      const stooqUrl = `https://stooq.com/q/l/?s=${tickerUpper.toLowerCase()}.us&f=sdgl1vc&e=json`;
-      const proxyStooq = `https://api.allorigins.win/raw?url=${encodeURIComponent(stooqUrl)}`;
-      const stooqRes = await fetch(proxyStooq);
-      if (stooqRes.ok) {
-        const stooqData = await stooqRes.json();
-        const closePrice = parseFloat(stooqData?.symbols?.[0]?.close);
-        if (!isNaN(closePrice) && closePrice > 0) {
-          return { price: closePrice, source: "Stooq", success: true };
-        }
-      }
-    } catch (e) {}
-
-    return { price: this.fallbackPrice, source: "Baseline", success: false };
-  },
-
-  async initVOO(force = false) {
-    const container = document.getElementById('voo-growth-container');
+  async initVOO() {
     const textEl = document.getElementById('voo-growth-text');
     const tooltipEl = document.getElementById('voo-price-tooltip');
+    const container = document.getElementById('voo-growth-container');
     const dot = document.getElementById('voo-dot');
-    const refreshIcon = document.getElementById('voo-refresh-icon');
+    
+    if(!textEl || !container) return;
 
-    if (!container || !textEl) return;
-
+    // Reveal the container immediately
     container.classList.remove('hidden');
-    if (dot) dot.classList.remove('hidden');
-
-    if (this.isFetching) return;
-    this.isFetching = true;
-
-    if (refreshIcon) refreshIcon.classList.add('animate-spin');
-
-    // Display cached or baseline price immediately to eliminate layout shift
-    const cachedStr = StorageUtils.get('salut_voo_data');
-    if (cachedStr && !force) {
-      try {
-        const cached = JSON.parse(cachedStr);
-        if (cached.price) {
-          this.renderVOO(cached.price, textEl, tooltipEl, cached.source || "Cache");
-        }
-      } catch (e) {}
+    if(dot) dot.classList.remove('hidden');
+    
+    // Check if user set a manual price override in Settings
+    if (Config.data.manualPrice && !isNaN(parseFloat(Config.data.manualPrice))) {
+      this.renderVOO(parseFloat(Config.data.manualPrice), textEl, tooltipEl, true);
+      return;
     }
 
-    // Fetch live market data
-    const result = await this.fetchLivePrice(Config.data.ticker);
+    try {
+      // Direct call to TradingView Scanner. This avoids CORS proxies entirely.
+      const response = await fetch('https://scanner.tradingview.com/america/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: JSON.stringify({
+          symbols: { tickers: ["AMEX:VOO"], query: { types: [] } },
+          columns: ["close"]
+        })
+      });
 
-    if (result.success) {
-      StorageUtils.set('salut_voo_data', JSON.stringify({
-        price: result.price,
-        source: result.source,
-        time: Date.now()
-      }));
-      this.renderVOO(result.price, textEl, tooltipEl, result.source);
-    } else {
-      const currentPrice = (cachedStr && JSON.parse(cachedStr)?.price) || this.fallbackPrice;
-      this.renderVOO(currentPrice, textEl, tooltipEl, "Baseline");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data && data.data && data.data.length > 0 && data.data[0].d && data.data[0].d.length > 0) {
+        const livePrice = data.data[0].d[0]; // Extract the 'close' price
+        this.renderVOO(livePrice, textEl, tooltipEl, false);
+      } else {
+        throw new Error("Invalid data format received from TradingView");
+      }
+      
+    } catch (error) {
+      console.error("Failed to fetch VOO price:", error);
+      // Soft fail instead of crashing the console
+      textEl.textContent = "Data Error";
+      textEl.className = "text-xs font-bold text-red-500";
+      
+      const dotEl = textEl.previousElementSibling;
+      if(dotEl) dotEl.className = 'w-2 h-2 rounded-full bg-red-500';
+      
+      if (tooltipEl) tooltipEl.textContent = "Live fetch failed. Use 'Manual Stock Price' in Settings.";
     }
-
-    this.isFetching = false;
-    if (refreshIcon) refreshIcon.classList.remove('animate-spin');
   },
 
-  renderVOO(price, textEl, tooltipEl, source = "") {
+  renderVOO(price, textEl, tooltipEl, isManual = false) {
     const liveBalance = price * this.portfolio.shares;
     const growthToDate = liveBalance - this.portfolio.totalInvested;
     const cumulativeReturnPercent = (growthToDate / this.portfolio.adjCostBase) * 100;
     
     const sign = cumulativeReturnPercent >= 0 ? "+" : "";
-    const growthStr = sign + cumulativeReturnPercent.toFixed(2) + "%";
+    textEl.textContent = sign + cumulativeReturnPercent.toFixed(2) + "%";
     
-    textEl.textContent = growthStr;
+    const isPositive = cumulativeReturnPercent >= 0;
+    textEl.className = `text-xs font-bold ${isPositive ? 'text-textLight dark:text-textDark' : 'text-red-500'}`;
     
-    const dotIndicator = document.getElementById('voo-dot-indicator');
-
-    if (cumulativeReturnPercent < 0) {
-      textEl.classList.add('text-red-500');
-      textEl.classList.remove('text-textLight', 'dark:text-textDark');
-      if (dotIndicator) {
-        dotIndicator.classList.remove('bg-[var(--yellow)]');
-        dotIndicator.classList.add('bg-red-500');
-      }
-    } else {
-      textEl.classList.remove('text-red-500');
-      textEl.classList.add('text-textLight', 'dark:text-textDark');
-      if (dotIndicator) {
-        dotIndicator.classList.add('bg-[var(--yellow)]');
-        dotIndicator.classList.remove('bg-red-500');
-      }
+    const dotEl = textEl.previousElementSibling;
+    if(dotEl) {
+      dotEl.className = `w-2 h-2 rounded-full ${isPositive ? 'bg-[var(--yellow)]' : 'bg-red-500'}`;
     }
     
-    const srcTag = source ? ` [${source}]` : '';
-    if (tooltipEl) {
-      tooltipEl.textContent = `Price: $${price.toFixed(2)} • Bal: $${liveBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}${srcTag}`;
+    if(tooltipEl) {
+       const sourceTag = isManual ? " [Manual]" : " [Live]";
+       tooltipEl.textContent = `Price: $${price.toFixed(2)}${sourceTag} • Bal: $${liveBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     }
   }
 };
