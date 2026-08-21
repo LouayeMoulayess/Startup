@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://cdn.tailwindcss.com">
 <link rel="dns-prefetch" href="https://api.open-meteo.com">
 <link rel="dns-prefetch" href="https://s3.tradingview.com">
+<link rel="dns-prefetch" href="https://scanner.tradingview.com">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23fba31b' stroke='%23e37812' stroke-width='2'/%3E%3Cellipse cx='20' cy='18' rx='8' ry='4' fill='%23fff' opacity='0.5' transform='rotate(-30 20 18)'/%3E%3Cg fill='%23db2416'%3E%3Cpolygon points='32,15 34,21 40,21 35,25 37,31 32,27 27,31 29,25 24,21 30,21'/%3E%3Cpolygon points='20,30 22,36 28,36 23,40 25,46 20,42 15,46 17,40 12,36 18,36'/%3E%3Cpolygon points='44,30 46,36 52,36 47,40 49,46 44,42 39,46 41,40 36,36 42,36'/%3E%3Cpolygon points='32,44 34,50 40,50 35,54 37,60 32,56 27,60 29,54 24,50 30,50'/%3E%3C/g%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
@@ -41,7 +42,6 @@
 @layer components {
   .glass-panel {
     @apply bg-cardLight border border-borderLight;
-    /* backdrop-filter removed for performance optimizations */
     box-shadow: 0 8px 32px rgba(0,0,0,0.04), inset 0 1px 1px rgba(255,255,255,0.4);
   }
   @media (prefers-color-scheme: dark) {
@@ -115,7 +115,7 @@
 
 <body class="min-h-screen flex flex-col items-center px-6 pb-6 overflow-x-hidden bg-bgLight text-textLight antialiased dark:bg-bgDark dark:text-textDark relative">
 
-<!-- Ambient Mesh Gradient Orbs (Animations removed for Performance) -->
+<!-- Ambient Mesh Gradient Orbs -->
 <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
   <div class="absolute -top-[15%] -left-[10%] w-[45vw] h-[45vw] rounded-full bg-[var(--yellow)] opacity-[0.08] dark:opacity-[0.05] blur-[100px] lg:blur-[130px] transform-gpu will-change-transform"></div>
   <div class="absolute top-[40%] -right-[5%] w-[55vw] h-[55vw] rounded-full bg-[var(--yellow)] opacity-[0.06] dark:opacity-[0.04] blur-[120px] lg:blur-[160px] transform-gpu will-change-transform"></div>
@@ -141,13 +141,15 @@
     <div id="date"></div>
     <span class="opacity-30 text-[10px]">●</span>
     
-    <div id="voo-growth-container" class="relative group cursor-default hidden">
-      <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/5 shadow-inner transition-colors">
-        <span class="w-2 h-2 rounded-full bg-[var(--yellow)]"></span>
+    <!-- Interactive VOO Pill Badge -->
+    <div id="voo-growth-container" class="relative group cursor-pointer hidden" onclick="MarketWidget.initVOO(true)" title="Click to refresh live price">
+      <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/5 shadow-inner transition-colors hover:bg-black/10 dark:hover:bg-white/15">
+        <span id="voo-dot-indicator" class="w-2 h-2 rounded-full bg-[var(--yellow)] transition-colors"></span>
         <span id="voo-growth-text" class="text-xs font-bold text-textLight dark:text-textDark">Loading...</span>
+        <svg id="voo-refresh-icon" class="w-3 h-3 text-mutedLight dark:text-mutedDark opacity-50 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
       </div>
       <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-lg text-xs font-bold bg-textLight dark:bg-textDark text-bgLight dark:text-bgDark opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg z-50">
-        Current: <span id="voo-price-tooltip" class="text-[var(--yellow)]">$---.--</span>
+        <span id="voo-price-tooltip">Current: $---.--</span>
       </div>
     </div>
     
@@ -268,6 +270,11 @@
       <label for="set-ticker" class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Stock Ticker</label>
       <input type="text" id="set-ticker" placeholder="e.g. BATS:VOO or NASDAQ:AAPL" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-full">
     </div>
+
+    <div class="mb-4 flex flex-col gap-2">
+      <label for="set-manual-price" class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Manual Stock Price Override (Optional)</label>
+      <input type="number" step="0.01" id="set-manual-price" placeholder="Leave blank for live auto-fetch (e.g. 705.50)" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-full">
+    </div>
     
     <div class="mb-4 flex flex-col gap-2">
       <label for="set-accent" class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Accent Theme Color</label>
@@ -301,7 +308,7 @@ const StorageUtils = {
 };
 
 const Config = {
-  data: { city: "Burbank, CA", lat: 34.1808, lon: -118.3090, ticker: "BATS:VOO", accent: "#FF9500" },
+  data: { city: "Burbank, CA", lat: 34.1808, lon: -118.3090, ticker: "BATS:VOO", accent: "#FF9500", manualPrice: "" },
   init() {
     const saved = StorageUtils.get('salut_config');
     if (saved) { try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch(e) {} }
@@ -312,7 +319,7 @@ const Config = {
 
 const SettingsWidget = {
   modal: null, content: null, btnOpen: null, btnCancel: null, btnSave: null,
-  inputCity: null, inputTicker: null, inputAccent: null,
+  inputCity: null, inputTicker: null, inputAccent: null, inputManualPrice: null,
 
   init() {
     this.modal = document.getElementById('settings-modal');
@@ -323,6 +330,7 @@ const SettingsWidget = {
     this.inputCity = document.getElementById('set-city');
     this.inputTicker = document.getElementById('set-ticker');
     this.inputAccent = document.getElementById('set-accent');
+    this.inputManualPrice = document.getElementById('set-manual-price');
 
     if(this.btnOpen) this.btnOpen.addEventListener('click', () => this.open());
     if(this.btnCancel) this.btnCancel.addEventListener('click', () => this.close());
@@ -342,6 +350,7 @@ const SettingsWidget = {
     this.inputCity.value = Config.data.city;
     this.inputTicker.value = Config.data.ticker;
     this.inputAccent.value = Config.data.accent || "#FF9500";
+    this.inputManualPrice.value = Config.data.manualPrice || '';
     this.modal.classList.remove('opacity-0', 'pointer-events-none');
     this.content.classList.remove('scale-95');
     this.modal.setAttribute('aria-hidden', 'false');
@@ -358,6 +367,7 @@ const SettingsWidget = {
     const newCity = this.inputCity.value.trim() || "Burbank, CA";
     Config.data.ticker = this.inputTicker.value.trim() || "BATS:VOO";
     Config.data.accent = this.inputAccent.value;
+    Config.data.manualPrice = this.inputManualPrice.value.trim();
 
     if (newCity !== Config.data.city) {
       if(this.btnSave) this.btnSave.textContent = "Locating...";
@@ -506,12 +516,19 @@ const MarketWidget = {
     totalInvested: 966986, 
     adjCostBase: 891366    
   },
-  fallbackPrice: 705.50, // Updated baseline fallback
+  fallbackPrice: 705.50, // Updated baseline to current real market value
+
+  isFetching: false,
 
   init() {
     this.initChart();
-    this.initVOO();
+    this.initVOO(true);
+    // Auto-refresh price every 60 seconds
+    if (!this._interval) {
+      this._interval = setInterval(() => this.initVOO(true), 60000);
+    }
   },
+
   initChart() {
     const container = document.getElementById('tv-widget-container');
     if(!container || window.__tvLoaded) return;
@@ -551,31 +568,70 @@ const MarketWidget = {
     }, 350);
   },
 
-  async fetchLiveVOOPrice() {
-    const rawTargetUrl1 = `https://query1.finance.yahoo.com/v8/finance/chart/VOO?interval=1d&range=1d&_=${Date.now()}`;
-    const rawTargetUrl2 = `https://query2.finance.yahoo.com/v8/finance/chart/VOO?interval=1d&range=1d&_=${Date.now()}`;
+  async fetchLivePrice(tickerStr) {
+    // Check manual override setting
+    if (Config.data.manualPrice && !isNaN(parseFloat(Config.data.manualPrice))) {
+      return { price: parseFloat(Config.data.manualPrice), source: "Manual Override", success: true };
+    }
+
+    const rawTicker = tickerStr.includes(":") ? tickerStr.split(":")[1] : tickerStr;
+    const tickerUpper = (rawTicker || "VOO").toUpperCase();
+
+    // 1. Direct TradingView Scanner API (Primary - Native Browser CORS, No Proxy Needed!)
+    try {
+      const tvPayload = {
+        symbols: {
+          tickers: [
+            `AMEX:${tickerUpper}`,
+            `BATS:${tickerUpper}`,
+            `NYSEARCA:${tickerUpper}`,
+            `NASDAQ:${tickerUpper}`
+          ]
+        },
+        columns: ["close"]
+      };
+      const tvRes = await fetch("https://scanner.tradingview.com/america/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(tvPayload)
+      });
+      if (tvRes.ok) {
+        const tvData = await tvRes.json();
+        if (tvData && tvData.data && tvData.data.length > 0) {
+          for (const item of tvData.data) {
+            if (item && item.d && typeof item.d[0] === 'number' && item.d[0] > 0) {
+              return { price: item.d[0], source: "TradingView", success: true };
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("TradingView Direct API request failed, falling back to proxies...", e);
+    }
+
+    // 2. Yahoo Finance via Multiple CORS Proxies (Secondary)
+    const yUrl1 = `https://query1.finance.yahoo.com/v8/finance/chart/${tickerUpper}?interval=1d&range=1d&_=${Date.now()}`;
+    const yUrl2 = `https://query2.finance.yahoo.com/v8/finance/chart/${tickerUpper}?interval=1d&range=1d&_=${Date.now()}`;
     
-    // Primary and fallback endpoints to bypass CORS / rate limits
-    const endpoints = [
-      `https://corsproxy.io/?${encodeURIComponent(rawTargetUrl1)}`,
-      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rawTargetUrl1)}`,
-      `https://api.allorigins.win/raw?url=${encodeURIComponent(rawTargetUrl2)}`,
-      `https://corsproxy.io/?${encodeURIComponent(rawTargetUrl2)}`
+    const proxies = [
+      `https://corsproxy.io/?${encodeURIComponent(yUrl1)}`,
+      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(yUrl1)}`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(yUrl2)}`,
+      `https://corsproxy.io/?${encodeURIComponent(yUrl2)}`
     ];
 
-    for (const url of endpoints) {
+    for (const proxyUrl of proxies) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
-        const res = await fetch(url, { signal: controller.signal });
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        const res = await fetch(proxyUrl, { signal: controller.signal });
         clearTimeout(timeoutId);
 
         if (!res.ok) continue;
         const data = await res.json();
-        
         const meta = data?.chart?.result?.[0]?.meta;
         const quotes = data?.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
-        
+
         let price = meta?.regularMarketPrice;
         if (!price && quotes && quotes.length > 0) {
           const validQuotes = quotes.filter(q => q !== null && q !== undefined);
@@ -583,54 +639,78 @@ const MarketWidget = {
         }
 
         if (price && typeof price === 'number' && price > 0) {
-          return { price, success: true };
+          return { price, source: "Yahoo", success: true };
         }
       } catch (e) {
-        // Continue to next proxy
+        // continue to next proxy
       }
     }
-    return { price: this.fallbackPrice, success: false };
+
+    // 3. Stooq JSON via Proxy (Tertiary)
+    try {
+      const stooqUrl = `https://stooq.com/q/l/?s=${tickerUpper.toLowerCase()}.us&f=sdgl1vc&e=json`;
+      const proxyStooq = `https://api.allorigins.win/raw?url=${encodeURIComponent(stooqUrl)}`;
+      const stooqRes = await fetch(proxyStooq);
+      if (stooqRes.ok) {
+        const stooqData = await stooqRes.json();
+        const closePrice = parseFloat(stooqData?.symbols?.[0]?.close);
+        if (!isNaN(closePrice) && closePrice > 0) {
+          return { price: closePrice, source: "Stooq", success: true };
+        }
+      }
+    } catch (e) {}
+
+    return { price: this.fallbackPrice, source: "Baseline", success: false };
   },
 
-  async initVOO() {
+  async initVOO(force = false) {
     const container = document.getElementById('voo-growth-container');
     const textEl = document.getElementById('voo-growth-text');
     const tooltipEl = document.getElementById('voo-price-tooltip');
     const dot = document.getElementById('voo-dot');
-    
-    if(!container || !textEl || Config.data.ticker !== "BATS:VOO") return;
+    const refreshIcon = document.getElementById('voo-refresh-icon');
+
+    if (!container || !textEl) return;
 
     container.classList.remove('hidden');
-    if(dot) dot.classList.remove('hidden');
+    if (dot) dot.classList.remove('hidden');
 
-    // Render fast cached value if fresh (less than 1 minute old)
+    if (this.isFetching) return;
+    this.isFetching = true;
+
+    if (refreshIcon) refreshIcon.classList.add('animate-spin');
+
+    // Display cached or baseline price immediately to eliminate layout shift
     const cachedStr = StorageUtils.get('salut_voo_data');
-    let cacheValid = false;
-    if(cachedStr) {
+    if (cachedStr && !force) {
       try {
         const cached = JSON.parse(cachedStr);
-        if(Date.now() - cached.time < 60000 && cached.price && cached.isLive) { 
-          this.renderVOO(cached.price, textEl, tooltipEl); 
-          cacheValid = true;
+        if (cached.price) {
+          this.renderVOO(cached.price, textEl, tooltipEl, cached.source || "Cache");
         }
-      } catch(e){}
+      } catch (e) {}
     }
 
-    // Always attempt fresh live fetch
-    const result = await this.fetchLiveVOOPrice();
+    // Fetch live market data
+    const result = await this.fetchLivePrice(Config.data.ticker);
+
     if (result.success) {
-      StorageUtils.set('salut_voo_data', JSON.stringify({ 
+      StorageUtils.set('salut_voo_data', JSON.stringify({
         price: result.price,
-        isLive: true,
-        time: Date.now() 
+        source: result.source,
+        time: Date.now()
       }));
-      this.renderVOO(result.price, textEl, tooltipEl);
-    } else if (!cacheValid) {
-      this.renderVOO(this.fallbackPrice, textEl, tooltipEl);
+      this.renderVOO(result.price, textEl, tooltipEl, result.source);
+    } else {
+      const currentPrice = (cachedStr && JSON.parse(cachedStr)?.price) || this.fallbackPrice;
+      this.renderVOO(currentPrice, textEl, tooltipEl, "Baseline");
     }
+
+    this.isFetching = false;
+    if (refreshIcon) refreshIcon.classList.remove('animate-spin');
   },
 
-  renderVOO(price, textEl, tooltipEl) {
+  renderVOO(price, textEl, tooltipEl, source = "") {
     const liveBalance = price * this.portfolio.shares;
     const growthToDate = liveBalance - this.portfolio.totalInvested;
     const cumulativeReturnPercent = (growthToDate / this.portfolio.adjCostBase) * 100;
@@ -640,26 +720,28 @@ const MarketWidget = {
     
     textEl.textContent = growthStr;
     
+    const dotIndicator = document.getElementById('voo-dot-indicator');
+
     if (cumulativeReturnPercent < 0) {
       textEl.classList.add('text-red-500');
       textEl.classList.remove('text-textLight', 'dark:text-textDark');
-      
-      const dotEl = textEl.previousElementSibling;
-      if(dotEl) {
-          dotEl.classList.remove('bg-[var(--yellow)]');
-          dotEl.classList.add('bg-red-500');
+      if (dotIndicator) {
+        dotIndicator.classList.remove('bg-[var(--yellow)]');
+        dotIndicator.classList.add('bg-red-500');
       }
     } else {
       textEl.classList.remove('text-red-500');
       textEl.classList.add('text-textLight', 'dark:text-textDark');
-      const dotEl = textEl.previousElementSibling;
-      if(dotEl) {
-          dotEl.classList.add('bg-[var(--yellow)]');
-          dotEl.classList.remove('bg-red-500');
+      if (dotIndicator) {
+        dotIndicator.classList.add('bg-[var(--yellow)]');
+        dotIndicator.classList.remove('bg-red-500');
       }
     }
     
-    if(tooltipEl) tooltipEl.textContent = `Price: $${price.toFixed(2)} • Bal: $${liveBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    const srcTag = source ? ` [${source}]` : '';
+    if (tooltipEl) {
+      tooltipEl.textContent = `Price: $${price.toFixed(2)} • Bal: $${liveBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}${srcTag}`;
+    }
   }
 };
 
