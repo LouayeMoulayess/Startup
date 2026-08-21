@@ -506,7 +506,7 @@ const MarketWidget = {
     totalInvested: 966986, 
     adjCostBase: 891366    
   },
-  fallbackPrice: 701.01, // Updated to a more recent current market value
+  fallbackPrice: 705.50, // Updated baseline fallback
 
   init() {
     this.initChart();
@@ -550,58 +550,86 @@ const MarketWidget = {
       }
     }, 350);
   },
+
+  async fetchLiveVOOPrice() {
+    const rawTargetUrl1 = `https://query1.finance.yahoo.com/v8/finance/chart/VOO?interval=1d&range=1d&_=${Date.now()}`;
+    const rawTargetUrl2 = `https://query2.finance.yahoo.com/v8/finance/chart/VOO?interval=1d&range=1d&_=${Date.now()}`;
+    
+    // Primary and fallback endpoints to bypass CORS / rate limits
+    const endpoints = [
+      `https://corsproxy.io/?${encodeURIComponent(rawTargetUrl1)}`,
+      `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(rawTargetUrl1)}`,
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(rawTargetUrl2)}`,
+      `https://corsproxy.io/?${encodeURIComponent(rawTargetUrl2)}`
+    ];
+
+    for (const url of endpoints) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const res = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+
+        if (!res.ok) continue;
+        const data = await res.json();
+        
+        const meta = data?.chart?.result?.[0]?.meta;
+        const quotes = data?.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
+        
+        let price = meta?.regularMarketPrice;
+        if (!price && quotes && quotes.length > 0) {
+          const validQuotes = quotes.filter(q => q !== null && q !== undefined);
+          if (validQuotes.length > 0) price = validQuotes[validQuotes.length - 1];
+        }
+
+        if (price && typeof price === 'number' && price > 0) {
+          return { price, success: true };
+        }
+      } catch (e) {
+        // Continue to next proxy
+      }
+    }
+    return { price: this.fallbackPrice, success: false };
+  },
+
   async initVOO() {
     const container = document.getElementById('voo-growth-container');
     const textEl = document.getElementById('voo-growth-text');
     const tooltipEl = document.getElementById('voo-price-tooltip');
     const dot = document.getElementById('voo-dot');
     
-    if(!container || !textEl || Config.data.ticker !== "BATS:VOO" || window.__vooLoaded) return;
-    window.__vooLoaded = true;
+    if(!container || !textEl || Config.data.ticker !== "BATS:VOO") return;
 
     container.classList.remove('hidden');
     if(dot) dot.classList.remove('hidden');
 
+    // Render fast cached value if fresh (less than 1 minute old)
     const cachedStr = StorageUtils.get('salut_voo_data');
+    let cacheValid = false;
     if(cachedStr) {
       try {
         const cached = JSON.parse(cachedStr);
-        // Reduced cache to 30 seconds for live updates
-        if(Date.now() - cached.time < 30000) { 
+        if(Date.now() - cached.time < 60000 && cached.price && cached.isLive) { 
           this.renderVOO(cached.price, textEl, tooltipEl); 
-          return; 
+          cacheValid = true;
         }
       } catch(e){}
     }
 
-    let livePrice = this.fallbackPrice;
-    
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), CONSTANTS.VOO_TIMEOUT_MS);
-      
-      const targetUrl = encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/VOO?interval=1d&range=1d&_=${Date.now()}`);
-      const url = `https://api.allorigins.win/raw?url=${targetUrl}`;
-      
-      const res = await fetch(url, { signal: controller.signal });
-      clearTimeout(timeoutId);
-      
-      if(res.ok) {
-        const data = await res.json();
-        const meta = data?.chart?.result?.[0]?.meta;
-        if(meta?.regularMarketPrice) {
-          livePrice = meta.regularMarketPrice;
-          StorageUtils.set('salut_voo_data', JSON.stringify({ 
-            price: livePrice,
-            time: Date.now() 
-          }));
-        }
-      }
-    } catch(e) {
-        console.warn("Live fetch failed, using fallback.");
+    // Always attempt fresh live fetch
+    const result = await this.fetchLiveVOOPrice();
+    if (result.success) {
+      StorageUtils.set('salut_voo_data', JSON.stringify({ 
+        price: result.price,
+        isLive: true,
+        time: Date.now() 
+      }));
+      this.renderVOO(result.price, textEl, tooltipEl);
+    } else if (!cacheValid) {
+      this.renderVOO(this.fallbackPrice, textEl, tooltipEl);
     }
-    this.renderVOO(livePrice, textEl, tooltipEl);
   },
+
   renderVOO(price, textEl, tooltipEl) {
     const liveBalance = price * this.portfolio.shares;
     const growthToDate = liveBalance - this.portfolio.totalInvested;
