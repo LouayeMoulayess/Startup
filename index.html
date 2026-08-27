@@ -512,7 +512,7 @@ const ClockWidget = {
 const MarketWidget = {
   // Portfolio Constants mirroring spreadsheet methodology
   portfolio: {
-    shares: 1533.42,       
+    shares: 1532.12,       
     totalInvested: 966986, 
     adjCostBase: 891366    
   },
@@ -597,7 +597,10 @@ const MarketWidget = {
       const data = await response.json();
       
       if (data && data.data && data.data.length > 0 && data.data[0].d && data.data[0].d.length > 0) {
-        const livePrice = data.data[0].d[0]; // Extract the 'close' price
+        const livePrice = parseFloat(data.data[0].d[0]); // Extract the 'close' price
+        if(isNaN(livePrice)) {
+             throw new Error("TradingView returned an invalid number");
+        }
         this.renderVOO(livePrice, textEl, tooltipEl, false);
       } else {
         throw new Error("Invalid data format received from TradingView");
@@ -617,9 +620,16 @@ const MarketWidget = {
   },
 
   renderVOO(price, textEl, tooltipEl, isManual = false) {
+    if (isNaN(price)) {
+        console.error("renderVOO received an invalid price:", price);
+        textEl.textContent = "Data Error";
+        return;
+    }
     const liveBalance = price * this.portfolio.shares;
+    
+    // Exact Growth logic requested: (Current Balance - Total Invested) / Total Invested
     const growthToDate = liveBalance - this.portfolio.totalInvested;
-    const cumulativeReturnPercent = (growthToDate / this.portfolio.adjCostBase) * 100;
+    const cumulativeReturnPercent = (growthToDate / this.portfolio.totalInvested) * 100;
     
     const sign = cumulativeReturnPercent >= 0 ? "+" : "";
     textEl.textContent = sign + cumulativeReturnPercent.toFixed(2) + "%";
