@@ -273,7 +273,7 @@
 
     <div class="mb-4 flex flex-col gap-2">
       <label for="set-manual-price" class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Manual Stock Price Override (Optional)</label>
-      <input type="number" step="0.01" id="set-manual-price" placeholder="Leave blank for live auto-fetch (e.g. 704.25)" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-full">
+      <input type="number" step="0.01" id="set-manual-price" placeholder="Leave blank for live auto-fetch (e.g. 709.50)" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-full">
     </div>
     
     <div class="mb-4 flex flex-col gap-2">
@@ -510,9 +510,10 @@ const ClockWidget = {
 };
 
 const MarketWidget = {
-  // Portfolio Constants mirroring spreadsheet methodology
+  // Portfolio Constants mirroring your total balance & invested amounts.
+  // Formula: (Current Balance - Total Invested) / Total Invested
   portfolio: {
-    shares: 1532.12,       
+    shares: 1533.85,       
     totalInvested: 966986, 
     adjCostBase: 891366    
   },
@@ -580,7 +581,7 @@ const MarketWidget = {
     }
 
     try {
-      // Direct call to TradingView Scanner. This avoids CORS proxies entirely.
+      // Direct call to TradingView Scanner.
       const response = await fetch('https://scanner.tradingview.com/america/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -599,7 +600,7 @@ const MarketWidget = {
       if (data && data.data && data.data.length > 0 && data.data[0].d && data.data[0].d.length > 0) {
         const livePrice = parseFloat(data.data[0].d[0]); // Extract the 'close' price
         if(isNaN(livePrice)) {
-             throw new Error("TradingView returned an invalid number");
+            throw new Error("TradingView returned an invalid number");
         }
         this.renderVOO(livePrice, textEl, tooltipEl, false);
       } else {
@@ -608,7 +609,6 @@ const MarketWidget = {
       
     } catch (error) {
       console.error("Failed to fetch VOO price:", error);
-      // Soft fail instead of crashing the console
       textEl.textContent = "Data Error";
       textEl.className = "text-xs font-bold text-red-500";
       
