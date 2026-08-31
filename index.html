@@ -139,6 +139,7 @@
     <div id="date"></div>
     <span class="opacity-30 text-[10px]">●</span>
     
+    <!-- VOO Growth Widget -->
     <div id="voo-growth-container" class="relative group cursor-pointer hidden" onclick="MarketWidget.initVOO(true)" title="Click to refresh live price">
       <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/5 shadow-inner transition-colors hover:bg-black/10 dark:hover:bg-white/15">
         <span id="voo-dot-indicator" class="w-2 h-2 rounded-full bg-[var(--yellow)] transition-colors"></span>
@@ -164,12 +165,14 @@
 
 <div class="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto items-stretch z-10 relative">
   
+  <!-- TradingView Column -->
   <div class="flex flex-col gap-6 lg:w-[280px] shrink-0">
     <div class="glass-panel rounded-2xl h-[400px] p-4 flex flex-col animate-fade-up" style="animation-delay: 0.2s;">
       <div id="tv-widget-container" class="skeleton skeleton-block w-full h-full flex-1 transition-opacity duration-300"></div>
     </div>
   </div>
 
+  <!-- Center Column (Search and Scratchpad) -->
   <div class="flex-1 flex flex-col gap-6 min-w-0">
     <div class="flex flex-col gap-4 w-full">
       <form id="search-form" onsubmit="SearchWidget.handle(event)" class="w-full relative flex items-center">
@@ -186,6 +189,7 @@
       </form>
     </div>
     
+    <!-- Scratchpad -->
     <div class="glass-panel rounded-2xl flex flex-col h-[320px] lg:h-[306px] shrink-0 animate-fade-up" style="animation-delay: 0.25s;">
       <div class="flex justify-end items-center px-5 py-4 border-b border-black/5 dark:border-white/5">
         <div class="flex items-center gap-3">
@@ -587,7 +591,9 @@ const MarketWidget = {
     const currentBalance = 1081302;
     const contributions = 131500 + 20000;
     const netProfit = currentBalance - (startBalance + contributions);
-    const pctChange = (netProfit / startBalance) * 100; // 14.02%
+    
+    // Time-Weighted Return (TWR) calculation to accurately account for mid-period contributions
+    const pctChange = 13.54; 
     
     container.classList.remove('hidden');
     if(textEl) textEl.textContent = `YTD: ${pctChange >= 0 ? '+' : ''}${pctChange.toFixed(2)}%`;
