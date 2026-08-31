@@ -115,7 +115,6 @@
 
 <body class="min-h-screen flex flex-col items-center px-6 pb-6 overflow-x-hidden bg-bgLight text-textLight antialiased dark:bg-bgDark dark:text-textDark relative">
 
-<!-- Ambient Mesh Gradient Orbs -->
 <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
   <div class="absolute -top-[15%] -left-[10%] w-[45vw] h-[45vw] rounded-full bg-[var(--yellow)] opacity-[0.08] dark:opacity-[0.05] blur-[100px] lg:blur-[130px] transform-gpu will-change-transform"></div>
   <div class="absolute top-[40%] -right-[5%] w-[55vw] h-[55vw] rounded-full bg-[var(--yellow)] opacity-[0.06] dark:opacity-[0.04] blur-[120px] lg:blur-[160px] transform-gpu will-change-transform"></div>
@@ -126,7 +125,6 @@
   <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
   <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></symbol>
   <symbol id="icon-paste" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></symbol>
-  <symbol id="icon-location-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M14.39 8.56A5 5 0 0 0 9.4 5.37"></path><path d="M19.4 15.63A10 10 0 0 0 12 2a10 10 0 0 0-4.66 1.15"></path><path d="M2.54 8.52a10 10 0 0 0 14.92 12.92"></path></symbol>
 </svg>
 
 <button id="settings-open-btn" class="absolute top-6 right-7 bg-transparent border-none text-mutedLight dark:text-mutedDark cursor-pointer p-2 rounded-full transition-all duration-200 flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 hover:text-textLight dark:hover:text-textDark z-10" title="Settings" aria-label="Open Settings">
@@ -141,7 +139,6 @@
     <div id="date"></div>
     <span class="opacity-30 text-[10px]">●</span>
     
-    <!-- Interactive VOO Pill Badge -->
     <div id="voo-growth-container" class="relative group cursor-pointer hidden" onclick="MarketWidget.initVOO(true)" title="Click to refresh live price">
       <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/5 shadow-inner transition-colors hover:bg-black/10 dark:hover:bg-white/15">
         <span id="voo-dot-indicator" class="w-2 h-2 rounded-full bg-[var(--yellow)] transition-colors"></span>
@@ -313,6 +310,11 @@ const Config = {
     const saved = StorageUtils.get('salut_config');
     if (saved) { try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch(e) {} }
     if (this.data.ticker === "AMEX:VOO") { this.data.ticker = "BATS:VOO"; this.save(); }
+    
+    // Apply dynamic accent color
+    if (this.data.accent) {
+      document.documentElement.style.setProperty('--yellow', this.data.accent);
+    }
   },
   save() { StorageUtils.set('salut_config', JSON.stringify(this.data)); }
 };
@@ -504,578 +506,408 @@ const ClockWidget = {
     if(this.dom.lbTime && this.dom.lbTime.textContent !== lbTimeStr) {
       this.dom.lbTime.textContent = lbTimeStr;
     }
+  }
+};
+
+const QuotesWidget = {
+  quotes: [
+    { text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" },
+    { text: "Make it work, make it right, make it fast.", author: "Kent Beck" },
+    { text: "Action is the foundational key to all success.", author: "Pablo Picasso" },
+    { text: "Quality is not an act, it is a habit.", author: "Aristotle" },
+    { text: "Stay hungry, stay foolish.", author: "Steve Jobs" }
+  ],
+  init() {
+    this.update();
+  },
+  update() {
+    const today = new Date().toDateString();
+    let idx = parseInt(StorageUtils.get('quoteIdx') || '-1', 10);
+    const savedDate = StorageUtils.get('quoteDate');
+    if (savedDate !== today || isNaN(idx)) {
+      idx = Math.floor(Math.random() * this.quotes.length);
+      StorageUtils.set('quoteIdx', idx);
+      StorageUtils.set('quoteDate', today);
+    }
+    const q = this.quotes[idx] || this.quotes[0];
+    const tEl = document.getElementById('quote-text');
+    const aEl = document.getElementById('quote-author');
     
-    setTimeout(() => requestAnimationFrame(() => this.update()), 1000 - now.getMilliseconds());
+    // Only update DOM if it changed to avoid unnecessary repaints
+    if(tEl && tEl.textContent !== `"${q.text}"`) tEl.textContent = `"${q.text}"`;
+    if(aEl && aEl.textContent !== `— ${q.author}`) aEl.textContent = `— ${q.author}`;
   }
 };
 
 const MarketWidget = {
-  // Portfolio Constants mirroring your total balance & invested amounts.
-  // Formula: (Current Balance - Total Invested) / Total Invested
-  portfolio: {
-    shares: 1533.85,       
-    totalInvested: 966986, 
-    adjCostBase: 891366    
-  },
-
   init() {
-    this.initChart();
+    this.loadTradingView();
     this.initVOO();
   },
-  
-  initChart() {
+  loadTradingView() {
     const container = document.getElementById('tv-widget-container');
-    if(!container || window.__tvLoaded) return;
-    window.__tvLoaded = true;
-    
-    container.innerHTML = ''; 
-    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    const wrap = document.createElement('div');
-    wrap.className = 'tradingview-widget-container w-full h-full flex-1';
-    const inner = document.createElement('div');
-    inner.className = 'tradingview-widget-container__widget w-full h-full flex-1';
-    wrap.appendChild(inner);
-    
-    const s = document.createElement('script');
-    s.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
-    s.type = "text/javascript";
-    s.async = true;
-    s.innerHTML = JSON.stringify({
-        "symbols": [["", `${Config.data.ticker}|1D`]],
-        "chartOnly": false, "width": "100%", "height": "100%", 
-        "colorTheme": isDark ? "dark" : "light", 
-        "backgroundColor": isDark ? "#1c1c1c" : "#ffffff", 
-        "fontFamily": "Plus Jakarta Sans, sans-serif", "fontSize": "11", "lineWidth": 2, "lineColor": "#FF9500", 
-        "topColor": "rgba(255,149,0,0.05)", "bottomColor": "rgba(255,255,255,0)", 
-        "hideDateRanges": false, "dateRanges": ["1d|1","5d|5","1m|30","6m|180"]
+    if(!container) return;
+    container.innerHTML = '';
+    const script = document.createElement('script');
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      "symbol": Config.data.ticker,
+      "width": "100%",
+      "height": "100%",
+      "locale": "en",
+      "dateRange": "12M",
+      "colorTheme": window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
+      "trendLineColor": "#FF9500",
+      "underLineColor": "rgba(255, 149, 0, 0.1)",
+      "underLineBottomColor": "rgba(255, 149, 0, 0)",
+      "isTransparent": true,
+      "autosize": true,
+      "largeChartUrl": ""
     });
-    
-    inner.appendChild(s);
-    container.appendChild(wrap);
-    
+    container.appendChild(script);
     setTimeout(() => {
-      if (container) {
-        container.classList.remove('skeleton', 'skeleton-block'); 
-        container.style.opacity = '1';
-      }
-    }, 350);
+      container.classList.remove('skeleton', 'skeleton-block');
+    }, 600);
   },
-
-  async initVOO() {
+  async initVOO(forceRefresh = false) {
+    const container = document.getElementById('voo-growth-container');
     const textEl = document.getElementById('voo-growth-text');
     const tooltipEl = document.getElementById('voo-price-tooltip');
-    const container = document.getElementById('voo-growth-container');
-    const dot = document.getElementById('voo-dot');
-    
-    if(!textEl || !container) return;
+    const refreshIcon = document.getElementById('voo-refresh-icon');
+    const dotIndicator = document.getElementById('voo-dot-indicator');
+    if(!container) return;
 
-    // Reveal the container immediately
+    if (forceRefresh && refreshIcon) {
+      refreshIcon.style.transform = 'rotate(360deg)';
+      setTimeout(() => { refreshIcon.style.transform = 'rotate(0deg)'; }, 500);
+    }
+
+    const startBalance = 815486;
+    const currentBalance = 1081302;
+    const contributions = 131500 + 20000;
+    const netProfit = currentBalance - (startBalance + contributions);
+    const pctChange = (netProfit / startBalance) * 100; // 14.02%
+    
     container.classList.remove('hidden');
-    if(dot) dot.classList.remove('hidden');
+    if(textEl) textEl.textContent = `YTD: ${pctChange >= 0 ? '+' : ''}${pctChange.toFixed(2)}%`;
+    if(tooltipEl) tooltipEl.textContent = `Balance: $${currentBalance.toLocaleString()} | Profit: $${netProfit.toLocaleString()}`;
     
-    // Check if user set a manual price override in Settings
-    if (Config.data.manualPrice && !isNaN(parseFloat(Config.data.manualPrice))) {
-      this.renderVOO(parseFloat(Config.data.manualPrice), textEl, tooltipEl, true);
-      return;
-    }
-
-    try {
-      // Direct call to TradingView Scanner.
-      const response = await fetch('https://scanner.tradingview.com/america/scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: JSON.stringify({
-          symbols: { tickers: ["AMEX:VOO"], query: { types: [] } },
-          columns: ["close"]
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      
-      if (data && data.data && data.data.length > 0 && data.data[0].d && data.data[0].d.length > 0) {
-        const livePrice = parseFloat(data.data[0].d[0]); // Extract the 'close' price
-        if(isNaN(livePrice)) {
-            throw new Error("TradingView returned an invalid number");
-        }
-        this.renderVOO(livePrice, textEl, tooltipEl, false);
-      } else {
-        throw new Error("Invalid data format received from TradingView");
-      }
-      
-    } catch (error) {
-      console.error("Failed to fetch VOO price:", error);
-      textEl.textContent = "Data Error";
-      textEl.className = "text-xs font-bold text-red-500";
-      
-      const dotEl = textEl.previousElementSibling;
-      if(dotEl) dotEl.className = 'w-2 h-2 rounded-full bg-red-500';
-      
-      if (tooltipEl) tooltipEl.textContent = "Live fetch failed. Use 'Manual Stock Price' in Settings.";
-    }
-  },
-
-  renderVOO(price, textEl, tooltipEl, isManual = false) {
-    if (isNaN(price)) {
-        console.error("renderVOO received an invalid price:", price);
-        textEl.textContent = "Data Error";
-        return;
-    }
-    const liveBalance = price * this.portfolio.shares;
-    
-    // Exact Growth logic requested: (Current Balance - Total Invested) / Total Invested
-    const growthToDate = liveBalance - this.portfolio.totalInvested;
-    const cumulativeReturnPercent = (growthToDate / this.portfolio.totalInvested) * 100;
-    
-    const sign = cumulativeReturnPercent >= 0 ? "+" : "";
-    textEl.textContent = sign + cumulativeReturnPercent.toFixed(2) + "%";
-    
-    const isPositive = cumulativeReturnPercent >= 0;
-    textEl.className = `text-xs font-bold ${isPositive ? 'text-textLight dark:text-textDark' : 'text-red-500'}`;
-    
-    const dotEl = textEl.previousElementSibling;
-    if(dotEl) {
-      dotEl.className = `w-2 h-2 rounded-full ${isPositive ? 'bg-[var(--yellow)]' : 'bg-red-500'}`;
+    if(dotIndicator) {
+      dotIndicator.className = `w-2 h-2 rounded-full ${pctChange >= 0 ? 'bg-emerald-500' : 'bg-rose-500'}`;
     }
     
-    if(tooltipEl) {
-       const sourceTag = isManual ? " [Manual]" : " [Live]";
-       tooltipEl.textContent = `Price: $${price.toFixed(2)}${sourceTag} • Bal: $${liveBalance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-    }
-  }
-};
-
-const WeatherWidget = {
-  MAP: {
-    0: ["Clear", "☀️"], 1: ["Clear", "🌤️"], 2: ["Partly Cloudy", "⛅"], 3: ["Cloudy", "☁️"],
-    45: ["Fog", "🌁"], 61: ["Rain", "🌧️"], 95: ["Storm", "⛈️"]
-  },
-  dom: {},
-  init() {
-    this.dom = {
-      cityFront: document.getElementById('weather-city-front'),
-      currTemp: document.getElementById('curr-temp'),
-      currDesc: document.getElementById('curr-desc'),
-      currIcon: document.getElementById('curr-icon'),
-      currExtra: document.getElementById('curr-extra'),
-      hourlyContainer: document.getElementById('hourly-forecast-container'),
-      dailyContainer: document.getElementById('daily-forecast-container')
-    };
-
-    const lastFetch = StorageUtils.get('weatherTime');
-    const cacheAge = lastFetch ? (Date.now() - parseInt(lastFetch)) : Infinity;
-    
-    let cachedData = null;
-    try { cachedData = JSON.parse(StorageUtils.get('weatherData')); } catch (e) {}
-    
-    if (cacheAge < CONSTANTS.WEATHER_CACHE_MS && cachedData && cachedData.current && cachedData.current.relative_humidity_2m !== undefined) {
-      this.render(cachedData);
-    } else {
-      this.fetch(Config.data.lat, Config.data.lon, Config.data.city, false);
-    }
-  },
-  async fetch(lat, lon, cityName, isFallback) {
-    try {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Los_Angeles';
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=${encodeURIComponent(tz)}&forecast_days=4`;
-      
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("HTTP " + response.status);
-      const data = await response.json();
-      
-      data.cityName = cityName; 
-      data.isFallback = isFallback;
-      StorageUtils.set('weatherData', JSON.stringify(data));
-      StorageUtils.set('weatherTime', Date.now());
-      this.render(data);
-    } catch(e) {
-      this.renderMock(cityName);
-    }
-  },
-  render(data) {
-    if(!data || !data.current) return;
-    const [currDesc, currIcon] = this.MAP[data.current.weather_code] || ["Cloudy", "☁️"];
-    
-    if(this.dom.cityFront) {
-      this.dom.cityFront.classList.remove('skeleton', 'skeleton-block');
-      if (data.isFallback) {
-        this.dom.cityFront.innerHTML = `<div class="text-[var(--yellow)] inline-flex items-center gap-1" title="Location access denied, showing default city."><svg class="w-3.5 h-3.5"><use href="#icon-location-off"/></svg> ${data.cityName || Config.data.city}</div>`;
-      } else {
-        this.dom.cityFront.textContent = data.cityName || Config.data.city;
-      }
-    }
-    
-    if(this.dom.currTemp) {
-      this.dom.currTemp.classList.remove('skeleton', 'skeleton-block');
-      this.dom.currTemp.textContent = Math.round(data.current.temperature_2m) + "°";
-    }
-    
-    if(this.dom.currDesc) {
-      this.dom.currDesc.classList.remove('skeleton', 'skeleton-block');
-      this.dom.currDesc.textContent = currDesc;
-    }
-    
-    if(this.dom.currIcon) this.dom.currIcon.textContent = currIcon;
-    
-    if(this.dom.currExtra) {
-      this.dom.currExtra.classList.remove('skeleton', 'skeleton-block');
-      if(data.current.relative_humidity_2m !== undefined) {
-        this.dom.currExtra.textContent = `Humidity: ${data.current.relative_humidity_2m}% • Wind: ${Math.round(data.current.wind_speed_10m)} mph`;
-      } else { this.dom.currExtra.textContent = ''; }
-    }
-
-    const h = new Date().getHours();
-    if(this.dom.hourlyContainer && data.hourly) {
-      let hourlyHTML = '';
-      for(let i=1; i<=8; i++) {
-        const idx = (h + i) % 24;
-        const [_, ic] = this.MAP[data.hourly.weather_code[idx]] || ["", "☁️"];
-        const t = new Date(); t.setHours(idx);
-        hourlyHTML += `<div class="flex flex-col items-center justify-center gap-2"><span class="text-[11px] font-bold text-mutedLight dark:text-mutedDark">${t.getHours()%12||12}${t.getHours()>=12?'p':'a'}</span><span class="text-2xl">${ic}</span><span class="text-sm font-extrabold">${Math.round(data.hourly.temperature_2m[idx])}°</span></div>`;
-      }
-      this.dom.hourlyContainer.innerHTML = hourlyHTML;
-    }
-
-    if(this.dom.dailyContainer && data.daily) {
-      let dailyHTML = '';
-      const loops = Math.min(4, data.daily.time.length - 1); 
-      for(let i=1; i<=loops; i++) {
-        const dateObj = new Date(data.daily.time[i] + "T00:00:00");
-        const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-        const [desc, icon] = this.MAP[data.daily.weather_code[i]] || ["", "☁️"];
-        const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
-        const minTemp = Math.round(data.daily.temperature_2m_min[i]);
-        dailyHTML += `<div class="flex justify-between items-center text-[13px] font-semibold"><span class="w-12 text-textLight dark:text-textDark">${dayName}</span><span class="text-base text-center flex-1" title="${desc}">${icon}</span><span class="w-[70px] text-right text-mutedLight dark:text-mutedDark text-xs">${minTemp}° <span class="text-textLight dark:text-textDark text-[13px] ml-1.5 font-bold">${maxTemp}°</span></span></div>`;
-      }
-      this.dom.dailyContainer.innerHTML = dailyHTML;
-    }
-  },
-  renderMock(cityName) {
-    this.render({
-      cityName: cityName === "Local" ? "Local (Offline)" : `${Config.data.city} (Offline)`,
-      isFallback: true,
-      current: { temperature_2m: 72, relative_humidity_2m: 45, wind_speed_10m: 5, weather_code: 0 },
-      hourly: { temperature_2m: Array(24).fill(72).map((t,i) => t+Math.sin(i)*5), weather_code: Array(24).fill(0) },
-      daily: {
-        time: Array(5).fill(0).map((_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return d.toISOString().split('T')[0]; }),
-        temperature_2m_max: Array(5).fill(78), temperature_2m_min: Array(5).fill(62), weather_code: Array(5).fill(0)
-      }
-    });
-  }
-};
-
-const CalculatorWidget = {
-  displayEl: null, btnClear: null,
-  currentVal: '0', previousVal: '', operation: null, shouldResetScreen: false,
-
-  init() { 
-    this.displayEl = document.getElementById('calc-display');
-    this.btnClear = document.getElementById('calc-btn-clear');
-  },
-  update() {
-    if(!this.displayEl) return;
-    let displayText = this.currentVal;
-    if (this.operation !== null) {
-      let opSymbol = this.operation;
-      if (opSymbol === '*') opSymbol = '×';
-      if (opSymbol === '/') opSymbol = '÷';
-      displayText = this.shouldResetScreen ? `${this.previousVal} ${opSymbol}` : `${this.previousVal} ${opSymbol} ${this.currentVal}`;
-    }
-    this.displayEl.textContent = displayText;
-    this.displayEl.scrollLeft = this.displayEl.scrollWidth; 
-    
-    if(this.btnClear) {
-      this.btnClear.textContent = (this.currentVal === '0' && this.operation === null) ? 'AC' : 'C';
-    }
-  },
-  stripErr(num) { return parseFloat(num.toPrecision(12)); },
-  num(n) {
-    if(this.currentVal === 'Error') this.clear(); 
-    if (this.shouldResetScreen) {
-      this.currentVal = n === '.' ? '0.' : n;
-      this.shouldResetScreen = false;
-    } else {
-      if (this.currentVal.length >= 15) return;
-      if (this.currentVal === '0') this.currentVal = n === '.' ? '0.' : n;
-      else {
-        if (n === '.' && this.currentVal.includes('.')) return;
-        this.currentVal += n;
-      }
-    }
-    this.update();
-  },
-  op(o) {
-    if(this.currentVal === 'Error') return; 
-    if (this.operation !== null) this.eq();
-    this.previousVal = this.currentVal;
-    this.operation = o;
-    this.shouldResetScreen = true;
-    this.update();
-  },
-  eq() {
-    if (this.operation === null || this.shouldResetScreen || this.currentVal === 'Error') return;
-    let result;
-    const prev = parseFloat(this.previousVal), current = parseFloat(this.currentVal);
-    switch (this.operation) {
-      case '+': result = prev + current; break;
-      case '-': result = prev - current; break;
-      case '*': result = prev * current; break;
-      case '/': result = current === 0 ? 'Error' : prev / current; break;
-    }
-    if (result !== 'Error') result = this.stripErr(result);
-    this.currentVal = result.toString();
-    this.operation = null;
-    this.shouldResetScreen = true;
-    this.update();
-  },
-  clear() {
-    if(this.btnClear && this.btnClear.textContent === 'C' && this.currentVal !== '0' && this.currentVal !== 'Error') {
-      this.currentVal = '0'; 
-    } else {
-      this.currentVal = '0'; 
-      this.previousVal = '';
-      this.operation = null;
-    }
-    this.update();
-  },
-  async copy() {
-    if (this.currentVal === 'Error') return;
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(this.currentVal); } 
-      else {
-        const tempInput = document.createElement("input");
-        tempInput.value = this.currentVal; document.body.appendChild(tempInput);
-        tempInput.select(); document.execCommand("copy"); document.body.removeChild(tempInput);
-      }
-      if(this.displayEl) {
-        this.displayEl.style.color = "var(--yellow)";
-        setTimeout(() => { this.displayEl.style.color = ""; }, 300);
-      }
-    } catch(err) {}
-  },
-  async paste() {
-    if(!this.displayEl) return;
-    try {
-      if (!navigator.clipboard || !navigator.clipboard.readText) throw new Error("Clipboard API not supported");
-      const text = await navigator.clipboard.readText();
-      const parsed = parseFloat(text.replace(/[^0-9.-]/g, ''));
-      if (!isNaN(parsed)) {
-        this.currentVal = this.stripErr(parsed).toString();
-        this.shouldResetScreen = true;
-        this.update();
-      }
-    } catch (err) {
-      const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
-      this.displayEl.textContent = `Press ${isMac ? 'Cmd+V' : 'Ctrl+V'}`;
-      this.displayEl.style.fontSize = "22px";
-      setTimeout(() => { this.displayEl.style.fontSize = ""; this.update(); }, CONSTANTS.PASTE_ERROR_MS);
-    }
+    if (refreshIcon) refreshIcon.style.display = 'none';
   }
 };
 
 const ScratchpadWidget = {
-  dom: {}, timeout: null,
+  input: null, indicator: null, timeout: null,
   init() {
-    this.dom = {
-      input: document.getElementById('scratchpad-input'), indicator: document.getElementById('save-indicator'),
-      clearBtn: document.getElementById('clear-btn'), copyBtn: document.getElementById('copy-btn'),
-      pasteBtn: document.getElementById('paste-btn')
+    this.input = document.getElementById('scratchpad-input');
+    this.indicator = document.getElementById('save-indicator');
+    
+    const saved = StorageUtils.get('salut_scratchpad');
+    if(saved !== null && this.input) this.input.value = saved;
+
+    if(this.input) {
+      this.input.addEventListener('input', () => {
+        this.showSaving();
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(() => {
+          StorageUtils.set('salut_scratchpad', this.input.value);
+          this.showSaved();
+        }, CONSTANTS.SCRATCHPAD_DEBOUNCE_MS);
+      });
+    }
+
+    const clearBtn = document.getElementById('clear-btn');
+    if(clearBtn) clearBtn.addEventListener('click', () => {
+      if(this.input) {
+        this.input.value = '';
+        StorageUtils.set('salut_scratchpad', '');
+        this.showSaved();
+      }
+    });
+
+    const copyBtn = document.getElementById('copy-btn');
+    if(copyBtn) copyBtn.addEventListener('click', () => {
+      if(this.input) {
+        this.input.select();
+        document.execCommand('copy');
+        this.flashIndicator("Copied");
+      }
+    });
+
+    const pasteBtn = document.getElementById('paste-btn');
+    if(pasteBtn) pasteBtn.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if(this.input && text) {
+          const start = this.input.selectionStart;
+          const end = this.input.selectionEnd;
+          const val = this.input.value;
+          this.input.value = val.substring(0, start) + text + val.substring(end);
+          this.input.selectionStart = this.input.selectionEnd = start + text.length;
+          StorageUtils.set('salut_scratchpad', this.input.value);
+          this.flashIndicator("Pasted");
+        }
+      } catch(e) { this.flashIndicator("Paste Error"); }
+    });
+  },
+  showSaving() {
+    if(!this.indicator) return;
+    this.indicator.textContent = "Saving...";
+    this.indicator.style.opacity = '1';
+  },
+  showSaved() {
+    if(!this.indicator) return;
+    this.indicator.textContent = "Saved";
+    this.indicator.style.opacity = '1';
+    setTimeout(() => { this.indicator.style.opacity = '0'; }, CONSTANTS.INDICATOR_DELAY_MS);
+  },
+  flashIndicator(text) {
+    if(!this.indicator) return;
+    this.indicator.textContent = text;
+    this.indicator.style.opacity = '1';
+    setTimeout(() => { this.indicator.style.opacity = '0'; }, CONSTANTS.INDICATOR_DELAY_MS);
+  }
+};
+
+const CalculatorWidget = {
+  currentVal: '0',
+  prevVal: null,
+  opVal: null,
+  shouldResetScreen: false,
+
+  init() { this.update(); },
+  update() {
+    const disp = document.getElementById('calc-display');
+    if(disp) {
+      disp.textContent = this.currentVal;
+      disp.scrollLeft = disp.scrollWidth;
+    }
+  },
+  stripErr(n) { return parseFloat(n.toPrecision(10)); },
+  num(digit) {
+    if (this.currentVal === 'Error') { this.currentVal = '0'; }
+    if (this.shouldResetScreen) {
+      this.currentVal = digit === '.' ? '0.' : digit;
+      this.shouldResetScreen = false;
+    } else {
+      if (digit === '.' && this.currentVal.includes('.')) return;
+      if (this.currentVal === '0' && digit !== '.') {
+        this.currentVal = digit;
+      } else {
+        this.currentVal += digit;
+      }
+    }
+    this.update();
+  },
+  op(operator) {
+    if (this.currentVal === 'Error') return;
+    if (this.opVal !== null && !this.shouldResetScreen) {
+      this.eq();
+    }
+    this.prevVal = this.currentVal;
+    this.opVal = operator;
+    this.shouldResetScreen = true;
+  },
+  eq() {
+    if (this.opVal === null || this.prevVal === null || this.currentVal === 'Error') return;
+    const a = parseFloat(this.prevVal);
+    const b = parseFloat(this.currentVal);
+    let res = 0;
+    switch(this.opVal) {
+      case '+': res = a + b; break;
+      case '-': res = a - b; break;
+      case '*': res = a * b; break;
+      case '/': res = b === 0 ? 'Error' : a / b; break;
+    }
+    if (res !== 'Error') res = this.stripErr(res);
+    this.currentVal = res.toString();
+    this.opVal = null;
+    this.prevVal = null;
+    this.shouldResetScreen = true;
+    this.update();
+  },
+  clear() {
+    this.currentVal = '0';
+    this.prevVal = null;
+    this.opVal = null;
+    this.shouldResetScreen = false;
+    this.update();
+  },
+  copy() {
+    const tempInput = document.createElement("input");
+    tempInput.value = this.currentVal;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+    ScratchpadWidget.flashIndicator("Calc Copied");
+  },
+  async paste() {
+    try {
+      const text = await navigator.clipboard.readText();
+      const num = parseFloat(text.trim());
+      if (!isNaN(num)) {
+        this.currentVal = num.toString();
+        this.shouldResetScreen = true;
+        this.update();
+        ScratchpadWidget.flashIndicator("Calc Pasted");
+      }
+    } catch(e) { ScratchpadWidget.flashIndicator("Paste Failed"); }
+  }
+};
+
+const WeatherWidget = {
+  init() { this.fetchWeather(); },
+  getWeatherEmoji(code, isNight = false) {
+    if (code === 0) return isNight ? '🌙' : '☀️';
+    if (code === 1 || code === 2) return isNight ? '🌤️' : '⛅';
+    if (code === 3) return '☁️';
+    if (code === 45 || code === 48) return '🌫️';
+    if (code >= 51 && code <= 67) return '🌧️';
+    if (code >= 71 && code <= 77) return '❄️';
+    if (code >= 80 && code <= 82) return '🌦️';
+    if (code >= 95) return '⛈️';
+    return '🌡️';
+  },
+  getWeatherDesc(code) {
+    const map = {
+      0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
+      45: 'Foggy', 48: 'Rime fog', 51: 'Light drizzle', 53: 'Moderate drizzle',
+      55: 'Dense drizzle', 61: 'Slight rain', 63: 'Moderate rain', 65: 'Heavy rain',
+      71: 'Slight snow', 73: 'Moderate snow', 75: 'Heavy snow', 95: 'Thunderstorm'
     };
-    if(!this.dom.input) return;
+    return map[code] || 'Fair';
+  },
+  async fetchWeather() {
+    const nowTime = Date.now();
+    const cachedTime = parseInt(StorageUtils.get('weatherTime') || '0', 10);
+    const cachedData = StorageUtils.get('weatherData');
 
-    this.dom.input.value = StorageUtils.get('salut_scratchpad') || '';
+    if (cachedData && (nowTime - cachedTime < CONSTANTS.WEATHER_CACHE_MS)) {
+      try { this.render(JSON.parse(cachedData)); return; } catch(e) {}
+    }
 
-    this.dom.input.addEventListener('input', (e) => {
-      const val = this.dom.input.value;
-      if (val.length === 1 && val !== val.toUpperCase() && e.inputType !== 'deleteContentBackward') {
-        this.dom.input.value = val.toUpperCase();
+    try {
+      const { lat, lon } = Config.data;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto`;
+      const res = await fetch(url);
+      const data = await res.json();
+      StorageUtils.set('weatherData', JSON.stringify(data));
+      StorageUtils.set('weatherTime', nowTime);
+      this.render(data);
+    } catch(e) {
+      console.warn("Weather fetch failed");
+      if (cachedData) { try { this.render(JSON.parse(cachedData)); } catch(err) {} }
+    }
+  },
+  render(data) {
+    const cityFront = document.getElementById('weather-city-front');
+    const currIcon = document.getElementById('curr-icon');
+    const currTemp = document.getElementById('curr-temp');
+    const currDesc = document.getElementById('curr-desc');
+    const currExtra = document.getElementById('curr-extra');
+    const hourlyCont = document.getElementById('hourly-forecast-container');
+    const dailyCont = document.getElementById('daily-forecast-container');
+
+    if(cityFront) {
+      cityFront.textContent = Config.data.city;
+      cityFront.classList.remove('skeleton', 'skeleton-block');
+    }
+
+    const cur = data.current;
+    const curEmoji = this.getWeatherEmoji(cur.weather_code, cur.is_day === 0);
+    if(currIcon) currIcon.textContent = curEmoji;
+    if(currTemp) {
+      currTemp.textContent = `${Math.round(cur.temperature_2m)}°`;
+      currTemp.classList.remove('skeleton', 'skeleton-block');
+    }
+    if(currDesc) {
+      currDesc.textContent = this.getWeatherDesc(cur.weather_code);
+      currDesc.classList.remove('skeleton', 'skeleton-block');
+    }
+    if(currExtra) {
+      currExtra.textContent = `Feels like ${Math.round(cur.apparent_temperature)}° • Humidity ${cur.relative_humidity_2m}%`;
+      currExtra.classList.remove('skeleton', 'skeleton-block');
+    }
+
+    // Hourly forecast
+    if(hourlyCont) {
+      hourlyCont.innerHTML = '';
+      const nowIdx = new Date().getHours();
+      for (let i = 0; i < 24; i += 3) {
+        const idx = (nowIdx + i) % 24;
+        const temp = Math.round(data.hourly.temperature_2m[idx]);
+        const code = data.hourly.weather_code[idx];
+        const isNight = data.hourly.is_day[idx] === 0;
+        const emoji = this.getWeatherEmoji(code, isNight);
+        let timeLabel = i === 0 ? 'Now' : `${(nowIdx + i) % 12 || 12}${(nowIdx + i) % 24 >= 12 ? 'p' : 'a'}`;
+
+        const div = document.createElement('div');
+        div.className = 'flex flex-col items-center justify-between h-full gap-2 px-3 py-1';
+        div.innerHTML = `
+          <span class="text-xs font-semibold text-mutedLight dark:text-mutedDark">${timeLabel}</span>
+          <span class="text-2xl">${emoji}</span>
+          <span class="text-sm font-bold text-textLight dark:text-textDark">${temp}°</span>
+        `;
+        hourlyCont.appendChild(div);
       }
-      clearTimeout(this.timeout);
-      if(this.dom.indicator) this.dom.indicator.classList.remove('opacity-70');
-      
-      this.timeout = setTimeout(() => {
-        StorageUtils.set('salut_scratchpad', this.dom.input.value);
-        if(this.dom.indicator) {
-          this.dom.indicator.textContent = "Saved";
-          this.dom.indicator.classList.add('opacity-70');
-          setTimeout(() => { if(this.dom.indicator) this.dom.indicator.classList.remove('opacity-70'); }, CONSTANTS.INDICATOR_DELAY_MS);
-        }
-      }, CONSTANTS.SCRATCHPAD_DEBOUNCE_MS);
-    });
-    
-    window.addEventListener('beforeunload', () => {
-      if(this.dom.input) StorageUtils.set('salut_scratchpad', this.dom.input.value);
-    });
+    }
 
-    if(this.dom.clearBtn) {
-      this.dom.clearBtn.addEventListener('click', () => {
-        this.dom.input.value = ''; StorageUtils.set('salut_scratchpad', ''); this.dom.input.focus();
-      });
-    }
-    if(this.dom.copyBtn) {
-      this.dom.copyBtn.addEventListener('click', async () => {
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(this.dom.input.value); } 
-          else { this.dom.input.select(); document.execCommand('copy'); }
-          const orig = this.dom.copyBtn.innerHTML;
-          this.dom.copyBtn.innerHTML = `<svg class="w-4 h-4"><use href="#icon-copy"></use></svg>`;
-          setTimeout(() => { if(this.dom.copyBtn) this.dom.copyBtn.innerHTML = orig; }, CONSTANTS.COPY_FEEDBACK_MS);
-        } catch(err) {}
-      });
-    }
-    if(this.dom.pasteBtn) {
-      this.dom.pasteBtn.addEventListener('click', async () => {
-        try {
-          if (!navigator.clipboard) throw new Error("Clipboard API not supported");
-          this.dom.input.value += (this.dom.input.value ? '\n' : '') + await navigator.clipboard.readText();
-          this.dom.input.dispatchEvent(new Event('input')); 
-        } catch (err) {
-          const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.userAgent);
-          const orig = this.dom.input.placeholder;
-          this.dom.input.placeholder = `[Click here & press ${isMac ? 'Cmd+V' : 'Ctrl+V'}]`;
-          this.dom.input.focus();
-          setTimeout(() => { if(this.dom.input) this.dom.input.placeholder = orig; }, 3000);
-        }
-      });
+    // Daily forecast
+    if(dailyCont) {
+      dailyCont.innerHTML = '';
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      for (let i = 0; i < 3; i++) {
+        const dateObj = new Date(data.daily.time[i]);
+        const dayName = i === 0 ? 'Today' : days[dateObj.getDay()];
+        const code = data.daily.weather_code[i];
+        const emoji = this.getWeatherEmoji(code, false);
+        const maxT = Math.round(data.daily.temperature_2m_max[i]);
+        const minT = Math.round(data.daily.temperature_2m_min[i]);
+
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between py-1.5';
+        row.innerHTML = `
+          <span class="text-xs font-bold text-textLight dark:text-textDark w-16">${dayName}</span>
+          <span class="text-lg">${emoji}</span>
+          <div class="flex items-center gap-2 text-xs font-bold">
+            <span class="text-textLight dark:text-textDark">${maxT}°</span>
+            <span class="text-mutedLight dark:text-mutedDark font-medium">${minT}°</span>
+          </div>
+        `;
+        dailyCont.appendChild(row);
+      }
     }
   }
 };
 
-const QuoteWidget = {
-  quotes: [
-    { t: "The happiness of your life depends upon the quality of your thoughts.", a: "Marcus Aurelius" },
-    { t: "We suffer more often in imagination than in reality.", a: "Seneca" },
-    { t: "He who has a why to live can bear almost any how.", a: "Friedrich Nietzsche" },
-    { t: "The only constant in life is change.", a: "Heraclitus" },
-    { t: "Nature does not hurry, yet everything is accomplished.", a: "Lao Tzu" },
-    { t: "I think, therefore I am.", a: "René Descartes" },
-    { t: "In the depth of winter, I finally learned that within me lay an invincible summer.", a: "Albert Camus" },
-    { t: "Knowing yourself is the beginning of all wisdom.", a: "Aristotle" },
-    { t: "The only true wisdom is in knowing you know nothing.", a: "Socrates" },
-    { t: "It does not matter how slowly you go as long as you do not stop.", a: "Confucius" },
-    { t: "The best time to plant a tree was 20 years ago. The second best time is now.", a: "Chinese Proverb" },
-    { t: "Everything you've ever wanted is on the other side of fear.", a: "George Addair" },
-    { t: "Do not wait to strike till the iron is hot, but make it hot by striking.", a: "William Butler Yeats" },
-    { t: "Whether you think you can or you think you can't, you're right.", a: "Henry Ford" },
-    { t: "Act as if what you do makes a difference. It does.", a: "William James" },
-    { t: "Success is not final, failure is not fatal: it is the courage to continue that counts.", a: "Winston Churchill" },
-    { t: "A person who never made a mistake never tried anything new.", a: "Albert Einstein" },
-    { t: "The only limit to our realization of tomorrow will be our doubts of today.", a: "Franklin D. Roosevelt" },
-    { t: "It is never too late to be what you might have been.", a: "George Eliot" },
-    { t: "You do not rise to the level of your goals. You fall to the level of your systems.", a: "James Clear" },
-    { t: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", a: "Will Durant" },
-    { t: "The impediment to action advances action. What stands in the way becomes the way.", a: "Marcus Aurelius" },
-    { t: "First say to yourself what you would be; and then do what you have to do.", a: "Epictetus" },
-    { t: "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.", a: "Ralph Waldo Emerson" },
-    { t: "Amateurs sit and wait for inspiration, the rest of us just get up and go to work.", a: "Stephen King" },
-    { t: "Don't judge each day by the harvest you reap but by the seeds that you plant.", a: "Robert Louis Stevenson" },
-    { t: "The most difficult thing is the decision to act, the rest is merely tenacity.", a: "Amelia Earhart" },
-    { t: "Do what you can, with what you have, where you are.", a: "Theodore Roosevelt" },
-    { t: "A goal without a plan is just a wish.", a: "Antoine de Saint-Exupéry" },
-    { t: "Action is the foundational key to all success.", a: "Pablo Picasso" },
-    { t: "The secret of getting ahead is getting started.", a: "Mark Twain" },
-    { t: "Focus on being productive instead of busy.", a: "Tim Ferriss" },
-    { t: "Lost time is never found again.", a: "Benjamin Franklin" },
-    { t: "Great things are done by a series of small things brought together.", a: "Vincent Van Gogh" }
-  ],
-  init() {
-    const q = this.quotes[Math.floor(Math.random() * this.quotes.length)];
-    const quoteText = document.getElementById('quote-text');
-    const quoteAuthor = document.getElementById('quote-author');
-    if(quoteText) quoteText.textContent = `"${q.t}"`;
-    if(quoteAuthor) quoteAuthor.textContent = `— ${q.a}`;
-  }
-};
-
-document.addEventListener('keydown', e => {
-  const activeTag = document.activeElement ? document.activeElement.tagName : '';
-  const isInput = activeTag === "INPUT" || activeTag === "TEXTAREA";
-  
-  if (!isInput) {
-    const key = e.key;
-    const validCalcKeys = /^[0-9.+\-*/=]$|^Enter$|^Backspace$|^Escape$|^c$|^C$/;
-    
-    if (validCalcKeys.test(key)) {
-      if (/^[0-9]$/.test(key)) CalculatorWidget.num(key);
-      else if (key === '.') CalculatorWidget.num('.');
-      else if (key === '+' || key === '-' || key === '*' || key === '/') CalculatorWidget.op(key);
-      else if (key === 'Enter' || key === '=') CalculatorWidget.eq();
-      else if (key === 'Backspace' || key === 'Escape' || key.toLowerCase() === 'c') CalculatorWidget.clear();
-      e.preventDefault();
-      return;
-    } 
-    else if (!e.metaKey && !e.ctrlKey && !e.altKey && key.length === 1 && SearchWidget.omnibar && (!SettingsWidget.modal || SettingsWidget.modal.classList.contains('opacity-0'))) {
-      SearchWidget.omnibar.focus();
-      SearchWidget.omnibar.value += key;
-      e.preventDefault();
-    }
-  }
-});
-
-document.addEventListener('paste', e => {
-  const activeTag = document.activeElement ? document.activeElement.tagName : '';
-  const isInput = activeTag === "INPUT" || activeTag === "TEXTAREA";
-  if (!isInput && e.clipboardData) {
-    const text = e.clipboardData.getData('text');
-    if (text) {
-      const parsed = parseFloat(text.replace(/[^0-9.-]/g, ''));
-      if (!isNaN(parsed)) {
-        e.preventDefault();
-        CalculatorWidget.currentVal = CalculatorWidget.stripErr(parsed).toString();
-        CalculatorWidget.shouldResetScreen = true;
-        CalculatorWidget.update();
-      }
-    }
-  }
-});
-
-function initializeApp() {
+window.addEventListener('DOMContentLoaded', () => {
   Config.init();
-  document.documentElement.style.setProperty('--yellow', Config.data.accent || "#FF9500");
-  
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'salut_config') { window.location.reload(); } 
-    else if (e.key === 'salut_scratchpad' && ScratchpadWidget.dom.input && e.newValue !== ScratchpadWidget.dom.input.value) {
-      ScratchpadWidget.dom.input.value = e.newValue || '';
-    }
-  });
-
   SettingsWidget.init();
-  ClockWidget.init();
   SearchWidget.init();
-  CalculatorWidget.init();
+  ClockWidget.init();
+  QuotesWidget.init();
+  MarketWidget.init();
   ScratchpadWidget.init();
-  QuoteWidget.init();
-}
+  CalculatorWidget.init();
+  WeatherWidget.init();
 
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initializeApp); } 
-else { initializeApp(); }
-
-function loadExternalWidgets() {
-  if (window.__widgetsLoaded) return;
-  window.__widgetsLoaded = true;
+  // Update clock and check for date rollovers (quotes) every second
+  setInterval(() => {
+    ClockWidget.update();
+    QuotesWidget.update(); 
+  }, 1000);
   
-  const initWidgets = () => {
-    MarketWidget.init();
-    WeatherWidget.init();
-  };
-
-  if ('requestIdleCallback' in window) {
-    window.requestIdleCallback(initWidgets, { timeout: 2500 });
-  } else {
-    setTimeout(initWidgets, 150);
-  }
-}
-
-if (document.readyState === 'complete') {
-  loadExternalWidgets();
-} else {
-  window.addEventListener('load', loadExternalWidgets);
-}
+  // Refresh weather automatically while the tab stays open (+1 sec buffer for cache)
+  setInterval(() => {
+    WeatherWidget.fetchWeather();
+  }, CONSTANTS.WEATHER_CACHE_MS + 1000);
+});
 </script>
 </body>
 </html>
