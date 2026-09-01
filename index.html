@@ -1,1054 +1,148 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F5F7">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A0A0A">
-<meta name="description" content="A fast, beautifully designed personal dashboard and start page.">
-<title>Salut!</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.tailwindcss.com">
-<link rel="dns-prefetch" href="https://api.open-meteo.com">
-<link rel="dns-prefetch" href="https://s3.tradingview.com">
-<link rel="dns-prefetch" href="https://scanner.tradingview.com">
-
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23fba31b' stroke='%23e37812' stroke-width='2'/%3E%3Cellipse cx='20' cy='18' rx='8' ry='4' fill='%23fff' opacity='0.5' transform='rotate(-30 20 18)'/%3E%3Cg fill='%23db2416'%3E%3Cpolygon points='32,15 34,21 40,21 35,25 37,31 32,27 27,31 29,25 24,21 30,21'/%3E%3Cpolygon points='20,30 22,36 28,36 23,40 25,46 20,42 15,46 17,40 12,36 18,36'/%3E%3Cpolygon points='44,30 46,36 52,36 47,40 49,46 44,42 39,46 41,40 36,36 42,36'/%3E%3Cpolygon points='32,44 34,50 40,50 35,54 37,60 32,56 27,60 29,54 24,50 30,50'/%3E%3C/g%3E%3C/svg%3E">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
-        colors: {
-          bgLight: '#F5F5F7', bgDark: '#0A0A0A',
-          cardLight: '#FFFFFF', cardDark: '#1C1C1E',
-          borderLight: 'rgba(0, 0, 0, 0.05)', borderDark: 'rgba(255, 255, 255, 0.05)',
-          textLight: '#1C1C1E', textDark: '#F5F5F7',
-          mutedLight: '#8E8E93', mutedDark: '#A1A1A6'
-        }
-      }
-    }
-  }
-</script>
-
-<style type="text/tailwindcss">
-:root { --yellow: #FF9500; }
-
-@layer components {
-  .glass-panel {
-    @apply bg-cardLight border border-borderLight;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.04), inset 0 1px 1px rgba(255,255,255,0.4);
-  }
-  @media (prefers-color-scheme: dark) {
-    .glass-panel {
-      @apply bg-cardDark border-borderDark;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.05);
-    }
-  }
-
-  /* Tactile Neumorphic Calculator Buttons */
-  .calc-btn-neu {
-    @apply bg-black/5 dark:bg-white/5 border border-transparent border-t-white/50 dark:border-t-white/10 rounded-xl font-semibold text-lg text-textLight dark:text-textDark cursor-pointer flex items-center justify-center transition-all duration-150;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.03), inset 0 -2px 5px rgba(0,0,0,0.02);
-  }
-  @media (prefers-color-scheme: dark) {
-    .calc-btn-neu { box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 -2px 5px rgba(0,0,0,0.1); }
-  }
-  .calc-btn-neu:hover {
-    @apply -translate-y-[1px] bg-black/10 dark:bg-white/10;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.06), inset 0 -2px 5px rgba(0,0,0,0.02);
-  }
-  @media (prefers-color-scheme: dark) {
-    .calc-btn-neu:hover { box-shadow: 0 6px 15px rgba(0,0,0,0.3), inset 0 -2px 5px rgba(0,0,0,0.1); }
-  }
-  .calc-btn-neu:active {
-    @apply translate-y-[1px] border-t-transparent dark:border-t-transparent;
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.1);
-  }
-  @media (prefers-color-scheme: dark) {
-    .calc-btn-neu:active { box-shadow: inset 0 2px 10px rgba(0,0,0,0.4); }
-  }
-
-  /* Accent Button (Equals) */
-  .calc-btn-neu-accent {
-    @apply bg-[var(--yellow)] text-white border border-transparent border-t-white/30 rounded-xl font-bold text-lg cursor-pointer flex items-center justify-center transition-all duration-150;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15), inset 0 -2px 5px rgba(0,0,0,0.1);
-  }
-  .calc-btn-neu-accent:hover {
-    @apply -translate-y-[1px] brightness-110;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.25), inset 0 -2px 5px rgba(0,0,0,0.1);
-  }
-  .calc-btn-neu-accent:active {
-    @apply translate-y-[1px] border-t-transparent brightness-95;
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
-  }
-}
-
-@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes digitOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-14px); } }
-@keyframes digitIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes pulse { 50% { opacity: 0.5; } }
-
-.animate-fade-up { animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
-.digit-changing { animation: digitOut 0.15s ease forwards; }
-.digit-incoming { animation: digitIn  0.15s ease forwards; }
-
-.skeleton { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; color: transparent !important; user-select: none; pointer-events: none; }
-.skeleton-block { @apply bg-black/5 rounded-xl; }
-@media (prefers-color-scheme: dark) { .skeleton-block { @apply bg-white/5; } }
-
-/* Hover-only scrollbars */
-.hover-scrollbar { scrollbar-width: none; }
-.hover-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; display: none; }
-.hover-scrollbar:hover::-webkit-scrollbar { display: block; }
-.hover-scrollbar::-webkit-scrollbar-thumb { @apply bg-black/10 rounded; }
-@media (prefers-color-scheme: dark) { .hover-scrollbar::-webkit-scrollbar-thumb { @apply bg-white/10; } }
-
-.calc-display::-webkit-scrollbar { display: none; }
-</style>
-</head>
-
-<body class="min-h-screen flex flex-col items-center px-6 pb-6 overflow-x-hidden bg-bgLight text-textLight antialiased dark:bg-bgDark dark:text-textDark relative">
-
-<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-  <div class="absolute -top-[15%] -left-[10%] w-[45vw] h-[45vw] rounded-full bg-[var(--yellow)] opacity-[0.08] dark:opacity-[0.05] blur-[100px] lg:blur-[130px] transform-gpu will-change-transform"></div>
-  <div class="absolute top-[40%] -right-[5%] w-[55vw] h-[55vw] rounded-full bg-[var(--yellow)] opacity-[0.06] dark:opacity-[0.04] blur-[120px] lg:blur-[160px] transform-gpu will-change-transform"></div>
-</div>
-
-<svg class="hidden" aria-hidden="true">
-  <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></symbol>
-  <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></symbol>
-  <symbol id="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></symbol>
-  <symbol id="icon-paste" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></symbol>
-</svg>
-
-<button id="settings-open-btn" class="absolute top-6 right-7 bg-transparent border-none text-mutedLight dark:text-mutedDark cursor-pointer p-2 rounded-full transition-all duration-200 flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 hover:text-textLight dark:hover:text-textDark z-10" title="Settings" aria-label="Open Settings">
-  <svg class="w-5 h-5"><use href="#icon-settings"></use></svg>
-</button>
-
-<header class="w-full flex flex-col items-center pt-2.5 z-10 relative">
-  <div class="font-extrabold text-[clamp(64px,11vw,88px)] tracking-tighter leading-[0.85] flex items-end">
-    <span class="inline-block overflow-hidden"><span id="h">00</span></span><span class="mx-px text-[var(--yellow)] opacity-50 align-[0.15em]">:</span><span class="inline-block overflow-hidden"><span id="m">00</span></span><span id="ampm" class="text-[0.25em] font-extrabold tracking-widest text-[var(--yellow)] ml-2.5 opacity-60"> AM</span>
-  </div>
-  <div class="flex flex-row items-center justify-center gap-3 mt-3 text-sm font-medium tracking-wide text-mutedLight dark:text-mutedDark animate-fade-up" style="animation-delay: 0.1s;">
-    <div id="date"></div>
-    <span class="opacity-30 text-[10px]">●</span>
-    
-    <!-- Dynamic VOO Growth Widget -->
-    <div id="voo-growth-container" class="relative group cursor-pointer hidden" onclick="MarketWidget.initVOO(true)" title="Click to refresh live price">
-      <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/5 shadow-inner transition-colors hover:bg-black/10 dark:hover:bg-white/15">
-        <span id="voo-dot-indicator" class="w-2 h-2 rounded-full bg-[var(--yellow)] transition-colors"></span>
-        <span id="voo-growth-text" class="text-xs font-bold text-textLight dark:text-textDark">Loading...</span>
-        <svg id="voo-refresh-icon" class="w-3 h-3 text-mutedLight dark:text-mutedDark opacity-50 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-      </div>
-      <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-lg text-xs font-bold bg-textLight dark:bg-textDark text-bgLight dark:text-bgDark opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg z-50">
-        <span id="voo-price-tooltip">Current: $---.--</span>
-      </div>
-    </div>
-    
-    <span class="opacity-30 text-[10px] hidden" id="voo-dot">●</span>
-    <div title="Local time in Lebanon">Lebanon <span class="text-[#FF3B30] font-bold ml-1" id="lb-time">--:--</span></div>
-  </div>
-</header>
-
-<div class="w-full max-w-6xl mt-3 mb-2 text-center animate-fade-up z-10 relative" style="animation-delay: 0.15s;">
-  <span id="quote-text" class="text-sm italic font-normal text-[var(--yellow)] transition-colors">"Loading wisdom..."</span>
-  <span id="quote-author" class="font-medium text-[13px] text-mutedLight dark:text-mutedDark opacity-70 ml-1.5"></span>
-</div>
-
-<div class="w-full max-w-6xl h-px bg-black/5 dark:bg-white/10 my-4 z-10 relative"></div>
-
-<div class="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto items-stretch z-10 relative">
-  
-  <!-- TradingView Column -->
-  <div class="flex flex-col gap-6 lg:w-[280px] shrink-0">
-    <div class="glass-panel rounded-2xl h-[400px] p-4 flex flex-col animate-fade-up" style="animation-delay: 0.2s;">
-      <!-- Wrapper with overflow-hidden to cleanly crop TV branding and title -->
-      <div class="relative w-full h-full overflow-hidden rounded-xl">
-        <div id="tv-widget-container" class="absolute top-[-48px] bottom-[-44px] left-0 right-0 w-full skeleton skeleton-block transition-opacity duration-300"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Center Column (Search and Scratchpad) -->
-  <div class="flex-1 flex flex-col gap-6 min-w-0">
-    <div class="flex flex-col gap-4 w-full">
-      <form id="search-form" onsubmit="SearchWidget.handle(event)" class="w-full relative flex items-center">
-        <div class="absolute right-4 flex items-center z-10 bg-black/5 dark:bg-white/10 p-0.5 rounded-full border border-black/5 dark:border-white/5" title="Toggle Search Engine (Google / ChatGPT)">
-          <label for="engine-toggle" class="flex items-center cursor-pointer">
-            <div class="relative">
-              <input type="checkbox" id="engine-toggle" class="sr-only peer" onchange="SearchEngineWidget.toggle()">
-              <div class="block w-8 h-4 bg-black/20 dark:bg-white/20 rounded-full transition-colors peer-checked:bg-gray-800 dark:peer-checked:bg-gray-300"></div>
-              <div class="dot absolute left-0.5 top-0.5 bg-white dark:bg-black w-3 h-3 rounded-full transition-transform peer-checked:translate-x-4 shadow-sm"></div>
-            </div>
-          </label>
-        </div>
-        <input type="text" id="omnibar" class="glass-panel w-full py-5 pl-7 pr-[72px] rounded-2xl font-extrabold text-xl text-textLight dark:text-textDark outline-none transition-all duration-300 animate-fade-up focus:border-[var(--yellow)] focus:ring-4 focus:ring-[var(--yellow)]/15 focus:bg-cardLight dark:focus:bg-cardDark placeholder:opacity-30 placeholder:italic placeholder:font-medium shadow-inner" aria-label="Search or calculate" placeholder="..." autocomplete="off" spellcheck="false">
-      </form>
-    </div>
-    
-    <!-- Scratchpad -->
-    <div class="glass-panel rounded-2xl flex flex-col h-[320px] lg:h-[306px] shrink-0 animate-fade-up" style="animation-delay: 0.25s;">
-      <div class="flex justify-end items-center px-5 py-4 border-b border-black/5 dark:border-white/5">
-        <div class="flex items-center gap-3">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-mutedLight dark:text-mutedDark opacity-0 transition-opacity duration-300 pointer-events-none" id="save-indicator">Saved</span>
-          <button type="button" class="cursor-pointer opacity-70 hover:opacity-100 hover:text-textLight dark:hover:text-textDark transition-opacity flex items-center bg-none border-none p-0 text-mutedLight dark:text-mutedDark" id="clear-btn" aria-label="Clear scratchpad" title="Clear scratchpad"><svg class="w-4 h-4"><use href="#icon-trash"></use></svg></button>
-          <button type="button" class="cursor-pointer opacity-70 hover:opacity-100 hover:text-textLight dark:hover:text-textDark transition-opacity flex items-center bg-none border-none p-0 text-mutedLight dark:text-mutedDark" id="copy-btn" aria-label="Copy to clipboard" title="Copy to clipboard"><svg class="w-4 h-4"><use href="#icon-copy"></use></svg></button>
-          <button type="button" class="cursor-pointer opacity-70 hover:opacity-100 hover:text-textLight dark:hover:text-textDark transition-opacity flex items-center bg-none border-none p-0 text-mutedLight dark:text-mutedDark" id="paste-btn" aria-label="Paste from clipboard" title="Paste from clipboard"><svg class="w-4 h-4"><use href="#icon-paste"></use></svg></button>
-        </div>
-      </div>
-      <textarea id="scratchpad-input" class="flex-1 border-none resize-none p-5 bg-transparent text-textLight dark:text-textDark font-sans text-[15px] leading-relaxed outline-none placeholder:opacity-30 placeholder:font-normal hover-scrollbar" aria-label="Scratchpad text area" placeholder="Side quest log..."></textarea>
-    </div>
-  </div>
-
-  <!-- Calculator Column -->
-  <div class="flex flex-col gap-6 lg:w-[280px] shrink-0">
-    <div class="glass-panel rounded-2xl h-[400px] p-4 shrink-0 flex flex-col gap-2 animate-fade-up" style="animation-delay: 0.3s;">
-      <div class="font-extrabold text-6xl leading-none text-right text-textLight dark:text-textDark px-1 pb-2 bg-transparent border-none overflow-x-auto whitespace-nowrap calc-display" aria-label="Calculator display" id="calc-display">0</div>
-      
-      <div class="grid grid-cols-4 grid-rows-5 gap-2.5 flex-1">
-        <button type="button" class="calc-btn-neu text-mutedLight dark:text-mutedDark" aria-label="Clear" onclick="CalculatorWidget.clear()" id="calc-btn-clear">AC</button>
-        <button type="button" class="calc-btn-neu" aria-label="Paste number" onclick="CalculatorWidget.paste()" title="Paste"><svg class="w-4 h-4 opacity-70"><use href="#icon-paste"></use></svg></button>
-        <button type="button" class="calc-btn-neu" aria-label="Copy number" onclick="CalculatorWidget.copy()" title="Copy"><svg class="w-4 h-4 opacity-70"><use href="#icon-copy"></use></svg></button>
-        <button type="button" class="calc-btn-neu font-bold text-[1.3rem] text-[var(--yellow)]" aria-label="Divide" onclick="CalculatorWidget.op('/')">÷</button>
-        
-        <button type="button" class="calc-btn-neu" aria-label="Seven" onclick="CalculatorWidget.num('7')">7</button>
-        <button type="button" class="calc-btn-neu" aria-label="Eight" onclick="CalculatorWidget.num('8')">8</button>
-        <button type="button" class="calc-btn-neu" aria-label="Nine" onclick="CalculatorWidget.num('9')">9</button>
-        <button type="button" class="calc-btn-neu font-bold text-[1.3rem] text-[var(--yellow)]" aria-label="Multiply" onclick="CalculatorWidget.op('*')">×</button>
-        
-        <button type="button" class="calc-btn-neu" aria-label="Four" onclick="CalculatorWidget.num('4')">4</button>
-        <button type="button" class="calc-btn-neu" aria-label="Five" onclick="CalculatorWidget.num('5')">5</button>
-        <button type="button" class="calc-btn-neu" aria-label="Six" onclick="CalculatorWidget.num('6')">6</button>
-        <button type="button" class="calc-btn-neu font-bold text-[1.3rem] text-[var(--yellow)]" aria-label="Subtract" onclick="CalculatorWidget.op('-')">-</button>
-        
-        <button type="button" class="calc-btn-neu" aria-label="One" onclick="CalculatorWidget.num('1')">1</button>
-        <button type="button" class="calc-btn-neu" aria-label="Two" onclick="CalculatorWidget.num('2')">2</button>
-        <button type="button" class="calc-btn-neu" aria-label="Three" onclick="CalculatorWidget.num('3')">3</button>
-        <button type="button" class="calc-btn-neu font-bold text-[1.3rem] text-[var(--yellow)]" aria-label="Add" onclick="CalculatorWidget.op('+')">+</button>
-        
-        <button type="button" class="calc-btn-neu col-span-2" aria-label="Zero" onclick="CalculatorWidget.num('0')">0</button>
-        <button type="button" class="calc-btn-neu" aria-label="Decimal" onclick="CalculatorWidget.num('.')">.</button>
-        <button type="button" class="calc-btn-neu-accent" aria-label="Equals" onclick="CalculatorWidget.eq()">=</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<section class="glass-panel w-full max-w-6xl mx-auto mt-6 rounded-[24px] flex flex-col lg:flex-row p-6 lg:p-8 lg:gap-8 animate-fade-up z-10 relative" style="animation-delay: 0.35s; content-visibility: auto; contain-intrinsic-size: auto 150px;" id="weather-widget">
-  <article class="flex flex-col lg:w-[260px] shrink-0">
-    <div class="font-extrabold text-base text-textLight dark:text-textDark skeleton skeleton-block w-[120px] min-h-[19px] inline-block" id="weather-city-front"></div>
-    <div class="flex items-center gap-4 mt-3 mb-2">
-      <div class="text-[48px] leading-none cursor-pointer transition-transform duration-200 hover:scale-110 hover:rotate-6 active:scale-95" id="curr-icon">☀️</div>
-      <div>
-        <div class="text-4xl font-extrabold leading-none skeleton skeleton-block w-[60px] min-h-[36px]" id="curr-temp"></div>
-        <div class="text-sm font-semibold text-mutedLight dark:text-mutedDark capitalize mt-1 skeleton skeleton-block w-[90px] min-h-[17px]" id="curr-desc"></div>
-      </div>
-    </div>
-    <div class="text-xs font-medium text-mutedLight dark:text-mutedDark mt-1 skeleton skeleton-block w-[160px] min-h-[14px] inline-block" id="curr-extra"></div>
-  </article>
-  
-  <article class="flex-1 lg:border-x border-black/5 dark:border-white/5 lg:px-8 py-6 lg:py-0 my-0 border-y lg:border-y-0 min-h-[120px] overflow-x-auto hover-scrollbar">
-    <div class="flex justify-between items-center h-full gap-6 lg:gap-0 min-w-max lg:min-w-0 px-4 lg:px-0" id="hourly-forecast-container"></div>
-  </article>
-
-  <article class="flex flex-col lg:w-[220px] shrink-0">
-    <div class="flex flex-col justify-around h-full gap-2 lg:gap-0 mt-4 lg:mt-0" id="daily-forecast-container"></div>
-  </article>
-</section>
-
-<div id="settings-modal" class="fixed inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-[1000] opacity-0 pointer-events-none transition-opacity duration-250" aria-hidden="true">
-  <div class="bg-cardLight dark:bg-cardDark border border-borderLight dark:border-borderDark rounded-2xl p-6 w-[90%] max-w-[480px] shadow-2xl scale-95 transition-transform duration-250 backdrop-blur-xl" id="settings-content">
-    <h2 class="mb-5 font-extrabold text-lg text-textLight dark:text-textDark">Dashboard Settings</h2>
-    
+<!-- ... existing code ... -->
     <div class="mb-4 flex flex-col gap-2">
       <label class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Portfolio (Start / Shares / Contrib)</label>
       <div class="flex gap-2">
-        <input type="number" id="set-port-start" placeholder="Start $" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-1/3">
+        <input type="number" id="set-port-start" placeholder="Start" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-1/3">
         <input type="number" id="set-port-current" placeholder="Shares" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-1/3">
-        <input type="number" id="set-port-contrib" placeholder="Added $" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-1/3">
+        <input type="number" id="set-port-contrib" placeholder="Added" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-1/3">
       </div>
     </div>
-
-    <div class="mb-4 flex flex-col gap-2">
-      <label for="set-accent" class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Accent Theme Color</label>
-      <div class="flex items-center gap-2">
-        <input type="color" id="set-accent" value="#FF9500" class="w-12 h-9 p-0.5 cursor-pointer rounded bg-transparent border-none" aria-label="Accent Color Picker">
-        <span class="text-[11px] text-mutedLight dark:text-mutedDark">Try #84A98C (Matcha), #00B4D8 (Nordic), or #8A2BE2 (Neon)</span>
-      </div>
-    </div>
-    
-    <div class="flex justify-end gap-3 mt-6">
-      <button id="settings-cancel" class="px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-textLight dark:text-textDark font-bold cursor-pointer transition-colors hover:bg-black/10 dark:hover:bg-white/10 font-sans">Cancel</button>
-      <button id="settings-save" class="px-4 py-2.5 rounded-xl border border-[var(--yellow)] bg-[var(--yellow)] text-white font-bold cursor-pointer transition-opacity hover:brightness-110 font-sans shadow-md">Save & Apply</button>
-    </div>
-  </div>
-</div>
-
-<script>
-const CONSTANTS = {
-  WEATHER_CACHE_MS: 900000,
-  CLOCK_ANIM_MS: 150,
-  SCRATCHPAD_DEBOUNCE_MS: 500,
-  INDICATOR_DELAY_MS: 2000,
-  COPY_FEEDBACK_MS: 1500,
-  PASTE_ERROR_MS: 2500,
-  VOO_TIMEOUT_MS: 3500
-};
-
-const StorageUtils = {
-  get: function(k) { try { return localStorage.getItem(k); } catch(e) { return null; } },
-  set: function(k, v) { try { localStorage.setItem(k, v); } catch(e) { console.warn("Storage restricted"); } }
-};
-
-const Config = {
-  // AMEX:VOO is the modern, active TradingView ticker for Vanguard S&P 500 ETF
-  data: { city: "Burbank, CA", lat: 34.1808, lon: -118.3090, ticker: "AMEX:VOO", accent: "#FF9500", manualPrice: "", portStart: 815486, portCurrent: 1081302, portContrib: 151500 },
-  init() {
-    const saved = StorageUtils.get('salut_config');
-    if (saved) { try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch(e) {} }
-    
-    // Bugfix: Correcting old configurations that are forcing the broken BATS exchange format.
-    if (this.data.ticker === "BATS:VOO" || this.data.ticker === "NYSEARCA:VOO") { 
-      this.data.ticker = "AMEX:VOO"; 
-      this.save(); 
-    }
-    
-    // Apply dynamic accent color
-    if (this.data.accent) {
-      document.documentElement.style.setProperty('--yellow', this.data.accent);
-    }
-  },
-  save() { StorageUtils.set('salut_config', JSON.stringify(this.data)); }
-};
-
-const SettingsWidget = {
-  modal: null, content: null, btnOpen: null, btnCancel: null, btnSave: null,
-  inputCity: null, inputTicker: null, inputManualPrice: null, inputAccent: null,
-  inputPortStart: null, inputPortCurrent: null, inputPortContrib: null,
-
-  init() {
-    this.modal = document.getElementById('settings-modal');
-    this.content = document.getElementById('settings-content');
-    this.btnOpen = document.getElementById('settings-open-btn');
-    this.btnCancel = document.getElementById('settings-cancel');
-    this.btnSave = document.getElementById('settings-save');
-    this.inputCity = document.getElementById('set-city');
-    this.inputTicker = document.getElementById('set-ticker');
-    this.inputManualPrice = document.getElementById('set-manual-price');
-    this.inputAccent = document.getElementById('set-accent');
-    this.inputPortStart = document.getElementById('set-port-start');
-    this.inputPortCurrent = document.getElementById('set-port-current');
-    this.inputPortContrib = document.getElementById('set-port-contrib');
-
-    if(this.btnOpen) this.btnOpen.addEventListener('click', () => this.open());
-    if(this.btnCancel) this.btnCancel.addEventListener('click', () => this.close());
-    if(this.btnSave) this.btnSave.addEventListener('click', () => this.save());
-    
-    if(this.modal) {
-      this.modal.addEventListener('keydown', (e) => {
-        if(e.key === "Enter" && !this.modal.classList.contains('opacity-0')) {
-          e.preventDefault();
-          this.save();
-        }
-      });
-    }
-  },
-  open() {
-    if(!this.modal) return;
-    this.inputCity.value = Config.data.city || '';
-    this.inputTicker.value = Config.data.ticker || '';
-    if(this.inputManualPrice) this.inputManualPrice.value = Config.data.manualPrice || '';
-    this.inputAccent.value = Config.data.accent || "#FF9500";
-    if(this.inputPortStart) this.inputPortStart.value = Config.data.portStart || '';
-    if(this.inputPortCurrent) this.inputPortCurrent.value = Config.data.portCurrent || '';
-    if(this.inputPortContrib) this.inputPortContrib.value = Config.data.portContrib || '';
-    this.modal.classList.remove('opacity-0', 'pointer-events-none');
-    this.content.classList.remove('scale-95');
-    this.modal.setAttribute('aria-hidden', 'false');
-    setTimeout(() => this.inputCity.focus(), 100);
-  },
-  close() {
-    if(this.modal) {
-      this.modal.classList.add('opacity-0', 'pointer-events-none');
-      this.content.classList.add('scale-95');
-      this.modal.setAttribute('aria-hidden', 'true');
-    }
-  },
-  async save() {
-    const newCity = this.inputCity.value.trim() || "Burbank, CA";
-    Config.data.ticker = this.inputTicker.value.trim() || "AMEX:VOO";
-    if(this.inputManualPrice) Config.data.manualPrice = this.inputManualPrice.value.trim();
-    Config.data.accent = this.inputAccent.value;
-    if(this.inputPortStart) Config.data.portStart = parseFloat(this.inputPortStart.value) || 0;
-    if(this.inputPortCurrent) Config.data.portCurrent = parseFloat(this.inputPortCurrent.value) || 0;
-    if(this.inputPortContrib) Config.data.portContrib = parseFloat(this.inputPortContrib.value) || 0;
-
-    if (newCity !== Config.data.city) {
-      if(this.btnSave) this.btnSave.textContent = "Locating...";
-      try {
-        const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(newCity)}&count=1`);
-        const geo = await res.json();
-        if (geo.results && geo.results.length > 0) {
-          Config.data.city = geo.results[0].name + (geo.results[0].admin1 ? `, ${geo.results[0].admin1}` : '');
-          Config.data.lat = geo.results[0].latitude;
-          Config.data.lon = geo.results[0].longitude;
-          StorageUtils.set('weatherTime', 0); 
-        } else { Config.data.city = newCity; }
-      } catch(e) { console.warn("Geocoding failed"); }
-    }
-    Config.save();
-    
-    document.documentElement.style.setProperty('--yellow', Config.data.accent);
-    WeatherWidget.fetchWeather();
-    MarketWidget.loadTradingView();
-    MarketWidget.initVOO(true);
-    
-    if(this.btnSave) this.btnSave.textContent = "Save & Apply";
-    this.close();
-  }
-};
-
-const SearchEngineWidget = {
-  isGPT: false,
-  toggleEl: null,
-  init() {
-    this.toggleEl = document.getElementById('engine-toggle');
-    const saved = StorageUtils.get('salut_search_engine');
-    if (saved === 'gpt') {
-      this.isGPT = true;
-      if(this.toggleEl) this.toggleEl.checked = true;
-    }
-  },
-  toggle() {
-    this.isGPT = this.toggleEl.checked;
-    StorageUtils.set('salut_search_engine', this.isGPT ? 'gpt' : 'google');
-    if(SearchWidget.omnibar) {
-      SearchWidget.omnibar.focus();
-      const len = SearchWidget.omnibar.value.length;
-      SearchWidget.omnibar.setSelectionRange(len, len);
-    }
-  }
-};
-
-const SearchWidget = {
-  omnibar: null,
-  init() {
-    this.omnibar = document.getElementById('omnibar');
-    SearchEngineWidget.init();
-    
-    if(this.omnibar) {
-      this.omnibar.addEventListener('keydown', e => { if(e.key === "Escape") { this.omnibar.value = ""; this.omnibar.blur(); } });
-      this.omnibar.addEventListener('input', (e) => {
-        const val = this.omnibar.value;
-        if (val.length === 1 && val !== val.toUpperCase() && e.inputType !== 'deleteContentBackward') {
-          this.omnibar.value = val.toUpperCase();
-        }
-      });
-
-      if (window.matchMedia("(pointer: fine) and (min-width: 768px)").matches) {
-        this.omnibar.focus();
-      }
-    }
-  },
-  handle(e) {
-    e.preventDefault();
-    if(!this.omnibar) return;
-    const val = this.omnibar.value.trim();
-    if (!val) return;
-
-    const mathRegex = /^[\d\s+*/().-]+$/;
-    if (mathRegex.test(val) && /[0-9]/.test(val) && /[+\-*/]/.test(val)) {
-      try {
-        const result = new Function(`return (${val})`)();
-        if (!isNaN(result) && isFinite(result)) {
-          CalculatorWidget.currentVal = CalculatorWidget.stripErr(result).toString();
-          CalculatorWidget.shouldResetScreen = true;
-          CalculatorWidget.update();
-          this.omnibar.value = '';
-          this.omnibar.blur();
-          return;
-        }
-      } catch (err) {}
-    }
-
-    const query = encodeURIComponent(val);
-    const url = SearchEngineWidget.isGPT 
-      ? `https://chatgpt.com/?q=${query}` 
-      : `https://www.google.com/search?q=${query}`;
-      
-    window.open(url, "_blank", "noopener noreferrer");
-    this.omnibar.value = '';
-  }
-};
-
-const ClockWidget = {
-  dom: {},
-  isFirstLoad: true,
-  lastDateStr: "",
-  fmt: new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Beirut", hour: "numeric", minute: "2-digit" }),
-  init() { 
-    this.dom = {
-      h: document.getElementById('h'), m: document.getElementById('m'),
-      ampm: document.getElementById('ampm'), date: document.getElementById('date'),
-      lbTime: document.getElementById('lb-time')
-    };
-    this.update(); 
-  },
-  update() {
-    const now = new Date(), rawH = now.getHours(), h12 = rawH % 12 || 12;
-    const hStr = h12.toString(), mStr = now.getMinutes().toString().padStart(2, '0');
-    
-    if(this.dom.h && this.dom.h.textContent !== hStr) {
-      if(this.isFirstLoad) { this.dom.h.textContent = hStr; } 
-      else {
-        this.dom.h.classList.add('digit-changing');
-        setTimeout(() => { this.dom.h.textContent = hStr; this.dom.h.classList.replace('digit-changing', 'digit-incoming'); }, CONSTANTS.CLOCK_ANIM_MS);
-      }
-    }
-    if(this.dom.m && this.dom.m.textContent !== mStr) {
-      if(this.isFirstLoad) { this.dom.m.textContent = mStr; } 
-      else {
-        this.dom.m.classList.add('digit-changing');
-        setTimeout(() => { this.dom.m.textContent = mStr; this.dom.m.classList.replace('digit-changing', 'digit-incoming'); }, CONSTANTS.CLOCK_ANIM_MS);
-      }
-    }
-    if(this.dom.ampm) this.dom.ampm.textContent = rawH >= 12 ? ' PM' : ' AM';
-    
-    const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-    if(this.lastDateStr !== dateStr) {
-      if(this.dom.date) this.dom.date.textContent = dateStr;
-      this.lastDateStr = dateStr;
-    }
-    this.isFirstLoad = false;
-    
-    const lbTimeStr = this.fmt.format(now);
-    if(this.dom.lbTime && this.dom.lbTime.textContent !== lbTimeStr) {
-      this.dom.lbTime.textContent = lbTimeStr;
-    }
-  }
-};
-
-const QuotesWidget = {
-  quotes: [
-    { text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" },
-    { text: "Make it work, make it right, make it fast.", author: "Kent Beck" },
-    { text: "Action is the foundational key to all success.", author: "Pablo Picasso" },
-    { text: "Quality is not an act, it is a habit.", author: "Aristotle" },
-    { text: "Stay hungry, stay foolish.", author: "Steve Jobs" }
-  ],
-  init() {
-    this.update();
-  },
-  update() {
-    const today = new Date().toDateString();
-    let idx = parseInt(StorageUtils.get('quoteIdx') || '-1', 10);
-    const savedDate = StorageUtils.get('quoteDate');
-    if (savedDate !== today || isNaN(idx)) {
-      idx = Math.floor(Math.random() * this.quotes.length);
-      StorageUtils.set('quoteIdx', idx);
-      StorageUtils.set('quoteDate', today);
-    }
-    const q = this.quotes[idx] || this.quotes[0];
-    const tEl = document.getElementById('quote-text');
-    const aEl = document.getElementById('quote-author');
-    
-    if(tEl && tEl.textContent !== `"${q.text}"`) tEl.textContent = `"${q.text}"`;
-    if(aEl && aEl.textContent !== `— ${q.author}`) aEl.textContent = `— ${q.author}`;
-  }
-};
-
-const MarketWidget = {
-  init() {
-    this.loadTradingView();
-    this.initVOO();
-  },
-  loadTradingView() {
-    const container = document.getElementById('tv-widget-container');
-    if(!container) return;
-    container.innerHTML = '';
-    
-    const script = document.createElement('script');
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
-    script.async = true;
-    script.innerHTML = JSON.stringify({
-      "symbols": [
-        [
-          " ",
-          Config.data.ticker + "|1D"
-        ]
-      ],
-      "chartOnly": false,
-      "width": "100%",
-      "height": "100%",
-      "locale": "en",
-      "colorTheme": window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
-      "autosize": true,
-      "showVolume": false,
-      "showMA": false,
-      "hideDateRanges": false,
-      "hideMarketStatus": true,
-      "hideSymbolLogo": true,
-      "scalePosition": "no",
-      "scaleMode": "Normal",
-      "fontFamily": "Plus Jakarta Sans, sans-serif",
-      "fontSize": "12",
-      "noTimeScale": false,
-      "valuesTracking": "0",
-      "changeMode": "price-and-percent",
-      "chartType": "area",
-      "lineWidth": 2,
-      "lineType": 0,
-      "dateRanges": [
-        "1d|1",
-        "5d|5",
-        "1m|30"
-      ],
-      "lineColor": Config.data.accent || "#FF9500",
-      "bottomColor": "rgba(255, 149, 0, 0)",
-      "topColor": "rgba(255, 149, 0, 0.15)"
-    });
-    container.appendChild(script);
-    
-    setTimeout(() => {
-      container.classList.remove('skeleton', 'skeleton-block');
-    }, 600);
-  },
-  async initVOO(forceRefresh = false) {
-    const container = document.getElementById('voo-growth-container');
-    const textEl = document.getElementById('voo-growth-text');
-    const tooltipEl = document.getElementById('voo-price-tooltip');
-    const refreshIcon = document.getElementById('voo-refresh-icon');
-    const dotIndicator = document.getElementById('voo-dot-indicator');
-    if(!container) return;
-
-    if (forceRefresh && refreshIcon) {
-      refreshIcon.style.display = 'block';
-      refreshIcon.style.transform = 'rotate(360deg)';
-      setTimeout(() => { refreshIcon.style.transform = 'rotate(0deg)'; }, 500);
-    }
-
-    container.classList.remove('hidden');
-    if(textEl && forceRefresh) textEl.textContent = 'Fetching...';
-
-    let currentPrice = Number(Config.data.manualPrice) || null;
-    let pctChange = 0;
-    let priceChange = 0;
-    
-    // Strip prefix (e.g. "AMEX:VOO" -> "VOO") for Yahoo Finance
-    const symbol = (Config.data.ticker || "AMEX:VOO").split(':').pop();
-
-    // Fetch live price via proxy to bypass CORS
-    if (!currentPrice) {
-      try {
-        const targetUrl = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbol}`;
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-        const res = await fetch(proxyUrl);
-        const data = await res.json();
-        const yahooData = JSON.parse(data.contents);
+<!-- ... existing code ... -->
+      loadTradingView() {
+        const container = document.getElementById('tv-widget-container');
+        if(!container) return;
+        container.innerHTML = '';
         
-        if (yahooData && yahooData.quoteResponse && yahooData.quoteResponse.result.length > 0) {
-          const quote = yahooData.quoteResponse.result[0];
-          currentPrice = quote.regularMarketPrice;
-          pctChange = quote.regularMarketChangePercent;
-          priceChange = quote.regularMarketChange;
+        const script = document.createElement('script');
+        script.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
+        script.async = true;
+        script.innerHTML = JSON.stringify({
+          "symbols": [
+            [
+              " ",
+              Config.data.ticker + "|1D"
+            ]
+          ],
+          "chartOnly": false,
+          "width": "100%",
+          "height": "100%",
+          "locale": "en",
+          "colorTheme": window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
+          "autosize": true,
+          "showVolume": false,
+          "showMA": false,
+          "hideDateRanges": false,
+          "hideMarketStatus": true,
+          "hideSymbolLogo": true,
+          "scalePosition": "no",
+          "scaleMode": "Normal",
+          "fontFamily": "Plus Jakarta Sans, sans-serif",
+          "fontSize": "12",
+          "noTimeScale": false,
+          "valuesTracking": "0",
+          "changeMode": "price-and-percent",
+          "chartType": "area",
+          "lineWidth": 2,
+          "lineType": 0,
+          "dateRanges": [
+            "1d|1",
+            "5d|5",
+            "1m|30"
+          ],
+          "lineColor": Config.data.accent || "#FF9500",
+          "bottomColor": "rgba(255, 149, 0, 0)",
+          "topColor": "rgba(255, 149, 0, 0.15)"
+        });
+        container.appendChild(script);
+        
+        setTimeout(() => {
+          container.classList.remove('skeleton', 'skeleton-block');
+        }, 600);
+      },
+      async initVOO(forceRefresh = false) {
+        const container = document.getElementById('voo-growth-container');
+        const textEl = document.getElementById('voo-growth-text');
+        const tooltipEl = document.getElementById('voo-price-tooltip');
+        const refreshIcon = document.getElementById('voo-refresh-icon');
+        const dotIndicator = document.getElementById('voo-dot-indicator');
+        if(!container) return;
+
+        if (forceRefresh && refreshIcon) {
+          refreshIcon.style.display = 'block';
+          refreshIcon.style.transform = 'rotate(360deg)';
+          setTimeout(() => { refreshIcon.style.transform = 'rotate(0deg)'; }, 500);
         }
-      } catch(e) {
-        console.warn("Failed to fetch live stock data", e);
-      }
-    }
 
-    if (currentPrice) {
-       const startBalance = Number(Config.data.portStart) || 0;
-       const shares = Number(Config.data.portCurrent) || 0; // Now represents Shares
-       const contributions = Number(Config.data.portContrib) || 0;
-       
-       if (shares > 0) {
-         // Calculate live portfolio stats based on live stock price
-         const currentBalance = shares * currentPrice;
-         const netProfit = currentBalance - (startBalance + contributions);
-         const adjustedStart = startBalance + (contributions / 2);
-         const ytdPct = adjustedStart > 0 ? (netProfit / adjustedStart) * 100 : 0;
-         
-         if(textEl) textEl.textContent = `YTD: ${ytdPct >= 0 ? '+' : ''}${ytdPct.toFixed(2)}%`;
-         if(tooltipEl) tooltipEl.textContent = `Live Balance: $${currentBalance.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2})} | ${symbol}: $${currentPrice.toFixed(2)}`;
-         if(dotIndicator) dotIndicator.className = `w-2 h-2 rounded-full ${ytdPct >= 0 ? 'bg-emerald-500' : 'bg-rose-500'}`;
-       } else {
-         // Just show stock stats if no shares are configured
-         if(textEl) textEl.textContent = `${symbol}: ${pctChange >= 0 ? '+' : ''}${pctChange.toFixed(2)}%`;
-         if(tooltipEl) tooltipEl.textContent = `Current: $${currentPrice.toFixed(2)} | Today: ${priceChange >= 0 ? '+' : ''}$${priceChange.toFixed(2)}`;
-         if(dotIndicator) dotIndicator.className = `w-2 h-2 rounded-full ${pctChange >= 0 ? 'bg-emerald-500' : 'bg-rose-500'}`;
-       }
-    } else {
-       if(textEl) textEl.textContent = `${symbol}: N/A`;
-       if(tooltipEl) tooltipEl.textContent = `Unable to fetch live data. Set manual price in settings.`;
-       if(dotIndicator) dotIndicator.className = `w-2 h-2 rounded-full bg-mutedLight dark:bg-mutedDark`;
-    }
+        container.classList.remove('hidden');
+        if(textEl && forceRefresh) textEl.textContent = 'Fetching...';
 
-    if (refreshIcon) refreshIcon.style.display = 'none';
-  }
-};
+        let currentPrice = Number(Config.data.manualPrice) || null;
+        let pctChange = 0;
+        let priceChange = 0;
+        
+        const symbol = (Config.data.ticker || "AMEX:VOO").split(':').pop();
 
-const ScratchpadWidget = {
-  input: null, indicator: null, timeout: null,
-  init() {
-    this.input = document.getElementById('scratchpad-input');
-    this.indicator = document.getElementById('save-indicator');
-    
-    const saved = StorageUtils.get('salut_scratchpad');
-    if(saved !== null && this.input) this.input.value = saved;
-
-    if(this.input) {
-      this.input.addEventListener('input', () => {
-        this.showSaving();
-        clearTimeout(this.timeout);
-        this.timeout = setTimeout(() => {
-          StorageUtils.set('salut_scratchpad', this.input.value);
-          this.showSaved();
-        }, CONSTANTS.SCRATCHPAD_DEBOUNCE_MS);
-      });
-    }
-
-    const clearBtn = document.getElementById('clear-btn');
-    if(clearBtn) clearBtn.addEventListener('click', () => {
-      if(this.input) {
-        this.input.value = '';
-        StorageUtils.set('salut_scratchpad', '');
-        this.showSaved();
-      }
-    });
-
-    const copyBtn = document.getElementById('copy-btn');
-    if(copyBtn) copyBtn.addEventListener('click', () => {
-      if(this.input) {
-        this.input.select();
-        document.execCommand('copy');
-        this.flashIndicator("Copied");
-      }
-    });
-
-    const pasteBtn = document.getElementById('paste-btn');
-    if(pasteBtn) pasteBtn.addEventListener('click', async () => {
-      try {
-        const text = await navigator.clipboard.readText();
-        if(this.input && text) {
-          const start = this.input.selectionStart;
-          const end = this.input.selectionEnd;
-          const val = this.input.value;
-          this.input.value = val.substring(0, start) + text + val.substring(end);
-          this.input.selectionStart = this.input.selectionEnd = start + text.length;
-          StorageUtils.set('salut_scratchpad', this.input.value);
-          this.flashIndicator("Pasted");
+        if (!currentPrice) {
+          try {
+            const targetUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d`;
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+            const res = await fetch(proxyUrl);
+            const data = await res.json();
+            
+            if (data && data.chart && data.chart.result && data.chart.result.length > 0) {
+              const meta = data.chart.result[0].meta;
+              currentPrice = meta.regularMarketPrice;
+              const prevClose = meta.previousClose;
+              priceChange = currentPrice - prevClose;
+              pctChange = (priceChange / prevClose) * 100;
+            }
+          } catch(e) {
+            console.warn("Failed to fetch live stock data", e);
+          }
         }
-      } catch(e) { this.flashIndicator("Paste Error"); }
-    });
-  },
-  showSaving() {
-    if(!this.indicator) return;
-    this.indicator.textContent = "Saving...";
-    this.indicator.style.opacity = '1';
-  },
-  showSaved() {
-    if(!this.indicator) return;
-    this.indicator.textContent = "Saved";
-    this.indicator.style.opacity = '1';
-    setTimeout(() => { this.indicator.style.opacity = '0'; }, CONSTANTS.INDICATOR_DELAY_MS);
-  },
-  flashIndicator(text) {
-    if(!this.indicator) return;
-    this.indicator.textContent = text;
-    this.indicator.style.opacity = '1';
-    setTimeout(() => { this.indicator.style.opacity = '0'; }, CONSTANTS.INDICATOR_DELAY_MS);
-  }
-};
 
-const CalculatorWidget = {
-  currentVal: '0',
-  prevVal: null,
-  opVal: null,
-  shouldResetScreen: false,
+        if (currentPrice) {
+           const startBalance = Number(Config.data.portStart) || 0;
+           let shares = Number(Config.data.portCurrent) || 0; 
+           const contributions = Number(Config.data.portContrib) || 0;
+           
+           if (shares > 0) {
+             let isDollarAmount = false;
+             // Auto-detect if user incorrectly left their total dollar balance (e.g. 1081302) instead of shares
+             if (shares > 20000) { 
+                isDollarAmount = true;
+                shares = shares / currentPrice; 
+             }
 
-  init() { this.update(); },
-  
-  // Format the number for display (commas and scientific notation)
-  formatDisplay(numStr) {
-    if (numStr === 'Error' || numStr === '-Error') return 'Error';
-    
-    // Handle the case where the user is typing a decimal (e.g. "5.")
-    if (numStr.endsWith('.')) {
-        return this.formatDisplay(numStr.slice(0, -1)) + '.';
-    }
+             const currentBalance = shares * currentPrice;
+             const netProfit = currentBalance - (startBalance + contributions);
+             const adjustedStart = startBalance + (contributions / 2);
+             const ytdPct = adjustedStart > 0 ? (netProfit / adjustedStart) * 100 : 0;
+             
+             if(textEl) textEl.textContent = `YTD: ${ytdPct >= 0 ? '+' : ''}${ytdPct.toFixed(2)}%`;
+             
+             if(tooltipEl) {
+               if (isDollarAmount) {
+                 tooltipEl.innerHTML = `<span class="text-rose-400">⚠️ Fix Settings:</span> Enter <b>Shares</b> instead of Dollars!`;
+               } else {
+                 tooltipEl.textContent = `Live Balance: $${currentBalance.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2})} | ${symbol}: $${currentPrice.toFixed(2)}`;
+               }
+             }
+             if(dotIndicator) dotIndicator.className = `w-2 h-2 rounded-full ${ytdPct >= 0 ? 'bg-emerald-500' : 'bg-rose-500'}`;
+           } else {
+             if(textEl) textEl.textContent = `${symbol}: ${pctChange >= 0 ? '+' : ''}${pctChange.toFixed(2)}%`;
+             if(tooltipEl) tooltipEl.textContent = `Current: $${currentPrice.toFixed(2)} | Today: ${priceChange >= 0 ? '+' : ''}$${priceChange.toFixed(2)}`;
+             if(dotIndicator) dotIndicator.className = `w-2 h-2 rounded-full ${pctChange >= 0 ? 'bg-emerald-500' : 'bg-rose-500'}`;
+           }
+        } else {
+           if(textEl) textEl.textContent = `${symbol}: N/A`;
+           if(tooltipEl) tooltipEl.textContent = `Unable to fetch live data. Set manual price in settings.`;
+           if(dotIndicator) dotIndicator.className = `w-2 h-2 rounded-full bg-mutedLight dark:bg-mutedDark`;
+        }
 
-    const num = parseFloat(numStr);
-    if (isNaN(num)) return '0';
-
-    const strNum = num.toString();
-    const length = strNum.replace(/[-.]/g, '').length;
-
-    // Use scientific notation if the number is too long (9 digits is a good iOS-like limit)
-    if (length > 9 && !numStr.includes('e')) {
-        return num.toExponential(5).replace(/\+/, ''); 
-    }
-    
-    // Split into integer and decimal parts for formatting
-    let [integerPart, decimalPart] = numStr.split('.');
-    
-    // Add commas to the integer part
-    integerPart = parseInt(integerPart || '0', 10).toLocaleString('en-US');
-    
-    return decimalPart !== undefined ? `${integerPart}.${decimalPart}` : integerPart;
-  },
-
-  update() {
-    const disp = document.getElementById('calc-display');
-    if(disp) {
-      // Apply the iOS-like formatting before displaying
-      disp.textContent = this.formatDisplay(this.currentVal);
-      disp.scrollLeft = disp.scrollWidth;
-    }
-  },
-  
-  // Keep stripErr but use a slightly different approach for iOS style
-  stripErr(n) { 
-    // Prevent floating point errors (e.g., 0.1 + 0.2)
-    return parseFloat(Number(n).toPrecision(10)); 
-  },
-  
-  num(digit) {
-    if (this.currentVal === 'Error') { this.currentVal = '0'; }
-    if (this.shouldResetScreen) {
-      this.currentVal = digit === '.' ? '0.' : digit;
-      this.shouldResetScreen = false;
-    } else {
-      if (digit === '.' && this.currentVal.includes('.')) return;
-      
-      // Prevent entering more than 9 digits (similar to iOS)
-      const currentDigits = this.currentVal.replace(/[-.]/g, '').length;
-      if (currentDigits >= 9 && digit !== '.') return;
-
-      if (this.currentVal === '0' && digit !== '.') {
-        this.currentVal = digit;
-      } else {
-        this.currentVal += digit;
+        if (refreshIcon) refreshIcon.style.display = 'none';
       }
-    }
-    this.update();
-  },
-  op(operator) {
-    if (this.currentVal === 'Error') return;
-    if (this.opVal !== null && !this.shouldResetScreen) {
-      this.eq();
-    }
-    this.prevVal = this.currentVal;
-    this.opVal = operator;
-    this.shouldResetScreen = true;
-  },
-  eq() {
-    if (this.opVal === null || this.prevVal === null || this.currentVal === 'Error') return;
-    const a = parseFloat(this.prevVal);
-    const b = parseFloat(this.currentVal);
-    let res = 0;
-    switch(this.opVal) {
-      case '+': res = a + b; break;
-      case '-': res = a - b; break;
-      case '*': res = a * b; break;
-      case '/': res = b === 0 ? 'Error' : a / b; break;
-    }
-    if (res !== 'Error') {
-        res = this.stripErr(res);
-        // Clean up unnecessary trailing zeros from float fixing
-        this.currentVal = res.toString();
-    } else {
-        this.currentVal = 'Error';
-    }
-    
-    this.opVal = null;
-    this.prevVal = null;
-    this.shouldResetScreen = true;
-    this.update();
-  },
-  clear() {
-    this.currentVal = '0';
-    this.prevVal = null;
-    this.opVal = null;
-    this.shouldResetScreen = false;
-    this.update();
-  },
-  copy() {
-    const tempInput = document.createElement("input");
-    tempInput.value = this.currentVal;
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    document.execCommand("copy");
-    document.body.removeChild(tempInput);
-    ScratchpadWidget.flashIndicator("Calc Copied");
-  },
-  async paste() {
-    try {
-      const text = await navigator.clipboard.readText();
-      const num = parseFloat(text.trim());
-      if (!isNaN(num)) {
-        this.currentVal = num.toString();
-        this.shouldResetScreen = true;
-        this.update();
-        ScratchpadWidget.flashIndicator("Calc Pasted");
-      }
-    } catch(e) { ScratchpadWidget.flashIndicator("Paste Failed"); }
-  }
-};
-
-const WeatherWidget = {
-  init() { this.fetchWeather(); },
-  getWeatherEmoji(code, isNight = false) {
-    if (code === 0) return isNight ? '🌙' : '☀️';
-    if (code === 1 || code === 2) return isNight ? '🌤️' : '⛅';
-    if (code === 3) return '☁️';
-    if (code === 45 || code === 48) return '🌫️';
-    if (code >= 51 && code <= 67) return '🌧️';
-    if (code >= 71 && code <= 77) return '❄️';
-    if (code >= 80 && code <= 82) return '🌦️';
-    if (code >= 95) return '⛈️';
-    return '🌡️';
-  },
-  getWeatherDesc(code) {
-    const map = {
-      0: 'Clear sky', 1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
-      45: 'Foggy', 48: 'Rime fog', 51: 'Light drizzle', 53: 'Moderate drizzle',
-      55: 'Dense drizzle', 61: 'Slight rain', 63: 'Moderate rain', 65: 'Heavy rain',
-      71: 'Slight snow', 73: 'Moderate snow', 75: 'Heavy snow', 95: 'Thunderstorm'
     };
-    return map[code] || 'Fair';
-  },
-  async fetchWeather() {
-    const nowTime = Date.now();
-    const cachedTime = parseInt(StorageUtils.get('weatherTime') || '0', 10);
-    const cachedData = StorageUtils.get('weatherData');
 
-    if (cachedData && (nowTime - cachedTime < CONSTANTS.WEATHER_CACHE_MS)) {
-      try { this.render(JSON.parse(cachedData)); return; } catch(e) {}
-    }
-
-    try {
-      const { lat, lon } = Config.data;
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto`;
-      const res = await fetch(url);
-      const data = await res.json();
-      StorageUtils.set('weatherData', JSON.stringify(data));
-      StorageUtils.set('weatherTime', nowTime);
-      this.render(data);
-    } catch(e) {
-      console.warn("Weather fetch failed");
-      if (cachedData) { try { this.render(JSON.parse(cachedData)); } catch(err) {} }
-    }
-  },
-  render(data) {
-    const cityFront = document.getElementById('weather-city-front');
-    const currIcon = document.getElementById('curr-icon');
-    const currTemp = document.getElementById('curr-temp');
-    const currDesc = document.getElementById('curr-desc');
-    const currExtra = document.getElementById('curr-extra');
-    const hourlyCont = document.getElementById('hourly-forecast-container');
-    const dailyCont = document.getElementById('daily-forecast-container');
-
-    if(cityFront) {
-      cityFront.textContent = Config.data.city;
-      cityFront.classList.remove('skeleton', 'skeleton-block');
-    }
-
-    const cur = data.current;
-    const curEmoji = this.getWeatherEmoji(cur.weather_code, cur.is_day === 0);
-    if(currIcon) currIcon.textContent = curEmoji;
-    if(currTemp) {
-      currTemp.textContent = `${Math.round(cur.temperature_2m)}°`;
-      currTemp.classList.remove('skeleton', 'skeleton-block');
-    }
-    if(currDesc) {
-      currDesc.textContent = this.getWeatherDesc(cur.weather_code);
-      currDesc.classList.remove('skeleton', 'skeleton-block');
-    }
-    if(currExtra) {
-      currExtra.textContent = `Feels like ${Math.round(cur.apparent_temperature)}° • Humidity ${cur.relative_humidity_2m}%`;
-      currExtra.classList.remove('skeleton', 'skeleton-block');
-    }
-
-    // Hourly forecast
-    if(hourlyCont) {
-      hourlyCont.innerHTML = '';
-      const nowIdx = new Date().getHours();
-      for (let i = 0; i < 24; i += 3) {
-        const idx = (nowIdx + i) % 24;
-        const temp = Math.round(data.hourly.temperature_2m[idx]);
-        const code = data.hourly.weather_code[idx];
-        const isNight = data.hourly.is_day[idx] === 0;
-        const emoji = this.getWeatherEmoji(code, isNight);
-        let timeLabel = i === 0 ? 'Now' : `${(nowIdx + i) % 12 || 12}${(nowIdx + i) % 24 >= 12 ? 'p' : 'a'}`;
-
-        const div = document.createElement('div');
-        div.className = 'flex flex-col items-center justify-between h-full gap-2 px-3 py-1';
-        div.innerHTML = `
-          <span class="text-xs font-semibold text-mutedLight dark:text-mutedDark">${timeLabel}</span>
-          <span class="text-2xl">${emoji}</span>
-          <span class="text-sm font-bold text-textLight dark:text-textDark">${temp}°</span>
-        `;
-        hourlyCont.appendChild(div);
-      }
-    }
-
-    // Daily forecast
-    if(dailyCont) {
-      dailyCont.innerHTML = '';
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      for (let i = 0; i < 3; i++) {
-        const dateObj = new Date(data.daily.time[i]);
-        const dayName = i === 0 ? 'Today' : days[dateObj.getDay()];
-        const code = data.daily.weather_code[i];
-        const emoji = this.getWeatherEmoji(code, false);
-        const maxT = Math.round(data.daily.temperature_2m_max[i]);
-        const minT = Math.round(data.daily.temperature_2m_min[i]);
-
-        const row = document.createElement('div');
-        row.className = 'flex items-center justify-between py-1.5';
-        row.innerHTML = `
-          <span class="text-xs font-bold text-textLight dark:text-textDark w-16">${dayName}</span>
-          <span class="text-lg">${emoji}</span>
-          <div class="flex items-center gap-2 text-xs font-bold">
-            <span class="text-textLight dark:text-textDark">${maxT}°</span>
-            <span class="text-mutedLight dark:text-mutedDark font-medium">${minT}°</span>
-          </div>
-        `;
-        dailyCont.appendChild(row);
-      }
-    }
-  }
-};
-
-window.addEventListener('DOMContentLoaded', () => {
-  Config.init();
-  SettingsWidget.init();
-  SearchWidget.init();
-  ClockWidget.init();
-  QuotesWidget.init();
-  MarketWidget.init();
-  ScratchpadWidget.init();
-  CalculatorWidget.init();
-  WeatherWidget.init();
-
-  // Update clock and check for date rollovers (quotes) every second
-  setInterval(() => {
-    ClockWidget.update();
-    QuotesWidget.update(); 
-  }, 1000);
-  
-  // Refresh weather automatically while the tab stays open (+1 sec buffer for cache)
-  setInterval(() => {
-    WeatherWidget.fetchWeather();
-  }, CONSTANTS.WEATHER_CACHE_MS + 1000);
-});
-</script>
-</body>
-</html>
+    const ScratchpadWidget = {
+<!-- ... existing code ... -->
