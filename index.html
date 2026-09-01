@@ -139,7 +139,7 @@
     <div id="date"></div>
     <span class="opacity-30 text-[10px]">●</span>
     
-    <!-- VOO Growth Widget -->
+    <!-- Dynamic VOO Growth Widget -->
     <div id="voo-growth-container" class="relative group cursor-pointer hidden" onclick="MarketWidget.initVOO(true)" title="Click to refresh live price">
       <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/5 shadow-inner transition-colors hover:bg-black/10 dark:hover:bg-white/15">
         <span id="voo-dot-indicator" class="w-2 h-2 rounded-full bg-[var(--yellow)] transition-colors"></span>
@@ -168,7 +168,10 @@
   <!-- TradingView Column -->
   <div class="flex flex-col gap-6 lg:w-[280px] shrink-0">
     <div class="glass-panel rounded-2xl h-[400px] p-4 flex flex-col animate-fade-up" style="animation-delay: 0.2s;">
-      <div id="tv-widget-container" class="skeleton skeleton-block w-full h-full flex-1 transition-opacity duration-300"></div>
+      <!-- Wrapper with overflow-hidden to cleanly crop TV branding and title -->
+      <div class="relative w-full h-full overflow-hidden rounded-xl">
+        <div id="tv-widget-container" class="absolute top-[-48px] bottom-[-44px] left-0 right-0 w-full skeleton skeleton-block transition-opacity duration-300"></div>
+      </div>
     </div>
   </div>
 
@@ -203,6 +206,7 @@
     </div>
   </div>
 
+  <!-- Calculator Column -->
   <div class="flex flex-col gap-6 lg:w-[280px] shrink-0">
     <div class="glass-panel rounded-2xl h-[400px] p-4 shrink-0 flex flex-col gap-2 animate-fade-up" style="animation-delay: 0.3s;">
       <div class="font-extrabold text-6xl leading-none text-right text-textLight dark:text-textDark px-1 pb-2 bg-transparent border-none overflow-x-auto whitespace-nowrap calc-display" aria-label="Calculator display" id="calc-display">0</div>
@@ -269,14 +273,23 @@
     
     <div class="mb-4 flex flex-col gap-2">
       <label for="set-ticker" class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Stock Ticker</label>
-      <input type="text" id="set-ticker" placeholder="e.g. BATS:VOO or NASDAQ:AAPL" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-full">
+      <input type="text" id="set-ticker" placeholder="e.g. AMEX:VOO or NASDAQ:AAPL" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-full">
     </div>
 
     <div class="mb-4 flex flex-col gap-2">
       <label for="set-manual-price" class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Manual Stock Price Override (Optional)</label>
-      <input type="number" step="0.01" id="set-manual-price" placeholder="Leave blank for live auto-fetch (e.g. 709.50)" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-full">
+      <input type="number" step="0.01" id="set-manual-price" placeholder="Leave blank for live auto-fetch (e.g. 515.50)" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-full">
     </div>
     
+    <div class="mb-4 flex flex-col gap-2">
+      <label class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Portfolio (Start / Current / Contrib)</label>
+      <div class="flex gap-2">
+        <input type="number" id="set-port-start" placeholder="Start" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-1/3">
+        <input type="number" id="set-port-current" placeholder="Current" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-1/3">
+        <input type="number" id="set-port-contrib" placeholder="Added" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-1/3">
+      </div>
+    </div>
+
     <div class="mb-4 flex flex-col gap-2">
       <label for="set-accent" class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Accent Theme Color</label>
       <div class="flex items-center gap-2">
@@ -287,7 +300,7 @@
     
     <div class="flex justify-end gap-3 mt-6">
       <button id="settings-cancel" class="px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-textLight dark:text-textDark font-bold cursor-pointer transition-colors hover:bg-black/10 dark:hover:bg-white/10 font-sans">Cancel</button>
-      <button id="settings-save" class="px-4 py-2.5 rounded-xl border border-[var(--yellow)] bg-[var(--yellow)] text-white font-bold cursor-pointer transition-opacity hover:brightness-110 font-sans shadow-md">Save & Reload</button>
+      <button id="settings-save" class="px-4 py-2.5 rounded-xl border border-[var(--yellow)] bg-[var(--yellow)] text-white font-bold cursor-pointer transition-opacity hover:brightness-110 font-sans shadow-md">Save & Apply</button>
     </div>
   </div>
 </div>
@@ -309,11 +322,17 @@ const StorageUtils = {
 };
 
 const Config = {
-  data: { city: "Burbank, CA", lat: 34.1808, lon: -118.3090, ticker: "BATS:VOO", accent: "#FF9500", manualPrice: "" },
+  // AMEX:VOO is the modern, active TradingView ticker for Vanguard S&P 500 ETF
+  data: { city: "Burbank, CA", lat: 34.1808, lon: -118.3090, ticker: "AMEX:VOO", accent: "#FF9500", manualPrice: "", portStart: 815486, portCurrent: 1081302, portContrib: 151500 },
   init() {
     const saved = StorageUtils.get('salut_config');
     if (saved) { try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch(e) {} }
-    if (this.data.ticker === "AMEX:VOO") { this.data.ticker = "BATS:VOO"; this.save(); }
+    
+    // Bugfix: Correcting old configurations that are forcing the broken BATS exchange format.
+    if (this.data.ticker === "BATS:VOO" || this.data.ticker === "NYSEARCA:VOO") { 
+      this.data.ticker = "AMEX:VOO"; 
+      this.save(); 
+    }
     
     // Apply dynamic accent color
     if (this.data.accent) {
@@ -326,6 +345,7 @@ const Config = {
 const SettingsWidget = {
   modal: null, content: null, btnOpen: null, btnCancel: null, btnSave: null,
   inputCity: null, inputTicker: null, inputManualPrice: null, inputAccent: null,
+  inputPortStart: null, inputPortCurrent: null, inputPortContrib: null,
 
   init() {
     this.modal = document.getElementById('settings-modal');
@@ -337,6 +357,9 @@ const SettingsWidget = {
     this.inputTicker = document.getElementById('set-ticker');
     this.inputManualPrice = document.getElementById('set-manual-price');
     this.inputAccent = document.getElementById('set-accent');
+    this.inputPortStart = document.getElementById('set-port-start');
+    this.inputPortCurrent = document.getElementById('set-port-current');
+    this.inputPortContrib = document.getElementById('set-port-contrib');
 
     if(this.btnOpen) this.btnOpen.addEventListener('click', () => this.open());
     if(this.btnCancel) this.btnCancel.addEventListener('click', () => this.close());
@@ -357,6 +380,9 @@ const SettingsWidget = {
     this.inputTicker.value = Config.data.ticker || '';
     if(this.inputManualPrice) this.inputManualPrice.value = Config.data.manualPrice || '';
     this.inputAccent.value = Config.data.accent || "#FF9500";
+    if(this.inputPortStart) this.inputPortStart.value = Config.data.portStart || '';
+    if(this.inputPortCurrent) this.inputPortCurrent.value = Config.data.portCurrent || '';
+    if(this.inputPortContrib) this.inputPortContrib.value = Config.data.portContrib || '';
     this.modal.classList.remove('opacity-0', 'pointer-events-none');
     this.content.classList.remove('scale-95');
     this.modal.setAttribute('aria-hidden', 'false');
@@ -371,9 +397,12 @@ const SettingsWidget = {
   },
   async save() {
     const newCity = this.inputCity.value.trim() || "Burbank, CA";
-    Config.data.ticker = this.inputTicker.value.trim() || "BATS:VOO";
+    Config.data.ticker = this.inputTicker.value.trim() || "AMEX:VOO";
     if(this.inputManualPrice) Config.data.manualPrice = this.inputManualPrice.value.trim();
     Config.data.accent = this.inputAccent.value;
+    if(this.inputPortStart) Config.data.portStart = parseFloat(this.inputPortStart.value) || 0;
+    if(this.inputPortCurrent) Config.data.portCurrent = parseFloat(this.inputPortCurrent.value) || 0;
+    if(this.inputPortContrib) Config.data.portContrib = parseFloat(this.inputPortContrib.value) || 0;
 
     if (newCity !== Config.data.city) {
       if(this.btnSave) this.btnSave.textContent = "Locating...";
@@ -389,7 +418,14 @@ const SettingsWidget = {
       } catch(e) { console.warn("Geocoding failed"); }
     }
     Config.save();
-    window.location.reload(); 
+    
+    document.documentElement.style.setProperty('--yellow', Config.data.accent);
+    WeatherWidget.fetchWeather();
+    MarketWidget.loadTradingView();
+    MarketWidget.initVOO(true);
+    
+    if(this.btnSave) this.btnSave.textContent = "Save & Apply";
+    this.close();
   }
 };
 
@@ -537,7 +573,6 @@ const QuotesWidget = {
     const tEl = document.getElementById('quote-text');
     const aEl = document.getElementById('quote-author');
     
-    // Only update DOM if it changed to avoid unnecessary repaints
     if(tEl && tEl.textContent !== `"${q.text}"`) tEl.textContent = `"${q.text}"`;
     if(aEl && aEl.textContent !== `— ${q.author}`) aEl.textContent = `— ${q.author}`;
   }
@@ -552,24 +587,49 @@ const MarketWidget = {
     const container = document.getElementById('tv-widget-container');
     if(!container) return;
     container.innerHTML = '';
+    
     const script = document.createElement('script');
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js";
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
     script.async = true;
     script.innerHTML = JSON.stringify({
-      "symbol": Config.data.ticker,
+      "symbols": [
+        [
+          " ",
+          Config.data.ticker + "|1D"
+        ]
+      ],
+      "chartOnly": false,
       "width": "100%",
       "height": "100%",
       "locale": "en",
-      "dateRange": "12M",
       "colorTheme": window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
-      "trendLineColor": "#FF9500",
-      "underLineColor": "rgba(255, 149, 0, 0.1)",
-      "underLineBottomColor": "rgba(255, 149, 0, 0)",
-      "isTransparent": true,
       "autosize": true,
-      "largeChartUrl": ""
+      "showVolume": false,
+      "showMA": false,
+      "hideDateRanges": false,
+      "hideMarketStatus": true,
+      "hideSymbolLogo": true,
+      "scalePosition": "no",
+      "scaleMode": "Normal",
+      "fontFamily": "Plus Jakarta Sans, sans-serif",
+      "fontSize": "12",
+      "noTimeScale": false,
+      "valuesTracking": "0",
+      "changeMode": "price-and-percent",
+      "chartType": "area",
+      "lineWidth": 2,
+      "lineType": 0,
+      "dateRanges": [
+        "1d|1",
+        "5d|5",
+        "1m|30"
+      ],
+      "lineColor": Config.data.accent || "#FF9500",
+      "bottomColor": "rgba(255, 149, 0, 0)",
+      "topColor": "rgba(255, 149, 0, 0.15)"
     });
     container.appendChild(script);
+    
     setTimeout(() => {
       container.classList.remove('skeleton', 'skeleton-block');
     }, 600);
@@ -587,17 +647,18 @@ const MarketWidget = {
       setTimeout(() => { refreshIcon.style.transform = 'rotate(0deg)'; }, 500);
     }
 
-    const startBalance = 815486;
-    const currentBalance = 1081302;
-    const contributions = 131500 + 20000;
+    const startBalance = Number(Config.data.portStart) || 0;
+    const currentBalance = Number(Config.data.portCurrent) || 0;
+    const contributions = Number(Config.data.portContrib) || 0;
     const netProfit = currentBalance - (startBalance + contributions);
     
-    // Time-Weighted Return (TWR) calculation to accurately account for mid-period contributions
-    const pctChange = 13.54; 
+    // Approximate Time-Weighted Return (Modified Dietz method)
+    const adjustedStart = startBalance + (contributions / 2);
+    const pctChange = adjustedStart > 0 ? (netProfit / adjustedStart) * 100 : 0;
     
     container.classList.remove('hidden');
     if(textEl) textEl.textContent = `YTD: ${pctChange >= 0 ? '+' : ''}${pctChange.toFixed(2)}%`;
-    if(tooltipEl) tooltipEl.textContent = `Balance: $${currentBalance.toLocaleString()} | Profit: $${netProfit.toLocaleString()}`;
+    if(tooltipEl) tooltipEl.textContent = `Balance: $${currentBalance.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2})} | Profit: $${netProfit.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 2})}`;
     
     if(dotIndicator) {
       dotIndicator.className = `w-2 h-2 rounded-full ${pctChange >= 0 ? 'bg-emerald-500' : 'bg-rose-500'}`;
@@ -687,14 +748,51 @@ const CalculatorWidget = {
   shouldResetScreen: false,
 
   init() { this.update(); },
+  
+  // Format the number for display (commas and scientific notation)
+  formatDisplay(numStr) {
+    if (numStr === 'Error' || numStr === '-Error') return 'Error';
+    
+    // Handle the case where the user is typing a decimal (e.g. "5.")
+    if (numStr.endsWith('.')) {
+        return this.formatDisplay(numStr.slice(0, -1)) + '.';
+    }
+
+    const num = parseFloat(numStr);
+    if (isNaN(num)) return '0';
+
+    const strNum = num.toString();
+    const length = strNum.replace(/[-.]/g, '').length;
+
+    // Use scientific notation if the number is too long (9 digits is a good iOS-like limit)
+    if (length > 9 && !numStr.includes('e')) {
+        return num.toExponential(5).replace(/\+/, ''); 
+    }
+    
+    // Split into integer and decimal parts for formatting
+    let [integerPart, decimalPart] = numStr.split('.');
+    
+    // Add commas to the integer part
+    integerPart = parseInt(integerPart || '0', 10).toLocaleString('en-US');
+    
+    return decimalPart !== undefined ? `${integerPart}.${decimalPart}` : integerPart;
+  },
+
   update() {
     const disp = document.getElementById('calc-display');
     if(disp) {
-      disp.textContent = this.currentVal;
+      // Apply the iOS-like formatting before displaying
+      disp.textContent = this.formatDisplay(this.currentVal);
       disp.scrollLeft = disp.scrollWidth;
     }
   },
-  stripErr(n) { return parseFloat(n.toPrecision(10)); },
+  
+  // Keep stripErr but use a slightly different approach for iOS style
+  stripErr(n) { 
+    // Prevent floating point errors (e.g., 0.1 + 0.2)
+    return parseFloat(Number(n).toPrecision(10)); 
+  },
+  
   num(digit) {
     if (this.currentVal === 'Error') { this.currentVal = '0'; }
     if (this.shouldResetScreen) {
@@ -702,6 +800,11 @@ const CalculatorWidget = {
       this.shouldResetScreen = false;
     } else {
       if (digit === '.' && this.currentVal.includes('.')) return;
+      
+      // Prevent entering more than 9 digits (similar to iOS)
+      const currentDigits = this.currentVal.replace(/[-.]/g, '').length;
+      if (currentDigits >= 9 && digit !== '.') return;
+
       if (this.currentVal === '0' && digit !== '.') {
         this.currentVal = digit;
       } else {
@@ -730,8 +833,14 @@ const CalculatorWidget = {
       case '*': res = a * b; break;
       case '/': res = b === 0 ? 'Error' : a / b; break;
     }
-    if (res !== 'Error') res = this.stripErr(res);
-    this.currentVal = res.toString();
+    if (res !== 'Error') {
+        res = this.stripErr(res);
+        // Clean up unnecessary trailing zeros from float fixing
+        this.currentVal = res.toString();
+    } else {
+        this.currentVal = 'Error';
+    }
+    
     this.opVal = null;
     this.prevVal = null;
     this.shouldResetScreen = true;
