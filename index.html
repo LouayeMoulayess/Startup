@@ -116,8 +116,8 @@
 <body class="min-h-screen flex flex-col items-center px-6 pb-6 overflow-x-hidden bg-bgLight text-textLight antialiased dark:bg-bgDark dark:text-textDark relative">
 
 <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-  <div class="absolute -top-[15%] -left-[10%] w-[45vw] h-[45vw] rounded-full bg-[var(--yellow)] opacity-[0.08] dark:opacity-[0.05] blur-[100px] lg:blur-[130px] transform-gpu will-change-transform"></div>
-  <div class="absolute top-[40%] -right-[5%] w-[55vw] h-[55vw] rounded-full bg-[var(--yellow)] opacity-[0.06] dark:opacity-[0.04] blur-[120px] lg:blur-[160px] transform-gpu will-change-transform"></div>
+  <div class="absolute -top-[15%] -left-[10%] w-[45vw] h-[45vw] rounded-full bg-[var(--yellow)] opacity-[0.08] dark:opacity-[0.05] blur-[100px] lg:blur-[130px]"></div>
+  <div class="absolute top-[40%] -right-[5%] w-[55vw] h-[55vw] rounded-full bg-[var(--yellow)] opacity-[0.06] dark:opacity-[0.04] blur-[120px] lg:blur-[160px]"></div>
 </div>
 
 <svg class="hidden" aria-hidden="true">
@@ -138,7 +138,7 @@
   <div class="flex flex-row items-center justify-center gap-3 mt-3 text-sm font-medium tracking-wide text-mutedLight dark:text-mutedDark animate-fade-up" style="animation-delay: 0.1s;">
     <div id="date"></div>
     <span class="opacity-30 text-[10px]">●</span>
-    
+
     <!-- Dynamic VOO Growth Widget -->
     <div id="voo-growth-container" class="relative group cursor-pointer hidden" onclick="MarketWidget.initVOO(true)" title="Click to refresh live price">
       <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/5 dark:bg-white/10 border border-black/5 dark:border-white/5 shadow-inner transition-colors hover:bg-black/10 dark:hover:bg-white/15">
@@ -150,8 +150,9 @@
         <span id="voo-price-tooltip">Current: $---.--</span>
       </div>
     </div>
-    
+
     <div title="Local time in Lebanon">Lebanon <span class="text-[#FF3B30] font-bold ml-1" id="lb-time">--:--</span></div>
+    <span id="market-status-dot" class="w-2 h-2 rounded-full bg-mutedLight dark:bg-mutedDark transition-colors shrink-0" title="NYSE regular trading hours, 9:30 AM–4:00 PM ET, Mon–Fri. Does not account for market holidays."></span>
   </div>
 </header>
 
@@ -163,7 +164,7 @@
 <div class="w-full max-w-6xl h-px bg-black/5 dark:bg-white/10 my-4 z-10 relative"></div>
 
 <div class="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto items-stretch z-10 relative">
-  
+
   <!-- TradingView Column -->
   <div class="flex flex-col gap-6 lg:w-[280px] shrink-0">
     <div class="glass-panel rounded-2xl h-[400px] p-4 flex flex-col animate-fade-up" style="animation-delay: 0.2s;">
@@ -190,7 +191,7 @@
         <input type="text" id="omnibar" class="glass-panel w-full py-5 pl-7 pr-[72px] rounded-2xl font-extrabold text-xl text-textLight dark:text-textDark outline-none transition-all duration-300 animate-fade-up focus:border-[var(--yellow)] focus:ring-4 focus:ring-[var(--yellow)]/15 focus:bg-cardLight dark:focus:bg-cardDark placeholder:opacity-30 placeholder:italic placeholder:font-medium shadow-inner" aria-label="Search or calculate" placeholder="..." autocomplete="off" spellcheck="false">
       </form>
     </div>
-    
+
     <!-- Scratchpad -->
     <div class="glass-panel rounded-2xl flex flex-col h-[320px] lg:h-[306px] shrink-0 animate-fade-up" style="animation-delay: 0.25s;">
       <div class="flex justify-end items-center px-5 py-4 border-b border-black/5 dark:border-white/5">
@@ -209,28 +210,28 @@
   <div class="flex flex-col gap-6 lg:w-[280px] shrink-0">
     <div class="glass-panel rounded-2xl h-[400px] p-4 shrink-0 flex flex-col gap-2 animate-fade-up" style="animation-delay: 0.3s;">
       <div class="font-extrabold text-6xl leading-none text-right text-textLight dark:text-textDark px-1 pb-2 bg-transparent border-none overflow-x-auto whitespace-nowrap calc-display" aria-label="Calculator display" id="calc-display">0</div>
-      
+
       <div class="grid grid-cols-4 grid-rows-5 gap-2.5 flex-1">
         <button type="button" class="calc-btn-neu text-mutedLight dark:text-mutedDark" aria-label="Clear" onclick="CalculatorWidget.clear()" id="calc-btn-clear">AC</button>
         <button type="button" class="calc-btn-neu" aria-label="Paste number" onclick="CalculatorWidget.paste()" title="Paste"><svg class="w-4 h-4 opacity-70"><use href="#icon-paste"></use></svg></button>
         <button type="button" class="calc-btn-neu" aria-label="Copy number" onclick="CalculatorWidget.copy()" title="Copy"><svg class="w-4 h-4 opacity-70"><use href="#icon-copy"></use></svg></button>
         <button type="button" class="calc-btn-neu font-bold text-[1.3rem] text-[var(--yellow)]" aria-label="Divide" onclick="CalculatorWidget.op('/')">÷</button>
-        
+
         <button type="button" class="calc-btn-neu" aria-label="Seven" onclick="CalculatorWidget.num('7')">7</button>
         <button type="button" class="calc-btn-neu" aria-label="Eight" onclick="CalculatorWidget.num('8')">8</button>
         <button type="button" class="calc-btn-neu" aria-label="Nine" onclick="CalculatorWidget.num('9')">9</button>
         <button type="button" class="calc-btn-neu font-bold text-[1.3rem] text-[var(--yellow)]" aria-label="Multiply" onclick="CalculatorWidget.op('*')">×</button>
-        
+
         <button type="button" class="calc-btn-neu" aria-label="Four" onclick="CalculatorWidget.num('4')">4</button>
         <button type="button" class="calc-btn-neu" aria-label="Five" onclick="CalculatorWidget.num('5')">5</button>
         <button type="button" class="calc-btn-neu" aria-label="Six" onclick="CalculatorWidget.num('6')">6</button>
         <button type="button" class="calc-btn-neu font-bold text-[1.3rem] text-[var(--yellow)]" aria-label="Subtract" onclick="CalculatorWidget.op('-')">-</button>
-        
+
         <button type="button" class="calc-btn-neu" aria-label="One" onclick="CalculatorWidget.num('1')">1</button>
         <button type="button" class="calc-btn-neu" aria-label="Two" onclick="CalculatorWidget.num('2')">2</button>
         <button type="button" class="calc-btn-neu" aria-label="Three" onclick="CalculatorWidget.num('3')">3</button>
         <button type="button" class="calc-btn-neu font-bold text-[1.3rem] text-[var(--yellow)]" aria-label="Add" onclick="CalculatorWidget.op('+')">+</button>
-        
+
         <button type="button" class="calc-btn-neu col-span-2" aria-label="Zero" onclick="CalculatorWidget.num('0')">0</button>
         <button type="button" class="calc-btn-neu" aria-label="Decimal" onclick="CalculatorWidget.num('.')">.</button>
         <button type="button" class="calc-btn-neu-accent" aria-label="Equals" onclick="CalculatorWidget.eq()">=</button>
@@ -251,7 +252,7 @@
     </div>
     <div class="text-xs font-medium text-mutedLight dark:text-mutedDark mt-1 skeleton skeleton-block w-[160px] min-h-[14px] inline-block" id="curr-extra"></div>
   </article>
-  
+
   <article class="flex-1 lg:border-x border-black/5 dark:border-white/5 lg:px-8 py-6 lg:py-0 my-0 border-y lg:border-y-0 min-h-[120px] overflow-x-auto hover-scrollbar">
     <div class="flex justify-between items-center h-full gap-6 lg:gap-0 min-w-max lg:min-w-0 px-4 lg:px-0" id="hourly-forecast-container"></div>
   </article>
@@ -264,12 +265,12 @@
 <div id="settings-modal" class="fixed inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-[1000] opacity-0 pointer-events-none transition-opacity duration-250" aria-hidden="true">
   <div class="bg-cardLight dark:bg-cardDark border border-borderLight dark:border-borderDark rounded-2xl p-6 w-[90%] max-w-[480px] shadow-2xl scale-95 transition-transform duration-250 backdrop-blur-xl" id="settings-content">
     <h2 class="mb-5 font-extrabold text-lg text-textLight dark:text-textDark">Dashboard Settings</h2>
-    
+
     <div class="mb-4 flex flex-col gap-2">
       <label for="set-city" class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Default Weather City</label>
       <input type="text" id="set-city" placeholder="e.g. Burbank, CA" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-full">
     </div>
-    
+
     <div class="mb-4 flex flex-col gap-2">
       <label for="set-ticker" class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Stock Ticker</label>
       <input type="text" id="set-ticker" placeholder="e.g. AMEX:VOO or NASDAQ:AAPL" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-full">
@@ -279,7 +280,7 @@
       <label for="set-manual-price" class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Manual Stock Price Override (Optional)</label>
       <input type="number" step="0.01" id="set-manual-price" placeholder="Leave blank for live auto-fetch (e.g. 515.50)" class="bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10 p-2.5 rounded-xl text-textLight dark:text-textDark font-sans outline-none transition-colors focus:border-[var(--yellow)] w-full">
     </div>
-    
+
     <div class="mb-4 flex flex-col gap-2">
       <label class="text-[11px] font-extrabold text-mutedLight dark:text-mutedDark uppercase tracking-wide">Portfolio (Start / Shares / Contrib)</label>
       <div class="flex gap-2">
@@ -296,7 +297,7 @@
         <span class="text-[11px] text-mutedLight dark:text-mutedDark">Try #84A98C (Matcha), #00B4D8 (Nordic), or #8A2BE2 (Neon)</span>
       </div>
     </div>
-    
+
     <div class="flex justify-end gap-3 mt-6">
       <button id="settings-cancel" class="px-4 py-2.5 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 text-textLight dark:text-textDark font-bold cursor-pointer transition-colors hover:bg-black/10 dark:hover:bg-white/10 font-sans">Cancel</button>
       <button id="settings-save" class="px-4 py-2.5 rounded-xl border border-[var(--yellow)] bg-[var(--yellow)] text-white font-bold cursor-pointer transition-opacity hover:brightness-110 font-sans shadow-md">Save & Apply</button>
@@ -313,7 +314,8 @@ const CONSTANTS = {
   COPY_FEEDBACK_MS: 1500,
   PASTE_ERROR_MS: 2500,
   VOO_TIMEOUT_MS: 3500,
-  WEATHER_TIMEOUT_MS: 5000
+  WEATHER_TIMEOUT_MS: 5000,
+  MARKET_STATUS_CHECK_MS: 30000
 };
 
 const ClipboardUtils = {
@@ -351,7 +353,7 @@ const Config = {
   init() {
     const saved = StorageUtils.get('salut_config');
     if (saved) { try { this.data = { ...this.data, ...JSON.parse(saved) }; } catch(e) {} }
-    
+
     // Bugfix: earlier versions stored your total DOLLAR balance in the "shares" field by mistake.
     // Because dollars-in / price-out / times-price-again is mathematically a no-op, the live price
     // never actually moved your balance — it just looked "stuck" and threw a "Fix Settings" warning.
@@ -361,13 +363,13 @@ const Config = {
       this.data.portCurrent = 1533.934;
       this.save();
     }
-    
+
     // Bugfix: Correcting old configurations that are forcing the broken BATS exchange format.
-    if (this.data.ticker === "BATS:VOO" || this.data.ticker === "NYSEARCA:VOO") { 
-      this.data.ticker = "AMEX:VOO"; 
-      this.save(); 
+    if (this.data.ticker === "BATS:VOO" || this.data.ticker === "NYSEARCA:VOO") {
+      this.data.ticker = "AMEX:VOO";
+      this.save();
     }
-    
+
     // Apply dynamic accent color
     if (this.data.accent) {
       document.documentElement.style.setProperty('--yellow', this.data.accent);
@@ -398,7 +400,7 @@ const SettingsWidget = {
     if(this.btnOpen) this.btnOpen.addEventListener('click', () => this.open());
     if(this.btnCancel) this.btnCancel.addEventListener('click', () => this.close());
     if(this.btnSave) this.btnSave.addEventListener('click', () => this.save());
-    
+
     if(this.modal) {
       this.modal.addEventListener('keydown', (e) => {
         if(e.key === "Enter" && !this.modal.classList.contains('opacity-0')) {
@@ -447,17 +449,17 @@ const SettingsWidget = {
           Config.data.city = geo.results[0].name + (geo.results[0].admin1 ? `, ${geo.results[0].admin1}` : '');
           Config.data.lat = geo.results[0].latitude;
           Config.data.lon = geo.results[0].longitude;
-          StorageUtils.set('weatherTime', 0); 
+          StorageUtils.set('weatherTime', 0);
         } else { Config.data.city = newCity; }
       } catch(e) { console.warn("Geocoding failed"); }
     }
     Config.save();
-    
+
     document.documentElement.style.setProperty('--yellow', Config.data.accent);
     WeatherWidget.fetchWeather();
     MarketWidget.loadTradingView();
     MarketWidget.initVOO(true);
-    
+
     if(this.btnSave) this.btnSave.textContent = "Save & Apply";
     this.close();
   }
@@ -490,7 +492,7 @@ const SearchWidget = {
   init() {
     this.omnibar = document.getElementById('omnibar');
     SearchEngineWidget.init();
-    
+
     if(this.omnibar) {
       this.omnibar.addEventListener('keydown', e => { if(e.key === "Escape") { this.omnibar.value = ""; this.omnibar.blur(); } });
       this.omnibar.addEventListener('input', (e) => {
@@ -527,10 +529,10 @@ const SearchWidget = {
     }
 
     const query = encodeURIComponent(val);
-    const url = SearchEngineWidget.isGPT 
-      ? `https://chatgpt.com/?q=${query}` 
+    const url = SearchEngineWidget.isGPT
+      ? `https://chatgpt.com/?q=${query}`
       : `https://www.google.com/search?q=${query}`;
-      
+
     window.open(url, "_blank", "noopener noreferrer");
     this.omnibar.value = '';
   }
@@ -541,41 +543,42 @@ const ClockWidget = {
   isFirstLoad: true,
   lastDateStr: "",
   fmt: new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Beirut", hour: "numeric", minute: "2-digit" }),
-  init() { 
+  init() {
     this.dom = {
       h: document.getElementById('h'), m: document.getElementById('m'),
       ampm: document.getElementById('ampm'), date: document.getElementById('date'),
       lbTime: document.getElementById('lb-time')
     };
-    this.update(); 
+    this.update();
   },
   update() {
     const now = new Date(), rawH = now.getHours(), h12 = rawH % 12 || 12;
     const hStr = h12.toString(), mStr = now.getMinutes().toString().padStart(2, '0');
-    
+
     if(this.dom.h && this.dom.h.textContent !== hStr) {
-      if(this.isFirstLoad) { this.dom.h.textContent = hStr; } 
+      if(this.isFirstLoad) { this.dom.h.textContent = hStr; }
       else {
         this.dom.h.classList.add('digit-changing');
         setTimeout(() => { this.dom.h.textContent = hStr; this.dom.h.classList.replace('digit-changing', 'digit-incoming'); }, CONSTANTS.CLOCK_ANIM_MS);
       }
     }
     if(this.dom.m && this.dom.m.textContent !== mStr) {
-      if(this.isFirstLoad) { this.dom.m.textContent = mStr; } 
+      if(this.isFirstLoad) { this.dom.m.textContent = mStr; }
       else {
         this.dom.m.classList.add('digit-changing');
         setTimeout(() => { this.dom.m.textContent = mStr; this.dom.m.classList.replace('digit-changing', 'digit-incoming'); }, CONSTANTS.CLOCK_ANIM_MS);
       }
     }
-    if(this.dom.ampm) this.dom.ampm.textContent = rawH >= 12 ? ' PM' : ' AM';
-    
+    const ampmStr = rawH >= 12 ? ' PM' : ' AM';
+    if(this.dom.ampm && this.dom.ampm.textContent !== ampmStr) this.dom.ampm.textContent = ampmStr;
+
     const dateStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
     if(this.lastDateStr !== dateStr) {
       if(this.dom.date) this.dom.date.textContent = dateStr;
       this.lastDateStr = dateStr;
     }
     this.isFirstLoad = false;
-    
+
     const lbTimeStr = this.fmt.format(now);
     if(this.dom.lbTime && this.dom.lbTime.textContent !== lbTimeStr) {
       this.dom.lbTime.textContent = lbTimeStr;
@@ -606,9 +609,50 @@ const QuotesWidget = {
     const q = this.quotes[idx] || this.quotes[0];
     const tEl = document.getElementById('quote-text');
     const aEl = document.getElementById('quote-author');
-    
+
     if(tEl && tEl.textContent !== `"${q.text}"`) tEl.textContent = `"${q.text}"`;
     if(aEl && aEl.textContent !== `— ${q.author}`) aEl.textContent = `— ${q.author}`;
+  }
+};
+
+// Determines whether US markets (NYSE) are currently in regular trading hours.
+// Uses Intl to resolve America/New_York wall-clock time (handles DST automatically).
+// NOTE: does not account for market holidays (Thanksgiving, July 4th, etc.) —
+// only weekday + 9:30am-4:00pm ET is checked.
+const MarketStatus = {
+  dotEl: null,
+  init() {
+    this.dotEl = document.getElementById('market-status-dot');
+    this.update();
+  },
+  update() {
+    if(!this.dotEl) return;
+
+    const now = new Date();
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      weekday: 'short', hour: 'numeric', minute: 'numeric', hour12: false
+    }).formatToParts(now);
+
+    const map = {};
+    parts.forEach(p => { map[p.type] = p.value; });
+
+    const weekday = map.weekday; // "Mon".."Sun"
+    // hour can come back as "24" at midnight in some locales/engines; normalize to 0
+    let hour = parseInt(map.hour, 10);
+    if (hour === 24) hour = 0;
+    const minute = parseInt(map.minute, 10);
+    const minutesSinceMidnight = hour * 60 + minute;
+
+    const isWeekday = weekday !== 'Sat' && weekday !== 'Sun';
+    const OPEN_MIN = 9 * 60 + 30;  // 9:30 AM ET
+    const CLOSE_MIN = 16 * 60;     // 4:00 PM ET
+    const isOpen = isWeekday && minutesSinceMidnight >= OPEN_MIN && minutesSinceMidnight < CLOSE_MIN;
+
+    this.dotEl.className = `w-2 h-2 rounded-full transition-colors shrink-0 ${isOpen ? 'bg-emerald-500' : 'bg-rose-500'}`;
+    this.dotEl.title = isOpen
+      ? 'Market Open (NYSE regular hours, ET). Does not account for holidays.'
+      : 'Market Closed (outside NYSE regular hours, ET). Does not account for holidays.';
   }
 };
 
@@ -616,12 +660,20 @@ const MarketWidget = {
   init() {
     this.loadTradingView();
     this.initVOO();
+    // Keep the TradingView chart's theme in sync if the OS-level color
+    // scheme changes while the tab is open (everything else on the page
+    // already reacts live via Tailwind's dark: classes).
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        this.loadTradingView();
+      });
+    }
   },
   loadTradingView() {
     const container = document.getElementById('tv-widget-container');
     if(!container) return;
     container.innerHTML = '';
-    
+
     const script = document.createElement('script');
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js";
     script.async = true;
@@ -656,14 +708,16 @@ const MarketWidget = {
       "dateRanges": [
         "1d|1",
         "5d|5",
-        "1m|30"
+        "1m|30",
+        "3m|60",
+        "6m|120"
       ],
       "lineColor": Config.data.accent || "#FF9500",
       "bottomColor": "rgba(255, 149, 0, 0)",
       "topColor": "rgba(255, 149, 0, 0.15)"
     });
     container.appendChild(script);
-    
+
     setTimeout(() => {
       container.classList.remove('skeleton', 'skeleton-block');
     }, 600);
@@ -688,78 +742,80 @@ const MarketWidget = {
     let currentPrice = Number(Config.data.manualPrice) || null;
     let pctChange = 0;
     let priceChange = 0;
-    
+
     const fullTicker = Config.data.ticker || "AMEX:VOO";
     const symbol = fullTicker.split(':').pop() || "VOO";
 
     if (!currentPrice) {
       try {
-        // 1. Try TradingView Scanner API (Sending as plain text avoids CORS preflight rejection)
-        const tvController = new AbortController();
-        const tvTimeout = setTimeout(() => tvController.abort(), CONSTANTS.VOO_TIMEOUT_MS);
-        const tvRes = await fetch("https://scanner.tradingview.com/america/scan", {
-          method: "POST",
-          signal: tvController.signal,
-          body: JSON.stringify({
-            "symbols": { "tickers": [fullTicker, `AMEX:${symbol}`, `NYSEARCA:${symbol}`] },
-            "columns": ["close", "change", "change_abs"]
-          })
-        });
-        clearTimeout(tvTimeout);
-        const tvData = await tvRes.json();
-        if (tvData && tvData.data && tvData.data.length > 0) {
-          const d = tvData.data[0].d;
-          currentPrice = d[0];
-          pctChange = d[1];
-          priceChange = d[2];
-        } else {
-          throw new Error("No TV Data");
-        }
+        // 1. Yahoo Finance via open CORS proxy — this is the path that actually
+        // succeeds in-browser (see note below), so it goes first to avoid a
+        // wasted round-trip on the common case.
+        const yfController = new AbortController();
+        const yfTimeout = setTimeout(() => yfController.abort(), CONSTANTS.VOO_TIMEOUT_MS);
+        const yfRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`)}`, { signal: yfController.signal });
+        clearTimeout(yfTimeout);
+        const yfData = await yfRes.json();
+        const parsed = JSON.parse(yfData.contents);
+        const result = parsed.chart.result[0];
+        currentPrice = result.meta.regularMarketPrice;
+        const prevClose = result.meta.chartPreviousClose || result.meta.previousClose;
+        priceChange = currentPrice - prevClose;
+        pctChange = (priceChange / prevClose) * 100;
       } catch(e) {
-        // Expected: scanner.tradingview.com blocks direct browser CORS requests,
-        // so this path is normally hit every load before falling back to Yahoo below.
-        // Only surface a console message if the fallback also fails.
+        // Yahoo/proxy failed — fall back to TradingView's scanner API. Note this path
+        // is normally blocked by CORS when called directly from the browser, so it's
+        // kept only as a last-ditch attempt in case that ever changes.
         try {
-          // 2. Bulletproof Fallback: Yahoo Finance via open proxy
-          const yfController = new AbortController();
-          const yfTimeout = setTimeout(() => yfController.abort(), CONSTANTS.VOO_TIMEOUT_MS);
-          const yfRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`)}`, { signal: yfController.signal });
-          clearTimeout(yfTimeout);
-          const yfData = await yfRes.json();
-          const parsed = JSON.parse(yfData.contents);
-          const result = parsed.chart.result[0];
-          currentPrice = result.meta.regularMarketPrice;
-          const prevClose = result.meta.chartPreviousClose || result.meta.previousClose;
-          priceChange = currentPrice - prevClose;
-          pctChange = (priceChange / prevClose) * 100;
+          // 2. Fallback: TradingView Scanner API
+          const tvController = new AbortController();
+          const tvTimeout = setTimeout(() => tvController.abort(), CONSTANTS.VOO_TIMEOUT_MS);
+          const tvRes = await fetch("https://scanner.tradingview.com/america/scan", {
+            method: "POST",
+            signal: tvController.signal,
+            body: JSON.stringify({
+              "symbols": { "tickers": [fullTicker, `AMEX:${symbol}`, `NYSEARCA:${symbol}`] },
+              "columns": ["close", "change", "change_abs"]
+            })
+          });
+          clearTimeout(tvTimeout);
+          const tvData = await tvRes.json();
+          if (tvData && tvData.data && tvData.data.length > 0) {
+            const d = tvData.data[0].d;
+            currentPrice = d[0];
+            pctChange = d[1];
+            priceChange = d[2];
+          } else {
+            throw new Error("No TV Data");
+          }
         } catch(err) {
-          console.warn("VOO price fetch failed (both TradingView and Yahoo fallback unavailable).", err);
+          console.warn("VOO price fetch failed (both Yahoo and TradingView fallback unavailable).", err);
         }
       }
     }
 
     if (currentPrice) {
        const startBalance = Number(Config.data.portStart) || 0;
-       let shares = Number(Config.data.portCurrent) || 0; 
+       let shares = Number(Config.data.portCurrent) || 0;
        const contributions = Number(Config.data.portContrib) || 0;
-       
+
        if (shares > 0) {
          let isDollarAmount = false;
          // Auto-detect if user incorrectly left their total dollar balance (e.g. 1081302) instead of shares
-         if (shares > 20000) { 
+         if (shares > 20000) {
             isDollarAmount = true;
-            shares = shares / currentPrice; 
+            shares = shares / currentPrice;
          }
 
          const currentBalance = shares * currentPrice;
          const totalInvested = startBalance + contributions;
          const netProfit = currentBalance - totalInvested;
-         
+
          // Simple ROI calculation based on total invested
          const ytdPct = totalInvested > 0 ? (netProfit / totalInvested) * 100 : 0;
-         
+
          if(textEl) textEl.textContent = `YTD: ${ytdPct >= 0 ? '+' : ''}${ytdPct.toFixed(2)}%`;
-         
+
          if(tooltipEl) {
            if (isDollarAmount) {
              tooltipEl.innerHTML = `<span class="text-rose-400">⚠️ Fix Settings:</span> Enter <b>Shares</b> instead of Dollars!`;
@@ -788,7 +844,7 @@ const ScratchpadWidget = {
   init() {
     this.input = document.getElementById('scratchpad-input');
     this.indicator = document.getElementById('save-indicator');
-    
+
     const saved = StorageUtils.get('salut_scratchpad');
     if(saved !== null && this.input) this.input.value = saved;
 
@@ -862,11 +918,11 @@ const CalculatorWidget = {
   shouldResetScreen: false,
 
   init() { this.update(); },
-  
+
   // Format the number for display (commas and scientific notation)
   formatDisplay(numStr) {
     if (numStr === 'Error' || numStr === '-Error') return 'Error';
-    
+
     // Handle the case where the user is typing a decimal (e.g. "5.")
     if (numStr.endsWith('.')) {
         return this.formatDisplay(numStr.slice(0, -1)) + '.';
@@ -880,15 +936,15 @@ const CalculatorWidget = {
 
     // Use scientific notation if the number is too long (9 digits is a good iOS-like limit)
     if (length > 9 && !numStr.includes('e')) {
-        return num.toExponential(5).replace(/\+/, ''); 
+        return num.toExponential(5).replace(/\+/, '');
     }
-    
+
     // Split into integer and decimal parts for formatting
     let [integerPart, decimalPart] = numStr.split('.');
-    
+
     // Add commas to the integer part
     integerPart = parseInt(integerPart || '0', 10).toLocaleString('en-US');
-    
+
     return decimalPart !== undefined ? `${integerPart}.${decimalPart}` : integerPart;
   },
 
@@ -900,13 +956,13 @@ const CalculatorWidget = {
       disp.scrollLeft = disp.scrollWidth;
     }
   },
-  
+
   // Keep stripErr but use a slightly different approach for iOS style
-  stripErr(n) { 
+  stripErr(n) {
     // Prevent floating point errors (e.g., 0.1 + 0.2)
-    return parseFloat(Number(n).toPrecision(10)); 
+    return parseFloat(Number(n).toPrecision(10));
   },
-  
+
   num(digit) {
     if (this.currentVal === 'Error') { this.currentVal = '0'; }
     if (this.shouldResetScreen) {
@@ -914,7 +970,7 @@ const CalculatorWidget = {
       this.shouldResetScreen = false;
     } else {
       if (digit === '.' && this.currentVal.includes('.')) return;
-      
+
       // Prevent entering more than 9 digits (similar to iOS)
       const currentDigits = this.currentVal.replace(/[-.]/g, '').length;
       if (currentDigits >= 9 && digit !== '.') return;
@@ -954,7 +1010,7 @@ const CalculatorWidget = {
     } else {
         this.currentVal = 'Error';
     }
-    
+
     this.opVal = null;
     this.prevVal = null;
     this.shouldResetScreen = true;
@@ -1124,16 +1180,27 @@ window.addEventListener('DOMContentLoaded', () => {
   ClockWidget.init();
   QuotesWidget.init();
   MarketWidget.init();
+  MarketStatus.init();
   ScratchpadWidget.init();
   CalculatorWidget.init();
   WeatherWidget.init();
 
-  // Update clock and check for date rollovers (quotes) every second
+  // Update clock every second (needs 1s resolution for the minute display)
   setInterval(() => {
     ClockWidget.update();
-    QuotesWidget.update(); 
   }, 1000);
-  
+
+  // Quotes only change once a day, so checking for rollover once a minute
+  // is plenty — no need to piggyback on the 1s clock tick.
+  setInterval(() => {
+    QuotesWidget.update();
+  }, 60000);
+
+  // Re-check market open/closed status periodically
+  setInterval(() => {
+    MarketStatus.update();
+  }, CONSTANTS.MARKET_STATUS_CHECK_MS);
+
   // Refresh weather automatically while the tab stays open (+1 sec buffer for cache).
   // Skipped while the tab is backgrounded/hidden to avoid pointless network calls;
   // it'll simply refresh (using the cache-age check) next time the tab is visible.
